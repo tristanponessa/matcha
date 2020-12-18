@@ -92,7 +92,7 @@ def error_msgs(iid):
     return d[iid]
 """
 
-def x():
+def main():
 
     try:
         dbh = mysql_connection()
@@ -110,4 +110,4 @@ def x():
 
 
 ####################################################################  
-x()
+main()
