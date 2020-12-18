@@ -1,0 +1,31 @@
+
+def mysqlconnect(): 
+    
+
+    # Making Cursor Object For Query Execution 
+    cursor=dbh.cursor() 
+    print(cursor)
+    # Executing Query 
+    try:
+        """INSERT INTO (FIRST_NAME,
+         LAST_NAME, AGE, SEX, INCOME)
+         VALUES ('Mac', 'Mohan', 20, 'M', 2000)"""
+        #cursor.execute("INSERT ")
+        # cursor.execute("CREATE USER 'testX'@'localhost' IDENTIFIED BY '0000'") 
+        #cursor.execute("GRANT ALL PRIVILEGES ON elevage.* TO 'testX'@'localhost'") 
+        #dbh.commit()
+    
+    except:
+   # Rollback in case there is any error
+        dbh.rollback() #rewind action
+    
+
+    """
+    # Above Query Gives Us The Current Date 
+    # Fetching Data  
+    m = cursor.fetchone() 
+
+    # Printing Result Of Above 
+    print("Today's Date Is ",m[0]) 
+    """
+    # Closing Database Connection  
