@@ -26,33 +26,37 @@ def sql_create_tables_cmds():
         `username` VARCHAR(50) NOT NULL,
         `mail` VARCHAR(100) NOT NULL,
         `password` VARCHAR(255) NOT NULL,
+        `intro` VARCHAR(255) NOT NULL,
+        `sexual_orientation` VARCHAR(255) NOT NULL,
+        `tags` VARCHAR(255) NOT NULL,
+        `votes` VARCHAR(255) NOT NULL,
+        `profile_pic` VARCHAR(255) NOT NULL,
+        `pics` VARCHAR(255) NOT NULL,
+        `msgs` VARCHAR(255) NOT NULL,
+        `geolocalisation` VARCHAR(255) NOT NULL,
         `token` VARCHAR(50) NOT NULL,
         `verified` VARCHAR(1) NOT NULL DEFAULT 'N')
         """
 
-    artgallery = """CREATE TABLE if not exists `gallery` (
+    pics = """CREATE TABLE if not exists `pics` (
         `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
         `userid` INT(11) NOT NULL,
         `img` VARCHAR(100) NOT NULL,
         FOREIGN KEY (userid) REFERENCES users(id)
         )"""
 
-    likes = """CREATE TABLE if not exists `likes` (
+    scores = """CREATE TABLE if not exists `scores` (
         `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
         `userid` INT(11) NOT NULL,
-        `galleryid` INT(11) NOT NULL,
-        `type` VARCHAR(1) NOT NULL,
-        FOREIGN KEY (userid) REFERENCES users(id),
-        FOREIGN KEY (galleryid) REFERENCES gallery(id)
+        
+        FOREIGN KEY (userid) REFERENCES users(id)
       )"""
 
-    comment = """CREATE TABLE if not exists `comment` (
+    msgs = """CREATE TABLE if not exists `msgs` (
         `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
         `userid` INT(11) NOT NULL,
-        `galleryid` INT(11) NOT NULL,
-        `comment` VARCHAR(255) NOT NULL,
-        FOREIGN KEY (userid) REFERENCES users(id),
-        FOREIGN KEY (galleryid) REFERENCES gallery(id)
+        `msg` TEXT NOT NULL,
+        FOREIGN KEY (userid) REFERENCES users(id)
       )"""
 
     return [users, artgallery, likes, comment]
@@ -91,6 +95,9 @@ def error_msgs(iid):
     d = {'conn_error':'failed to connect'}
     return d[iid]
 """
+
+
+
 
 def main():
 
