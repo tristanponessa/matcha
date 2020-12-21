@@ -8,6 +8,12 @@
     show tables;
     SHOW TABLE STATUS;
     describe users;
+
+    normally the project should be done with an orm for better db manag, the project demands us to use an ancient technik which is brut sql calls in python, 
+    the proeject might not be completed at the best
+
+    geo location in db shouldnt be there but the pro demande to always locate despite an eventual block, ill store the last place just in case
+    tmp vars like sign up token , received msg alert, recent like , is stored in session object
 """
 
 import sys
@@ -23,9 +29,12 @@ def sql_create_tables_cmds():
 
     users = """CREATE TABLE if not exists `users`
        (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        `username` VARCHAR(50) NOT NULL,
+        `user_name` VARCHAR(50) NOT NULL,
+        `first_name` VARCHAR(50) NOT NULL,
+        `last_name` VARCHAR(50) NOT NULL,
         `mail` VARCHAR(100) NOT NULL,
         `password` VARCHAR(255) NOT NULL,
+        `age` VARCHAR(255) NOT NULL,
         `intro` VARCHAR(255) NOT NULL,
         `sexual_orientation` VARCHAR(255) NOT NULL,
         `tags` VARCHAR(255) NOT NULL,
@@ -33,33 +42,34 @@ def sql_create_tables_cmds():
         `profile_pic` VARCHAR(255) NOT NULL,
         `pics` VARCHAR(255) NOT NULL,
         `msgs` VARCHAR(255) NOT NULL,
-        `geolocalisation` VARCHAR(255) NOT NULL,
-        `token` VARCHAR(50) NOT NULL,
-        `verified` VARCHAR(1) NOT NULL DEFAULT 'N')
+        `geolocalisation` VARCHAR(255) NOT NULL, 1
         """
 
     pics = """CREATE TABLE if not exists `pics` (
         `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
         `userid` INT(11) NOT NULL,
-        `img` VARCHAR(100) NOT NULL,
+        `img` VARCHAR(200) NOT NULL,
         FOREIGN KEY (userid) REFERENCES users(id)
         )"""
 
     scores = """CREATE TABLE if not exists `scores` (
         `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        `userid` INT(11) NOT NULL,
-        
-        FOREIGN KEY (userid) REFERENCES users(id)
+        `from_userid` INT(11) NOT NULL,
+        `to_userid` INT(11) NOT NULL,
+        FOREIGN KEY (from_userid) REFERENCES users(id)
+        FOREIGN KEY (to_userid) REFERENCES users(id)
       )"""
 
     msgs = """CREATE TABLE if not exists `msgs` (
         `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
         `userid` INT(11) NOT NULL,
+        `to_userid` INT(11) NOT NULL,
         `msg` TEXT NOT NULL,
         FOREIGN KEY (userid) REFERENCES users(id)
+        FOREIGN KEY (to_userid) REFERENCES users(id)
       )"""
 
-    return [users, artgallery, likes, comment]
+    return [users, pics, scores, msgs]
 
 def create_tables(cur, sql_cmds):
     for x in sql_cmds:
@@ -68,8 +78,8 @@ def create_tables(cur, sql_cmds):
 def execute_sql(cur, sql_cmd):
     print(sql_cmd)
     cur.execute(sql_cmd)
-
-    #dres = cur.fetchall()
+    #res = cur.fetchall()
+    return res
     #return searches
     #get output put in log
 
@@ -96,9 +106,6 @@ def error_msgs(iid):
     return d[iid]
 """
 
-
-
-
 def main():
 
     try:
@@ -118,3 +125,6 @@ def main():
 
 ####################################################################  
 main()
+
+
+def 
