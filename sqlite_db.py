@@ -33,17 +33,39 @@ import sqlite3
 import sys
 import os
 
-db_name = './matcha.db'
+#db_name = './matcha.db'
 
 def print_db_tables(cur):
-    #x = "SELECT * FROM sqlite_master where type='table'"
-    x ="PRAGMA table_info(users)"
-    r = execute_sql(cur, x)
+    t = "SELECT * FROM sqlite_master where type='table'"
+    r = execute_sql(cur, t)
+    t = [ir['name'] for ir in r]
+    print('tables : ', t)
+
+    d = {}
+    x = {table_name:f'PRAGMA table_info({table_name})' for table_name in t}
+    for table_name,ix in x.items():
+        r = execute_sql(cur, ix)
+        cols = [ir['name'] for ir in r]
+        d[table_name] = cols
     
+    for k,v in d.items():
+        print('----')
+        print('table: ', k)
+        for iv in v:
+            print('col: ', iv)
+        print()
+    
+    print(d)
+    return d
+
+def print_db_data(cur):
+    pass
+    """
     for p in r:
         print('----')
         for k,v in p.items():
             print(k, ':', v)
+    """
 
 
 def clean_exit(msg):
@@ -53,6 +75,16 @@ def clean_exit(msg):
 
 def random_account_gen(seed_nb):
     pass
+
+    """
+    sql_cmds = sql_create_tables_cmds()
+    d = {}
+    for x in sql_cmds:
+            
+        d[] = 
+    data = data.split('`')
+    """
+
     """
     import random
     import string
@@ -178,7 +210,7 @@ def db_init(db_file):
 
 
 if __name__ == '__main__':
-    db_init(db_name)
+    db_init(None)
 
 
  
