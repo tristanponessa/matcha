@@ -34,7 +34,7 @@ mail.init_app(app)
 #@app.route("/")
 #def index():
 message = '...'
-subject = "hello"
+subject = "hello2"
 msg = Message(sender="1f7572dc99-8b0a18@inbox.mailtrap.io",
       recipients=["tristanponessa@hotmail.com"],
                   body=message,

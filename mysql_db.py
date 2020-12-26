@@ -106,13 +106,16 @@ def error_msgs(iid):
     return d[iid]
 """
 
+def create_db():
+    """os call sqlite , if file dont exist , call sqlite3 dbname"""
+
 def main():
 
     try:
         dbh = mysql_connection()
-        with dbh.cursor() as cur:
-            sql_cmds = sql_create_tables_cmds()
-            create_tables(cur, sql_cmds)
+        #with dbh.cursor() as cur:
+        #    sql_cmds = sql_create_tables_cmds()
+        #    create_tables(cur, sql_cmds)
 
     except Exception as e: 
         print(f"EXCEPTION error > {e}") 
@@ -125,6 +128,4 @@ def main():
 
 ####################################################################  
 main()
-
-
-def 
+ 
