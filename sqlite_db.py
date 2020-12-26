@@ -33,21 +33,24 @@ import sqlite3
 import sys
 import os
 
+from check import *
+
 #db_name = './matcha.db'
 
-def print_db_tables(cur):
+def get_db_tables_from_mysqlmem(cur):
     t = "SELECT * FROM sqlite_master where type='table'"
     r = execute_sql(cur, t)
     t = [ir['name'] for ir in r]
     print('tables : ', t)
 
     d = {}
-    x = {table_name:f'PRAGMA table_info({table_name})' for table_name in t}
-    for table_name,ix in x.items():
-        r = execute_sql(cur, ix)
-        cols = [ir['name'] for ir in r]
+    table_content = {table_name:f'PRAGMA table_info({table_name})' for table_name in t}
+    for table_name,table_elem in table_content.items():
+        r = execute_sql(cur, table_elem)
+        cols = [{'name':ir['name'], 'type': ir['type']} for ir in r]
         d[table_name] = cols
     
+    """
     for k,v in d.items():
         print('----')
         print('table: ', k)
@@ -56,6 +59,8 @@ def print_db_tables(cur):
         print()
     
     print(d)
+    print(r)
+    """
     return d
 
 def print_db_data(cur):
@@ -73,8 +78,16 @@ def clean_exit(msg):
     #close what you need
     sys.exit(0)
 
-def random_account_gen(seed_nb):
-    pass
+def random_account_gen(seed_nb, cur):
+    
+    data = get_db_tables_from_mysqlmem(cur)
+    for table_name, cols in data.items()
+        for col in cols:
+
+    print(data)
+
+
+
 
     """
     sql_cmds = sql_create_tables_cmds()
@@ -99,7 +112,87 @@ def random_account_gen(seed_nb):
     #sexual  1-3 for 1straight, ....
     """
 
+
+class db_elem:
+
+    def __init__(self, **data):
+        """
+        table_name 
+        itype  
+        err_msg  
+        irange  
+        col_name 
+        ref   #if foreign
+        """
+
+        self.__dict__ = data.clone()
+    
+    def insert_self():
+        """put values in db"""
+    
+    def check_valid():
+    
+    def random_fill_Self():
+
+{'table_name':'users', 'table_name':'users'}
+db_elem()
+
+
+
+
 def sql_create_tables_cmds():
+    """autoincrement, constraint added auto"""
+    """I USED BIGINT TO REFERENCE A FOREIGN KEY THANKS SQLITE"""
+
+    limits = {}
+    limits['age'] = [range(18,100)]
+    ['name'] = [len()]
+
+    def check_data_format(name, val):
+    """web form user insert data check"""
+        if name == 'age':
+            error_msg = "not a valid age"
+            f = [str(n) for n in range(18-100)]
+            if val not in f:
+                return error_smg
+            #else none
+
+
+
+    tables = {}
+
+    tables['users'] = {}
+    ['FOREIGN'] = ['votes', 'mgs', 'tags', 'pics']
+    ['PRIMARY KEY'] = ['id']
+    ['INTEGER'] = ['age', '']
+    ['TEXT'] = ['first_name', 'last_name', 'password', 'intro', 'mail', 'sexual_orientation', ''
+        'user_name', 
+        'first_name', 
+        'last_name', 
+        'mail', 
+        'password',
+        'profile_pic', 
+        'pics'
+        ]
+    cols = [
+        'id',
+        'user_name', 
+        'first_name', 
+        'last_name', 
+        'mail', 
+        'password', 
+        'age', 
+        'intro', 
+        'sexual_orientation', 
+        'tags', 
+        'votes', 
+        'profile_pic', 
+        'pics', 
+        'msgs', 
+        'geolocalisation']
+    types = ['INTEGER PRIMARY KEY', 'TEXT', 'INTEGER','BIGINT']
+    for col_name in cols:
+
 
     users = """CREATE TABLE `users`
        (`id` INTEGER PRIMARY KEY,
@@ -108,36 +201,38 @@ def sql_create_tables_cmds():
         `last_name` TEXT,
         `mail` TEXT,
         `password` TEXT,
-        `age` TEXT,
+        `age` INTEGER,
         `intro` TEXT,
         `sexual_orientation` TEXT,
         `tags` TEXT,
-        `votes` TEXT,
+        `votes` INTEGER,
         `profile_pic` TEXT,
         `pics` TEXT,
         `msgs` TEXT,
         `geolocalisation` TEXT)
         """
+    
+
 
     pics = """CREATE TABLE `pics` (
         `id` INTEGER PRIMARY KEY,
-        `userid` INTEGER,
+        `userid` BIGINT,
         `img` TEXT,
         FOREIGN KEY (userid) REFERENCES users(id)
         )"""
 
     scores = """CREATE TABLE `scores` (
         `id` INTEGER PRIMARY KEY,
-        `from_userid` INTEGER,
-        `to_userid` INTEGER,
+        `from_userid` BIGINT,
+        `to_userid` BIGINT,
         FOREIGN KEY (from_userid) REFERENCES users(id)
         FOREIGN KEY (to_userid) REFERENCES users(id)
       )"""
 
     msgs = """CREATE TABLE `msgs` (
         `id` INTEGER PRIMARY KEY,
-        `userid` INTEGER,
-        `to_userid` INTEGER,
+        `userid` BIGINT,
+        `to_userid` BIGINT,
         `msg` TEXT,
         FOREIGN KEY (userid) REFERENCES users(id)
         FOREIGN KEY (to_userid) REFERENCES users(id)
@@ -192,14 +287,16 @@ def db_init(db_file):
     try:
         #":memory:"
         #conn = sqlite3.connect(db_file)
-        conn = sqlite3.connect(":memory:")
+        conn = sqlite3.connect(":memory:") #generates one time session no file
         #load db with lots of fake accounts if dont exist
         conn.row_factory = dict_factory #fetchall is dict
         cur = conn.cursor()
 
         x = sql_create_tables_cmds()
         create_tables(cur, x)
-        print_db_tables(cur)
+        #get_db_tables_from_mysqlmem(cur)
+        #print_db_tables(cur)
+        random_account_gen(14, cur)
 
     except sqlite3.Error as e:
         print(e)
