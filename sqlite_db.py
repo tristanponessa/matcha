@@ -113,29 +113,6 @@ def random_account_gen(seed_nb, cur):
     """
 
 
-class db_elem:
-
-    def __init__(self, **data):
-        """
-        table_name 
-        itype  
-        err_msg  
-        irange  
-        col_name 
-        ref   #if foreign
-        """
-
-        self.__dict__ = data.clone()
-    
-    def insert_self():
-        """put values in db"""
-    
-    def check_valid():
-    
-    def random_fill_Self():
-
-{'table_name':'users', 'table_name':'users'}
-db_elem()
 
 
 
@@ -240,11 +217,10 @@ def sql_create_tables_cmds():
 
     return [users, pics, scores, msgs]
 
-def create_tables(cur, sql_cmds):
-    for x in sql_cmds:
-        execute_sql(cur, x)
+def 
 
-def execute_sql(cur, sql_cmd):
+
+def exec_sql(cur, sql_cmd):
     #print(sql_cmd)
     cur.execute(sql_cmd)
     res = cur.fetchall()
@@ -278,32 +254,42 @@ def error_msgs(iid):
     return d[iid]
 """
 
-def db_init(db_file):
+def db_conn():
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = dict_factory
+    cur = conn.cursor()
+    return conn, cur
+
+def db_manager():
     """ create a database connection to a SQLite database 
         SQLite database file that does not exist, 
         SQLite automatically creates the new database for you."""
 
     conn,cur = None,None
     try:
-        #":memory:"
-        #conn = sqlite3.connect(db_file)
-        conn = sqlite3.connect(":memory:") #generates one time session no file
-        #load db with lots of fake accounts if dont exist
-        conn.row_factory = dict_factory #fetchall is dict
-        cur = conn.cursor()
-
-        x = sql_create_tables_cmds()
-        create_tables(cur, x)
-        #get_db_tables_from_mysqlmem(cur)
-        #print_db_tables(cur)
-        random_account_gen(14, cur)
-
+        main()
     except sqlite3.Error as e:
         print(e)
     finally:
         db_close(conn, cur)
-        #os.remove(db_file)
-        
+
+def sql_cmds(tag):
+
+    fetch = 'SELECT * FROM {}'
+    insert = 'INSERT {} {} VALUES {}'
+    add_col = 
+    create_table = 'CREATE {}'
+    locals() keys
+    return dict
+
+def init_db(conn, cur):
+    exec_sql(sql)
+
+
+def main():
+    conn, cur = db_conn()
+    init_db(conn, cur)
+
 
 
 if __name__ == '__main__':
