@@ -35,42 +35,6 @@ import os
 
 from check import *
 
-#db_name = './matcha.db'
-
-def get_db_tables_from_mysqlmem(cur):
-    t = "SELECT * FROM sqlite_master where type='table'"
-    r = execute_sql(cur, t)
-    t = [ir['name'] for ir in r]
-    print('tables : ', t)
-
-    d = {}
-    table_content = {table_name:f'PRAGMA table_info({table_name})' for table_name in t}
-    for table_name,table_elem in table_content.items():
-        r = execute_sql(cur, table_elem)
-        cols = [{'name':ir['name'], 'type': ir['type']} for ir in r]
-        d[table_name] = cols
-    
-    """
-    for k,v in d.items():
-        print('----')
-        print('table: ', k)
-        for iv in v:
-            print('col: ', iv)
-        print()
-    
-    print(d)
-    print(r)
-    """
-    return d
-
-def print_db_data(cur):
-    pass
-    """
-    for p in r:
-        print('----')
-        for k,v in p.items():
-            print(k, ':', v)
-    """
 
 
 def clean_exit(msg):
@@ -116,116 +80,11 @@ def random_account_gen(seed_nb, cur):
 
 
 
-
-def sql_create_tables_cmds():
-    """autoincrement, constraint added auto"""
-    """I USED BIGINT TO REFERENCE A FOREIGN KEY THANKS SQLITE"""
-
-    limits = {}
-    limits['age'] = [range(18,100)]
-    ['name'] = [len()]
-
-    def check_data_format(name, val):
-    """web form user insert data check"""
-        if name == 'age':
-            error_msg = "not a valid age"
-            f = [str(n) for n in range(18-100)]
-            if val not in f:
-                return error_smg
-            #else none
-
-
-
-    tables = {}
-
-    tables['users'] = {}
-    ['FOREIGN'] = ['votes', 'mgs', 'tags', 'pics']
-    ['PRIMARY KEY'] = ['id']
-    ['INTEGER'] = ['age', '']
-    ['TEXT'] = ['first_name', 'last_name', 'password', 'intro', 'mail', 'sexual_orientation', ''
-        'user_name', 
-        'first_name', 
-        'last_name', 
-        'mail', 
-        'password',
-        'profile_pic', 
-        'pics'
-        ]
-    cols = [
-        'id',
-        'user_name', 
-        'first_name', 
-        'last_name', 
-        'mail', 
-        'password', 
-        'age', 
-        'intro', 
-        'sexual_orientation', 
-        'tags', 
-        'votes', 
-        'profile_pic', 
-        'pics', 
-        'msgs', 
-        'geolocalisation']
-    types = ['INTEGER PRIMARY KEY', 'TEXT', 'INTEGER','BIGINT']
-    for col_name in cols:
-
-
-    users = """CREATE TABLE `users`
-       (`id` INTEGER PRIMARY KEY,
-        `user_name` TEXT,
-        `first_name` TEXT,
-        `last_name` TEXT,
-        `mail` TEXT,
-        `password` TEXT,
-        `age` INTEGER,
-        `intro` TEXT,
-        `sexual_orientation` TEXT,
-        `tags` TEXT,
-        `votes` INTEGER,
-        `profile_pic` TEXT,
-        `pics` TEXT,
-        `msgs` TEXT,
-        `geolocalisation` TEXT)
-        """
-    
-
-
-    pics = """CREATE TABLE `pics` (
-        `id` INTEGER PRIMARY KEY,
-        `userid` BIGINT,
-        `img` TEXT,
-        FOREIGN KEY (userid) REFERENCES users(id)
-        )"""
-
-    scores = """CREATE TABLE `scores` (
-        `id` INTEGER PRIMARY KEY,
-        `from_userid` BIGINT,
-        `to_userid` BIGINT,
-        FOREIGN KEY (from_userid) REFERENCES users(id)
-        FOREIGN KEY (to_userid) REFERENCES users(id)
-      )"""
-
-    msgs = """CREATE TABLE `msgs` (
-        `id` INTEGER PRIMARY KEY,
-        `userid` BIGINT,
-        `to_userid` BIGINT,
-        `msg` TEXT,
-        FOREIGN KEY (userid) REFERENCES users(id)
-        FOREIGN KEY (to_userid) REFERENCES users(id)
-      )"""
-
-    return [users, pics, scores, msgs]
-
-def 
-
-
 def exec_sql(cur, sql_cmd):
     #print(sql_cmd)
     cur.execute(sql_cmd)
     res = cur.fetchall()
     return res
-    #return searches
     #get output put in log
 
 
@@ -248,12 +107,6 @@ def dict_factory(cursor, row):
     return d
 
 
-"""
-def error_msgs(iid):
-    d = {'conn_error':'failed to connect'}
-    return d[iid]
-"""
-
 def db_conn():
     conn = sqlite3.connect(":memory:")
     conn.row_factory = dict_factory
@@ -273,27 +126,62 @@ def db_manager():
     finally:
         db_close(conn, cur)
 
-def sql_cmds(tag):
+class Sql_cmds:
 
     fetch = 'SELECT * FROM {}'
     insert = 'INSERT {} {} VALUES {}'
-    add_col = 
-    create_table = 'CREATE {}'
-    locals() keys
-    return dict
+    add_col = 'ALTER TABLE {} ADD {} {}'
+    create_table = "CREATE TABLE {} ('id' INT PRIMARY KEY)"
+
 
 def init_db(conn, cur):
-    exec_sql(sql)
+    exec_sql(cur, Sql_cmds.create_table.format('users'))
+    exec_sql(cur, Sql_cmds.add_col.format('users', 'profile', 'TEXT')) #2gb of text 1,048,576 bytes * 2 > 162 * 2 big msgs
 
 
 def main():
     conn, cur = db_conn()
     init_db(conn, cur)
 
+import json
+def dict_to_str(idict):
+    return json.dumps(idict)
+def str_to_dict(istr):
+    return json.loads(istr)
 
 
 if __name__ == '__main__':
-    db_init(None)
+    db_mananger()
 
 
+
+ import rstr
+>>> rstr.xeger(r'[A-Z]\d[A-Z] \d[A-Z]\d')
+u'M5R 2W4'
+
+class LiteRegex:
+
+    anb = r'[0-9]+'
+    alower = r'[a-z]+'
+    aupper = r'[A-Z]+'
+    asym = r'[_+-*/,;!~%&*]+'
+    email = r'^[a-zA-Z0-9_]@[hotmail|outlook|gmail].[com|fr]$'
+
+
+    import re
+    #password
+    checks = (anb, alower, aupper, asym)
+    if all(re.match(x, istr) for x in checks):
+        is password
+
+    literegex_match(istr):
+
+
+    email = 'x',5, 
+        
+
+class Regex:
+
+    email = r'^[a-zA-Z0-9_]+@[hotmail|outlook|gmail].[com|fr]$'
+    pwd = []{2}
  
