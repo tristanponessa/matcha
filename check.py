@@ -8,7 +8,7 @@ def check_age(iage):
     return iage in f
 
 def check_pwd(ipwd):
-    l = [string.ascii_lowercase, string.ascii_uppercase, string.punctuation, string.digits]
+    l = (string.ascii_lowercase, string.ascii_uppercase, string.punctuation, string.digits)
     for il in l:
         if len((ch for ch in ipwd if il)) == 0: #at least one of set
             return False
