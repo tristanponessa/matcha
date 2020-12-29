@@ -19,19 +19,22 @@ def regex_test():
         'a',
         'A',
         '2',
-        '+',
-        'a+',
-        '+a',
+        'a++4',
+        'a++',
+        'AA+aZZ',
         'xS$4',
         '000000000000000000000000000000000000000000000000000000000000000000',
-        '#~asd45adaSDs@#$dfsda6554545452ddd454542____#%%#$#%^%$&^AASsJHGJHG'
+        'asd45adaSDsdf__sda6554545452ddd454542____AASsJHGJHG'
 
     ]
 
+
     
     email_regex = r'[a-zA-Z0-9_]+(@)(hotmail|outlook)(\.)(com|fr)'
-    pwd_regex = r'(?=[a-z]{1})(?=[A-Z]{1})(?=[0-9]{1})(?=[_]{1})[a-zA-Z0-9_]{4,60}'
-    pwd_regex = r'^(?=.*[+])(?=.*[a-z])$'
+    pwd_regex = r'(?=.*[0-9]{1}.*)(?=.*[a-z]{1}.*)(?=.*[A-Z]{1}.*)(?=.*[_]{1}.*)([a-zA-Z0-9_+$]{4,60})'
+    
+
+
 
     for i in email_strs:
         print(i, " >> " , re.match(email_regex, i))
@@ -40,7 +43,8 @@ def regex_test():
     
     for i in pwd_strs:
         print(i, " >> " , re.match(pwd_regex, i))
-    for i in range(5):
+    for i in range(15):
+        break
         print(i, ' : ', rstr.xeger(pwd_regex))
     
 

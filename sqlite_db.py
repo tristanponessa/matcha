@@ -154,34 +154,3 @@ if __name__ == '__main__':
     db_mananger()
 
 
-
- import rstr
->>> rstr.xeger(r'[A-Z]\d[A-Z] \d[A-Z]\d')
-u'M5R 2W4'
-
-class LiteRegex:
-
-    anb = r'[0-9]+'
-    alower = r'[a-z]+'
-    aupper = r'[A-Z]+'
-    asym = r'[_+-*/,;!~%&*]+'
-    email = r'^[a-zA-Z0-9_]@[hotmail|outlook|gmail].[com|fr]$'
-
-
-    import re
-    #password
-    checks = (anb, alower, aupper, asym)
-    if all(re.match(x, istr) for x in checks):
-        is password
-
-    literegex_match(istr):
-
-
-    email = 'x',5, 
-        
-
-class Regex:
-
-    email = r'^[a-zA-Z0-9_]+@[hotmail|outlook|gmail].[com|fr]$'
-    pwd = []{2}
- 
