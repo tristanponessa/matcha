@@ -14,10 +14,14 @@ def load_profiles_in_db(profiles, cur): #random + db + dict_ops
         profile_str = dict_to_str(profile_dict)
         exec_sql(cur, Sql_cmds.insert.format('users', 'profile', profile_str))
 
-def fetch_profile(cur, info)
+def fetch_profile(cur, info):
     users_table = exec_sql(cur, Sql_cmds.fetch.format('users'))
     col = 'profile'
     profiles_dct_lst = (str_to_dict(profile_str) for profile_str in users_table[col])
+
+    for profile_dct in profiles_dct_lst:
+        if is_sub_dict(profile_dct, info):
+            return profile_dct.clone()
 
     
 
