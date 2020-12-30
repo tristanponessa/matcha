@@ -3,6 +3,8 @@ import string
 from PIL import Image
 import datetime 
 
+#check if someelse exists same pers
+
 def check_age(iage):
     f = [str(n) for n in range(18-100)]
     return iage in f
@@ -12,7 +14,7 @@ def check_pwd(ipwd):
     for il in l:
         if len((ch for ch in ipwd if il)) == 0: #at least one of set
             return False
-    if len(ipwd) not in range(8-64):
+    if len(ipwd) not in range(8,64):
         return False
     
 def check_email(x):
@@ -33,17 +35,13 @@ def check_email(x):
 def check_pic(x):
     try:
         with Image.open(x) as _: pass
+        ext = x.split('.')[-1]
+        if ext not in ('png', 'jpg', 'jpeg'):
+            return False 
     except OSError:
         return False
 
 def check_birthdate(x):
-    """
-    x = x.split('/')
-    if len((_x for _x in x if len(_x) == 2)) != 3
-        return False
-    if len((_x for _x in x if len(_x) == 2)) != 3
-        return False
-    """
     x = x.split('/')
     if len(x) != 3:
         return False

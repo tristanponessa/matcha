@@ -15,23 +15,42 @@
 
 import random
 import string
+import os
 
 def gen_random_firstname(seed_):
     random.seed(seed_)
-    x = random.choice(string.ascii_upper)
-    ''.join(random.choice(string.ascii_) for _ in range(random.randint(8,64)))
+    x = random.choice(string.ascii_uppercase)
+    y = ''.join((random.choice(string.ascii_lowercase) for _ in range(random.randint(3,8))))
+    return x + y
     
 
 def gen_random_lastname(seed_):
     random.seed(seed_)
+    x = random.choice(string.ascii_uppercase)
+    y = ''.join((random.choice(string.ascii_lowercase) for _ in range(random.randint(8,12))))
+    return x + y
 
 def gen_random_profilepic(seed_):
     random.seed(seed_)
+    url = './pics'
+    pics = os.listdir(url)
+    r = random.randint(0, len(pics) - 1)
+    p = f'{url}/{pics[r]}'
+    return p
+
+
     #choose 1 of all pics
 
 def gen_random_pics(seed_):
     random.seed(seed_)
-    #choose random nb 0-3
+    url = './pics'
+    pics = os.listdir(url)
+    nb = random.randint(0,4)
+    p = []
+    for _ in range(nb):
+        r = random.randint(0,len(pics) - 1)
+        p.append(f'{url}/{pics[r]}')
+    return p
 
 
 def gen_random_email(seed_):
@@ -42,7 +61,7 @@ def gen_random_email(seed_):
     smtp = ('@hotmail', '@outlook', '@gmail')
     ext = ('.com', '.fr')
 
-    rid = ''.join(r(user_set) for _ in range(random.randint(1,25)))
+    rid = ''.join((r(user_set) for _ in range(random.randint(1,25))))
     rand_email = rf'{rid}{r(smtp)}{r(ext)}'
 
     return rand_email
@@ -50,7 +69,7 @@ def gen_random_email(seed_):
 def gen_random_pwd(seed_):
     random.seed(seed_)
     all_ = string.ascii_letters + string.punctuation + string.digits
-    rpwd = ''.join(random.choice(all_) for _ in range(random.randint(8,64)))
+    rpwd = ''.join((random.choice(all_) for _ in range(random.randint(8,64))))
     return rpwd
 
 def gen_random_birthdate(seed_):
@@ -65,7 +84,27 @@ def get_random_sexori(seed_):
     x = ('straight', 'gay', 'bio')
     return random.choice(x)
 
-funs = (gen_random_email, gen_random_pwd, gen_random_birthdate, get_random_sexori)
+def gen_random_intro(seed_):
+    random.seed(seed_)
+    nb_words = random.randint(100)
+    intro = ''
+    for i in range(nb_words):
+        len_word = random.randint(10)
+        word = ''.join((random.choice(string.ascii_lowercase) for _ in range(len_word)))
+        intro += f' {word} '
+    return intro
+
+"""
+def gen_random_discussions(users_list, seed_):
+def gen_random_likes(users_lst, seed_):
+def gen_random_interests(seed_):
+    random block
+"""
+
+###############INTEGRATION FUNCTIONS##########################
+
+
+funs = (gen_random_firstname, gen_random_lastname,gen_random_profilepic, gen_random_pics, gen_random_email, gen_random_pwd, gen_random_birthdate, get_random_sexori)
 
 """
 for f in funs:
@@ -76,16 +115,27 @@ for f in funs:
     print('------')
 """
 
-master_seed = 0
-nb_users = 20
-min_seed = (nb_users * master_seed)
-max_seed = min_seed + nb_users
-for seed_nb in range(min_seed,max_seed):
-    print(f'profile {seed_nb}------')
-    for f in funs:
-        a = f(seed_nb)
-        print(rf'fun: {f.__name__} seed{seed_nb} : {a}')
+def gen_random_profiles(master_seed):
+    profiles = [] #to put into db list of dicts
+
+    nb_users = 20
+    min_seed = (nb_users * master_seed)
+    max_seed = min_seed + nb_users
+    for seed_nb in range(min_seed,max_seed):
+        print(f'profile {seed_nb}------')
+        profile = dict()
+        for f in funs:
+            a = f(seed_nb)
+            print(rf'fun: {f.__name__} seed{seed_nb} : {a}')
+            profile[f.__name__] = a
+        profiles.append(profile)
+    return profiles
+
+
+#def fetch_profile_in_db(cur, data):
+#    r = exec_sql(cur, Sql_cmds.fetch.format('users')
+#    profiles = r['']
+
     
-
-
+#gen pofile dict to put into db
 

@@ -33,52 +33,12 @@ import sqlite3
 import sys
 import os
 
-from check import *
-
 
 
 def clean_exit(msg):
     print("exit error : ",msg)
     #close what you need
     sys.exit(0)
-
-def random_account_gen(seed_nb, cur):
-    
-    data = get_db_tables_from_mysqlmem(cur)
-    for table_name, cols in data.items()
-        for col in cols:
-
-    print(data)
-
-
-
-
-    """
-    sql_cmds = sql_create_tables_cmds()
-    d = {}
-    for x in sql_cmds:
-            
-        d[] = 
-    data = data.split('`')
-    """
-
-    """
-    import random
-    import string
-
-    random.seed(seed_nb)
-    random.choice(choices)
-    string.ascii_letters
-    string.digits
-    print(random.random()) #double
-    #for age INTEGER field ran INTEGER between 18-100
-    #for name len 5-15 ch/nb
-    #sexual  1-3 for 1straight, ....
-    """
-
-
-
-
 
 def exec_sql(cur, sql_cmd):
     #print(sql_cmd)
@@ -113,18 +73,21 @@ def db_conn():
     cur = conn.cursor()
     return conn, cur
 
+#the main of this file
+"""
 def db_manager():
-    """ create a database connection to a SQLite database 
+    " create a database connection to a SQLite database 
         SQLite database file that does not exist, 
-        SQLite automatically creates the new database for you."""
+        SQLite automatically creates the new database for you."
 
     conn,cur = None,None
     try:
-        main()
+        start_db()
     except sqlite3.Error as e:
         print(e)
     finally:
         db_close(conn, cur)
+"""
 
 class Sql_cmds:
 
@@ -139,18 +102,14 @@ def init_db(conn, cur):
     exec_sql(cur, Sql_cmds.add_col.format('users', 'profile', 'TEXT')) #2gb of text 1,048,576 bytes * 2 > 162 * 2 big msgs
 
 
-def main():
+def start_db():
     conn, cur = db_conn()
     init_db(conn, cur)
 
-import json
-def dict_to_str(idict):
-    return json.dumps(idict)
-def str_to_dict(istr):
-    return json.loads(istr)
+
 
 
 if __name__ == '__main__':
-    db_mananger()
+    db_manager()
 
 
