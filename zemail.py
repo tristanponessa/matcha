@@ -30,32 +30,24 @@ app.config['MAIL_USE_SSL'] = False
 mail = Mail(app)
 mail.init_app(app)
 
+from dict_ops import *
 
-#@app.route("/")
-#def index():
-message = '...'
-subject = "hello2"
-msg = Message(sender="1f7572dc99-8b0a18@inbox.mailtrap.io",
-      recipients=["tristanponessa@hotmail.com"],
-                  body=message,
-                  subject=subject)
+def activate_account(profile_dict):
 
-with app.app_context():
-      mail.send(msg)
-
-print("sent")
-
-"""
-with mail.connect() as conn:
-      message = '...'
-      subject = f"hello {''}"
-      msg = Message(recipients=["tristanponessa@hotmail.com"],
+      name = dict_val_similar_key(profile_dict, 'firstname')
+      message = 'click on this link to activate your account url' 
+      subject = f"welcome to Matcha, activate your account {name}"
+      msg = Message(sender="1f7572dc99-8b0a18@inbox.mailtrap.io",
+                  recipients=["tristanponessa@hotmail.com"],
                         body=message,
                         subject=subject)
 
-      conn.send(msg)
-"""
+      with app.app_context():
+            mail.send(msg)
+
+      print("sent")
+
 
 
 if __name__ == '__main__':
-   app.run(debug = True)
+    activate_account({"gen_random_firstname": "TRIS_Hreltpus", "gen_random_lastname": "Hreltpusctapi", "gen_random_profilepic": "./pics/c.png", "gen_random_pics": ["./pics/python-qhd-3840x2400.jpg"], "gen_random_email": "LIixMEOL123456@hotmail.com", "gen_random_pwd": "^>qV{+~]i{b+H?Dy+>?+Y0t", "gen_random_birthdate": "8/10/1989", "get_random_sexori": "straight"})

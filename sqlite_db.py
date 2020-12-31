@@ -92,9 +92,9 @@ def db_manager():
 class Sql_cmds:
 
     fetch = 'SELECT * FROM {}'
-    insert = 'INSERT {} {} VALUES {}'
+    insert = "INSERT INTO {} ('{}') VALUES ('{}')"
     add_col = 'ALTER TABLE {} ADD {} {}'
-    create_table = "CREATE TABLE {} ('id' INT PRIMARY KEY)"
+    create_table = "CREATE TABLE {} ('id' INTEGER PRIMARY KEY AUTOINCREMENT)"
 
 
 def init_db(conn, cur):

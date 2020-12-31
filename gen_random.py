@@ -68,7 +68,8 @@ def gen_random_email(seed_):
 
 def gen_random_pwd(seed_):
     random.seed(seed_)
-    all_ = string.ascii_letters + string.punctuation + string.digits
+    punctuation = '!#$%&()*+,-./:;<=>?@[\]^_{|}~'
+    all_ = string.ascii_letters + punctuation + string.digits
     rpwd = ''.join((random.choice(all_) for _ in range(random.randint(8,64))))
     return rpwd
 
