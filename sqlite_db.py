@@ -47,7 +47,6 @@ def exec_sql(cur, sql_cmd):
     return res
     #get output put in log
 
-
 def db_close(conn, cur):
     if cur:
         cur.close()
@@ -58,7 +57,6 @@ def db_close(conn, cur):
     #print(f'closing db connection! open? {dbh.open}')
     print(f'closed db connection!')
 
-
 def dict_factory(cursor, row):
     #get fetch in dict
     d = {}
@@ -66,28 +64,11 @@ def dict_factory(cursor, row):
         d[col[0]] = row[idx]
     return d
 
-
 def db_conn():
     conn = sqlite3.connect(":memory:")
     conn.row_factory = dict_factory
     cur = conn.cursor()
     return conn, cur
-
-#the main of this file
-"""
-def db_manager():
-    " create a database connection to a SQLite database 
-        SQLite database file that does not exist, 
-        SQLite automatically creates the new database for you."
-
-    conn,cur = None,None
-    try:
-        start_db()
-    except sqlite3.Error as e:
-        print(e)
-    finally:
-        db_close(conn, cur)
-"""
 
 class Sql_cmds:
 
@@ -109,7 +90,5 @@ def start_db():
 
 
 
-if __name__ == '__main__':
-    db_manager()
 
 

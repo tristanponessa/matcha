@@ -6,13 +6,13 @@ import datetime
 #check if someelse exists same pers
 
 def check_age(iage):
-    f = [str(n) for n in range(18-100)]
+    f = [str(n) for n in range(18,100)]
     return iage in f
 
 def check_pwd(ipwd):
     l = (string.ascii_lowercase, string.ascii_uppercase, string.punctuation, string.digits)
     for il in l:
-        if len((ch for ch in ipwd if il)) == 0: #at least one of set
+        if len([ch for ch in ipwd if il]) == 0: #at least one of set
             return False
     if len(ipwd) not in range(8,64):
         return False
@@ -24,12 +24,12 @@ def check_email(x):
     email_tags = (f'{_smtp}{_ext}' for _smtp in smtp for _ext in ext) #all combs
 
     #check end
-    if not any((x.endswith(email_tag) for email_tag in email_tags)):
+    if not any([x.endswith(email_tag) for email_tag in email_tags]):
         return False
 
     x = x.split('@')[0]
     #check 1st part
-    if len((ch for ch in x if x not in sets_)) >= 1:
+    if len([ch for ch in x if x not in sets_]) >= 1:
         return False
 
 def check_pic(x):

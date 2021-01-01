@@ -9,10 +9,9 @@ from gen_random import *
 from sqlite_db import *
 from dict_ops import *
 
-def load_profiles_in_db(profiles, cur): #random + db + dict_ops
+def load_profiles_in_db(profiles, cur): #db + dict_ops
     for profile_dict in profiles:
         profile_str = dict_to_str(profile_dict)
-        #print(Sql_cmds.insert.format('users', 'profile', profile_str))
         exec_sql(cur, Sql_cmds.insert.format('users', 'profile', profile_str))
         
 def extract_profiles_from_db(cur):
@@ -41,16 +40,3 @@ def profile_exists(cur, info):
 
 
     
-    
-
-
-"""
-#overkill function? 
-def gen_rand_profiles_AND_load_in_db(cur, master_seed): #fusion of 2 funs
-    profiles = gen_random_profiles(master_seed)
-    load_profiles_in_db(profiles, cur)
-
-if __name__ == '__main__':
-    db_manager()
-    gen_rand_profiles_AND_load_in_db(,0)
-"""

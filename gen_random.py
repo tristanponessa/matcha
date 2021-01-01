@@ -105,7 +105,8 @@ def gen_random_interests(seed_):
 ###############INTEGRATION FUNCTIONS##########################
 
 
-funs = (gen_random_firstname, gen_random_lastname,gen_random_profilepic, gen_random_pics, gen_random_email, gen_random_pwd, gen_random_birthdate, get_random_sexori)
+funs = (gen_random_firstname, gen_random_lastname,gen_random_profilepic, gen_random_pics, gen_random_email,
+        gen_random_pwd, gen_random_birthdate, get_random_sexori)
 
 """
 for f in funs:

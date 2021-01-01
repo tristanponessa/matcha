@@ -16,23 +16,20 @@
 from flask import Flask
 from flask_mail import Mail, Message
 
-
-app = Flask(__name__)
-
-app.config['MAIL_SERVER']='smtp.mailtrap.io'
-app.config['MAIL_PORT'] = 2525
-app.config['MAIL_USERNAME'] = '38d0520358c29a'
-app.config['MAIL_PASSWORD'] = 'd0ef6b5350f532'
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False
-
-
-mail = Mail(app)
-mail.init_app(app)
-
 from dict_ops import *
 
 def activate_account(profile_dict):
+      app = Flask(__name__)
+
+      app.config['MAIL_SERVER'] = 'smtp.mailtrap.io'
+      app.config['MAIL_PORT'] = 2525
+      app.config['MAIL_USERNAME'] = '38d0520358c29a'
+      app.config['MAIL_PASSWORD'] = 'd0ef6b5350f532'
+      app.config['MAIL_USE_TLS'] = True
+      app.config['MAIL_USE_SSL'] = False
+
+      mail = Mail(app)
+      mail.init_app(app)
 
       name = dict_val_similar_key(profile_dict, 'firstname')
       message = 'click on this link to activate your account url' 
