@@ -1,3 +1,5 @@
+from flask import Flask, redirect, url_for, request
+
 import sys
 
 from gen_random import *
@@ -17,30 +19,43 @@ def main(argv):
         profiles = gen_random_profiles(master_seed)
         load_profiles_in_db(profiles, cur)
 
-    
     except Exception as e:
         print(get_exception())
     finally:
         db_close(conn, cur)
 
 
-def sign_up(cur, info):
-    #check info
-    load_profiles_in_db([info], cur)
-    
-    #redirect to profile main page
-    #check 
+app = Flask(__name__)
+app.run(debug=True)
+
+@app.route('/admin')
+def hello_admin():
+   return 'Hello Admin'
 
 
+@app.route('/admin/sign_up', methods = ['POST'])
+def signup_controler():
+   if request.method == 'POST':
+       profile = request.form
+       if is_correct_profile(profile):
+           load_profiles_in_db(profile)
+       # redirect update view with user main page or click on link
+            # if bad
+       # update with error messages on same page
+
+        #get post data
+        #clean post data
+        #check post data
+
+        #if good
+            #save in db
+            #redirect update view with user main page or click on link
+        #if bad
+            #update with error messages on same page
 
 
 if __name__ == '__main__':
     main(sys.argv)
-
-
-
-
-
 
 #fetch tests
 """

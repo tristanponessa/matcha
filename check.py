@@ -1,7 +1,10 @@
 import string
-
 from PIL import Image
-import datetime 
+import datetime
+import inspect
+import sys
+
+from dict_ops import *
 
 #check if someelse exists same pers
 
@@ -51,9 +54,26 @@ def check_birthdate(x):
     except ValueError :
         return False
     #check with age
-    
 
-check_email('')
-print(check_birthdate('02/2017'))
+def get_all_check_funs():
+    check_funs = {}
+    cur_file_members = inspect.getmembers(sys.modules[__name__])
+    for member in cur_file_members:
+        member_name, member_val = *member,
+        if member_name.startswith('check'):
+            check_funs[member_name] = member_val
+    return check_funs
 
+def proform_check_for_key(profile, check_funs, key):
+     val = dict_val_similar_key(profile, key)
+     check_fun = dict_val_similar_key(check_funs, key)
+     return check_fun(val)
 
+def is_correct_profile(profile):
+    check_funs = get_all_check_funs()
+    if all(proform_check_for_key(profile, check_funs, key) for key in check_funs.keys()):
+        return True
+    #proform all checks
+
+#check_email('')
+#print(check_birthdate('02/2017'))
