@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MATCHA SIGN-UP</title>
+    <meta charset='utf-8' />
+    <style>
+    </style>
+</head>
+<body>
+    {% if data.form %}
+        <form method="post">
+          <label>First name:</label>
+          <input type="text"> {% if data.errors %} css red error : name mut be {% endif %} </br>
+          <label>email:</label>
+          <input type="email"> {% if data.errors %} css red error : name mut be % . fyou {% endif %} </br>
+          <input type="submit">
+        </form>
+    {% endif %}
+
+    {% if data.sign_up_valid %}
+        sign-up correct! an email was send to you
+    {% endif %}
+
+</body>
+</html>

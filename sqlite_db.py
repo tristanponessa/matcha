@@ -83,10 +83,6 @@ def init_db(conn, cur):
     exec_sql(cur, Sql_cmds.add_col.format('users', 'profile', 'TEXT')) #2gb of text 1,048,576 bytes * 2 > 162 * 2 big msgs
 
 
-def start_db():
-    conn, cur = db_conn()
-    init_db(conn, cur)
-
 
 
 

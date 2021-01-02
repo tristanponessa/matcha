@@ -69,7 +69,7 @@ parso==0.1.1
 periodictable==1.5.3
 pexpect==4.2.1
 pickleshare==0.7.4
-Pillow==7.2.0
+Pillow~=5.1.0
 prompt-toolkit==1.0.15
 protobuf==3.0.0
 psutil==5.4.2
@@ -143,3 +143,5 @@ wrapt==1.9.0
 xkit==0.0.0
 youtube-dl==2018.3.14
 zipp==3.4.0
+
+Flask~=1.1.2

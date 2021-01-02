@@ -124,11 +124,11 @@ def gen_random_profiles(master_seed):
     min_seed = (nb_users * master_seed)
     max_seed = min_seed + nb_users
     for seed_nb in range(min_seed,max_seed):
-        print(f'profile {seed_nb}------')
+        #print(f'profile {seed_nb}------')
         profile = dict()
         for f in funs:
             a = f(seed_nb)
-            print(rf'fun: {f.__name__} seed{seed_nb} : {a}')
+            #print(rf'fun: {f.__name__} seed{seed_nb} : {a}')
             profile[f.__name__] = a
         profiles.append(profile)
     return profiles

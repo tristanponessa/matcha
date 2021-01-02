@@ -1,47 +1,79 @@
-from flask import Flask, redirect, url_for, request
+from flask import Flask, redirect, url_for, request, render_template
 
 import sys
 
 from gen_random import *
 from sqlite_db import *
 from dict_ops import *
-
 from exception_handler import *
 from profile_db import *
+from check import *
+
+
+class Global:
+    conn, cur = None, None
+    app = Flask(__name__)
+
+
+class Urls:
+
+    index = '/'
+    sign_in = '/sign_in'
+    sign_up = '/sign_up'
+    profile_page = '/<string>_profile_page/'
+
+
+def start_web_app():
+    Global.app.run(debug=True)
+
 
 def main(argv):
 
     master_seed = 0 if len(argv) != 2 else int(argv[1])
-    conn,cur = None,None
     try:
-        conn, cur = db_conn()
-        init_db(conn, cur)
+        Global.conn, Global.cur = db_conn()
+        init_db(Global.conn, Global.cur)
         profiles = gen_random_profiles(master_seed)
-        load_profiles_in_db(profiles, cur)
+        load_profiles_in_db(profiles, Global.cur)
+        start_web_app()
 
-    except Exception as e:
+    except Exception:
         print(get_exception())
     finally:
-        db_close(conn, cur)
+        db_close(Global.conn, Global.cur)
 
 
-app = Flask(__name__)
-app.run(debug=True)
-
-@app.route('/admin')
-def hello_admin():
-   return 'Hello Admin'
+@Global.app.route(Urls.index)
+def main_page():
+    return render_template('index.html', urls_lst=Urls.__dict__) #the update
 
 
-@app.route('/admin/sign_up', methods = ['POST'])
+@Global.app.route(Urls.sign_up, methods=['GET', 'POST'])
 def signup_controler():
-   if request.method == 'POST':
-       profile = request.form
-       if is_correct_profile(profile):
-           load_profiles_in_db(profile)
-       # redirect update view with user main page or click on link
+    data = {'errors': False, 'sign_up_valid': False, 'form': True}
+    if request.method == 'POST':
+        profile = request.form
+        for k,v in profile.values():
+            print(k,':',v)
+        if is_correct_profile(profile):
+            load_profiles_in_db([profile], Global.cur)
+            #send email
+            data['sign_up_valid'] = True
+            data['form'] = False
+        else:
+            data['errors'] = True
+    return render_template('sign-up.html', data=data)  # the update
+
+        #get post data
+        #clean post data
+        #check post data
+
+        #if good
+            #save in db
+
+        # redirect update view with user main page or click on link
             # if bad
-       # update with error messages on same page
+        # update with error messages on same page
 
         #get post data
         #clean post data

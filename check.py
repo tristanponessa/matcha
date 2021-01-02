@@ -70,8 +70,10 @@ def proform_check_for_key(profile, check_funs, key):
      return check_fun(val)
 
 def is_correct_profile(profile):
-    check_funs = get_all_check_funs()
-    if all(proform_check_for_key(profile, check_funs, key) for key in check_funs.keys()):
+    #check_funs = get_all_check_funs()
+    #if all(proform_check_for_key(profile, check_funs, key) for key in check_funs.keys()):
+    val = dict_val_similar_key(profile, 'email')
+    if check_email(val):
         return True
     #proform all checks
 
