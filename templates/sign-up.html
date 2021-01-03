@@ -7,12 +7,14 @@
     </style>
 </head>
 <body>
+
+
     {% if data.form %}
         <form method="post">
           <label>First name:</label>
-          <input type="text"> {% if data.errors %} css red error : name mut be {% endif %} </br>
+          <input type="text" name="first_name"> {% if data.errors %} css red error : name mut be {% endif %} </br>
           <label>email:</label>
-          <input type="email"> {% if data.errors %} css red error : name mut be % . fyou {% endif %} </br>
+          <input type="email" name="email"> {% if data.errors %} css red error : name mut be % . fyou {% endif %} </br>
           <input type="submit">
         </form>
     {% endif %}

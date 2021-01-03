@@ -8,6 +8,7 @@ from dict_ops import *
 from exception_handler import *
 from profile_db import *
 from check import *
+from security_ import *
 
 
 class Global:
@@ -50,11 +51,12 @@ def main_page():
 
 @Global.app.route(Urls.sign_up, methods=['GET', 'POST'])
 def signup_controler():
-    data = {'errors': False, 'sign_up_valid': False, 'form': True}
+    data = {'errors': False, 'sign_up_valid': False, 'form': True, 'urls': Urls.__dict__}
+
     if request.method == 'POST':
-        profile = request.form
-        for k,v in profile.values():
-            print(k,':',v)
+        profile = request.form.to_dict()
+        profile = clean_user_data(profile) #if key is not present ,its None, causing checkers to raise an exc.
+        """
         if is_correct_profile(profile):
             load_profiles_in_db([profile], Global.cur)
             #send email
@@ -62,6 +64,8 @@ def signup_controler():
             data['form'] = False
         else:
             data['errors'] = True
+        """
+
     return render_template('sign-up.html', data=data)  # the update
 
         #get post data
