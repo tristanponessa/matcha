@@ -27,13 +27,13 @@ def check_email(x):
     email_tags = (f'{_smtp}{_ext}' for _smtp in smtp for _ext in ext) #all combs
 
     #check end
-    if not any([x.endswith(email_tag) for email_tag in email_tags]):
-        return False
+    if any([x.endswith(email_tag) for email_tag in email_tags]):
+        return True
 
-    x = x.split('@')[0]
+    #x = x.split('@')[0]
     #check 1st part
-    if len([ch for ch in x if x not in sets_]) >= 1:
-        return False
+    #if len([ch for ch in x if x not in sets_]) >= 1:
+    #    return False
 
 def check_pic(x):
     try:

@@ -80,7 +80,7 @@ def gen_random_birthdate(seed_):
     year = random.randint(1955,2000)
     return f'{day}/{month}/{year}'
 
-def get_random_sexori(seed_):
+def gen_random_sexori(seed_):
     random.seed(seed_)
     x = ('straight', 'gay', 'bio')
     return random.choice(x)
@@ -103,10 +103,21 @@ def gen_random_interests(seed_):
 """
 
 ###############INTEGRATION FUNCTIONS##########################
+import inspect
+import sys
+
+#funs = (gen_random_firstname, gen_random_lastname,gen_random_profilepic, gen_random_pics, gen_random_email,
+#        gen_random_pwd, gen_random_birthdate, get_random_sexori)
 
 
-funs = (gen_random_firstname, gen_random_lastname,gen_random_profilepic, gen_random_pics, gen_random_email,
-        gen_random_pwd, gen_random_birthdate, get_random_sexori)
+def get_all_random_funs():
+    check_funs = {}
+    cur_file_members = inspect.getmembers(sys.modules[__name__])
+    for member in cur_file_members:
+        member_name, member_val = *member,
+        if member_name.startswith('get_random'):
+            check_funs[member_name] = member_val
+    return check_funs
 
 """
 for f in funs:
@@ -118,18 +129,22 @@ for f in funs:
 """
 
 def gen_random_profiles(master_seed):
+    funs = get_all_random_funs()
     profiles = [] #to put into db list of dicts
 
     nb_users = 20
     min_seed = (nb_users * master_seed)
     max_seed = min_seed + nb_users
-    for seed_nb in range(min_seed,max_seed):
+    for seed_nb in range(min_seed, max_seed):
         #print(f'profile {seed_nb}------')
         profile = dict()
         for f in funs:
             a = f(seed_nb)
             #print(rf'fun: {f.__name__} seed{seed_nb} : {a}')
             profile[f.__name__] = a
+        #missing rand funs
+        profile['blocked'] = False
+        profile['activated'] = True
         profiles.append(profile)
     return profiles
 

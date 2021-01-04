@@ -1,4 +1,14 @@
-from flask import Flask, redirect, url_for, request, render_template
+"""
+FLASK magicly relaunches the main twice,
+i think its a thread problem,
+this causes everything to be called twice ,
+
+or in debug mode , the reloader reloads flask when any change done ,
+which means rerunning main
+"""
+
+from flask import Flask, redirect, url_for, request, render_template, flash
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
 import sys
 
@@ -9,11 +19,20 @@ from exception_handler import *
 from profile_db import *
 from check import *
 from security_ import *
+from zemail import *
+import string
 
+"""
+def gen_site_secret_key():
+    #for hackers, default seed is the current time....
+    all_ = string.ascii_letters + string.digits + "!#$%&()*+,-./:;<=>?@[]^_{|}~"
+    rpwd = ''.join((random.choice(all_) for _ in range(random.randint(64, 128))))
+    return (rpwd)
+"""
 
 class Global:
-    conn, cur = None, None
     app = Flask(__name__)
+    #SITE_SECRET_KEY = gen_site_secret_key()
 
 
 class Urls:
@@ -22,26 +41,31 @@ class Urls:
     sign_in = '/sign_in'
     sign_up = '/sign_up'
     profile_page = '/<string>_profile_page/'
+    activate_account = '/activate_account'
+
+
 
 
 def start_web_app():
-    Global.app.run(debug=True)
+    Global.app.use_reloader = False
+    Global.app.run(debug=False)
 
 
 def main(argv):
-
+    #prepare db
     master_seed = 0 if len(argv) != 2 else int(argv[1])
-    try:
-        Global.conn, Global.cur = db_conn()
-        init_db(Global.conn, Global.cur)
-        profiles = gen_random_profiles(master_seed)
-        load_profiles_in_db(profiles, Global.cur)
-        start_web_app()
+    if os.path.exists('matcha.db'):
+        os.remove('matcha.db')
+    init_db()
+    profiles = gen_random_profiles(master_seed)
+    load_profiles_in_db(profiles)
+    #start site
+    start_web_app()#synchronous, anythin after wont be run until this done
 
-    except Exception:
-        print(get_exception())
-    finally:
-        db_close(Global.conn, Global.cur)
+    #except Exception:
+    #    print(get_exception())
+    #finally:
+
 
 
 @Global.app.route(Urls.index)
@@ -56,15 +80,15 @@ def signup_controler():
     if request.method == 'POST':
         profile = request.form.to_dict()
         profile = clean_user_data(profile) #if key is not present ,its None, causing checkers to raise an exc.
-        """
         if is_correct_profile(profile):
-            load_profiles_in_db([profile], Global.cur)
-            #send email
+            profile = format_profile(profile) #add token
+            load_profiles_in_db([profile])
+            email_activate_account(profile)
             data['sign_up_valid'] = True
             data['form'] = False
         else:
             data['errors'] = True
-        """
+
 
     return render_template('sign-up.html', data=data)  # the update
 
@@ -88,6 +112,27 @@ def signup_controler():
             #redirect update view with user main page or click on link
         #if bad
             #update with error messages on same page
+
+
+
+@Global.app.route('/matcha_activate_account/?token=<token>')
+def activate_account():
+    #detect who it was by token yuou gvie to user
+    token = request.args.get('token')
+    email = get_token_data(t)
+    if not profile_exists({'email': email}): #if token expired, email is empty
+        flash('This is an invalid or expired URL, please generate a new one!', 'warning')
+    else:
+        """
+        profile = fetch_profiles(email)
+        profile['activated'] = True
+        load_profiles_in_db([profile])
+        """
+        update_profile(email, {'activated': True})
+        flash('account activated!')
+    return redirect('/')
+    #redirect to users account render_template('user_main_page.html', data=data)  # the update
+
 
 
 if __name__ == '__main__':

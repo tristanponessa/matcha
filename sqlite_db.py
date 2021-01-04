@@ -34,18 +34,64 @@ import sys
 import os
 
 
+class Sql_cmds:
 
-def clean_exit(msg):
-    print("exit error : ",msg)
-    #close what you need
-    sys.exit(0)
+    fetch = 'SELECT * FROM {}'
+    insert = "INSERT INTO {} ('{}') VALUES ('{}')"
+    add_col = 'ALTER TABLE {} ADD {} {}'
+    create_table = "CREATE TABLE {} ('id' INTEGER PRIMARY KEY AUTOINCREMENT)"
+    delete_row = "DELETE FROM {} WHERE {}='{}'"
 
-def exec_sql(cur, sql_cmd):
-    #print(sql_cmd)
-    cur.execute(sql_cmd)
-    res = cur.fetchall()
-    return res
-    #get output put in log
+
+class SQLite:
+    """there must be a connexion for every thread, use cont.manag."""
+    def __init__(self, file='matcha.db'):
+        self.file = file
+        self.conn = None
+        self.cur = None
+
+    def __enter__(self):
+        self.conn = sqlite3.connect(self.file)
+        self.conn.row_factory = dict_factory
+        self.cur = self.conn.cursor()
+        return self.cur
+
+    def __exit__(self, type, value, traceback):
+        if self.cur:
+            self.cur.close()
+        if self.conn:
+            self.conn.commit()
+            self.conn.close()
+        #print(f'closed instance db connection!')
+
+
+def init_db():
+    exec_sql(Sql_cmds.create_table.format('users'))
+    exec_sql(Sql_cmds.add_col.format('users', 'profile', 'TEXT')) #2gb of text 1,048,576 bytes * 2 > 162 * 2 big msgs
+
+
+def exec_sql(sql_cmd):
+    with SQLite() as cur:
+        cur.execute(sql_cmd)
+        res = cur.fetchall()
+        return res
+        # get output put in log
+
+
+def dict_factory(cursor, row):
+    # get fetch in dict
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+
+"""
+def db_conn():
+    conn = sqlite3.connect("matcha.db")
+    conn.row_factory = dict_factory
+    cur = conn.cursor()
+    return cur
 
 def db_close(conn, cur):
     if cur:
@@ -53,38 +99,22 @@ def db_close(conn, cur):
     if conn:
         conn.commit()
         conn.close()
-    
-    #print(f'closing db connection! open? {dbh.open}')
-    print(f'closed db connection!')
 
-def dict_factory(cursor, row):
-    #get fetch in dict
-    d = {}
-    for idx, col in enumerate(cursor.description):
-        d[col[0]] = row[idx]
-    return d
+def clean_exit(msg):
+    print("exit error : ",msg)
+    # close what you need
+    sys.exit(0)
 
-def db_conn():
-    conn = sqlite3.connect(":memory:")
-    conn.row_factory = dict_factory
-    cur = conn.cursor()
-    return conn, cur
+"""
 
-class Sql_cmds:
-
-    fetch = 'SELECT * FROM {}'
-    insert = "INSERT INTO {} ('{}') VALUES ('{}')"
-    add_col = 'ALTER TABLE {} ADD {} {}'
-    create_table = "CREATE TABLE {} ('id' INTEGER PRIMARY KEY AUTOINCREMENT)"
-
-
-def init_db(conn, cur):
-    exec_sql(cur, Sql_cmds.create_table.format('users'))
-    exec_sql(cur, Sql_cmds.add_col.format('users', 'profile', 'TEXT')) #2gb of text 1,048,576 bytes * 2 > 162 * 2 big msgs
-
-
-
-
+"""
+if __name__ == '__main__':
+    cur = db_conn()
+    init_db(cur)
+    r = exec_sql(cur, Sql_cmds.fetch.format('users'))  # 2gb of text 1,048,576 bytes * 2 > 162 * 2 big msgs
+    print(r)
+    os.remove('matcha.db')
+"""
 
 
 
