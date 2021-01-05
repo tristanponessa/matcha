@@ -68,3 +68,6 @@ def update_profile(email, data):
     profile.update(data)
     load_profiles_in_db([profile]) #will have new unik id
 
+def block_user(email):
+    update_profile(email, {'blocked':True})
+

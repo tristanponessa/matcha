@@ -91,30 +91,7 @@ def signup_controler():
         else:
             data['errors'] = True
 
-
     return render_template('sign-up.html', data=data)  # the update
-
-        #get post data
-        #clean post data
-        #check post data
-
-        #if good
-            #save in db
-
-        # redirect update view with user main page or click on link
-            # if bad
-        # update with error messages on same page
-
-        #get post data
-        #clean post data
-        #check post data
-
-        #if good
-            #save in db
-            #redirect update view with user main page or click on link
-        #if bad
-            #update with error messages on same page
-
 
 
 @Global.app.route(Urls.activate_account, methods=['GET', 'POST'])
@@ -125,16 +102,10 @@ def activate_account(token):
     if not profile_exists({'email': email}): #if token expired, email is empty
         return 'This is an invalid or expired URL, please generate a new one!'
     else:
-        """
-        profile = fetch_profiles(email)
-        profile['activated'] = True
-        load_profiles_in_db([profile])
-        """
         update_profile(email, {'activated': True})
         return 'account activated!'
     #return redirect('/')
     #redirect to users account render_template('user_main_page.html', data=data)  # the update
-
 
 
 if __name__ == '__main__':
