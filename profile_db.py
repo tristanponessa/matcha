@@ -18,7 +18,6 @@ def format_profile(profile):
     profile['activated'] = False
     profile['likes'] = 0
     profile['msgs'] = []
-    profile['token'] = gen_unik_token(profile['email'])
     return profile
 
 # db + dict_ops
@@ -63,7 +62,7 @@ def profile_exists(info):
 
 
 def update_profile(email, data):
-    profile = fetch_profiles({'email': email})
+    profile = fetch_profiles({'email': email})[0]
     unik_id = fetch_unikid_profile_by_email(email)
     exec_sql(Sql_cmds.delete_row.format('users', 'id', unik_id))
     profile.update(data)

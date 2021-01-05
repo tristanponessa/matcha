@@ -1,7 +1,4 @@
 """
-FLASK magicly relaunches the main twice,
-i think its a thread problem,
-this causes everything to be called twice ,
 
 or in debug mode , the reloader reloads flask when any change done ,
 which means rerunning main
@@ -37,17 +34,22 @@ class Global:
 
 class Urls:
 
+    root = 'http://127.0.0.1:5000'
     index = '/'
     sign_in = '/sign_in'
     sign_up = '/sign_up'
     profile_page = '/<string>_profile_page/'
-    activate_account = '/activate_account'
+    activate_account = '/matcha_activate_account/<token>'
+    format_activate_account = 'http://127.0.0.1:5000/matcha_activate_account/{}'
+
+
 
 
 
 
 def start_web_app():
     Global.app.use_reloader = False
+    Global.app.secret_key = 'super secret'
     Global.app.run(debug=False)
 
 
@@ -115,13 +117,13 @@ def signup_controler():
 
 
 
-@Global.app.route('/matcha_activate_account/?token=<token>')
-def activate_account():
+@Global.app.route(Urls.activate_account, methods=['GET', 'POST'])
+def activate_account(token):
     #detect who it was by token yuou gvie to user
-    token = request.args.get('token')
-    email = get_token_data(t)
+    #token = request.args.get('token')
+    email = get_token_data(token)
     if not profile_exists({'email': email}): #if token expired, email is empty
-        flash('This is an invalid or expired URL, please generate a new one!', 'warning')
+        return 'This is an invalid or expired URL, please generate a new one!'
     else:
         """
         profile = fetch_profiles(email)
@@ -129,8 +131,8 @@ def activate_account():
         load_profiles_in_db([profile])
         """
         update_profile(email, {'activated': True})
-        flash('account activated!')
-    return redirect('/')
+        return 'account activated!'
+    #return redirect('/')
     #redirect to users account render_template('user_main_page.html', data=data)  # the update
 
 
