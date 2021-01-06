@@ -45,14 +45,21 @@ def fetch_unikid_profile_by_email(email):
         if email in profile_str:
             return unik_id
 
+def fetch_all_emails():
+    profiles_dct_lst = extract_profiles_from_db()
+    emails = []
+    for profile_dct in profiles_dct_lst:
+        emails.append(profile_dct['email'])
+    return emails
+
 def fetch_profiles(info):
+    #returns if equal, if more than one than not normal
     profiles_dct_lst = extract_profiles_from_db()
     matches = []
     for profile_dct in profiles_dct_lst:
         if is_sub_dict(profile_dct, info):
             matches.append(profile_dct)
     return matches
-
 
 def profile_exists(info):
     # email is unik
@@ -70,4 +77,11 @@ def update_profile(email, data):
 
 def block_user(email):
     update_profile(email, {'blocked':True})
+
+def like_user(email):
+    profile = fetch_profiles({'email': email})[0]
+    likes = dict_val_similar_key(profile, 'like')
+    likes = str(int(likes) + 1)
+    update_profile(email, {'likes': likes})
+
 

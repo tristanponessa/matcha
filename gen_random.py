@@ -17,6 +17,8 @@ import random
 import string
 import os
 
+
+
 def gen_random_firstname(seed_):
     random.seed(seed_)
     x = random.choice(string.ascii_uppercase)
@@ -80,6 +82,17 @@ def gen_random_birthdate(seed_):
     year = random.randint(1955,2000)
     return f'{day}/{month}/{year}'
 
+def gen_random_date(seed_):
+    random.seed(seed_)
+    day = random.randint(1, 28)
+    month = random.randint(1, 12)
+    year = random.randint(2001, 2020)
+    hour = random.randint(0, 23)
+    min_ = random.randint(0, 59)
+    sec = random.randint(0, 59)
+    return f'{day}/{month}/{year} {hour}:{min_}:{sec}'
+
+
 def gen_random_sexori(seed_):
     random.seed(seed_)
     x = ('straight', 'gay', 'bio')
@@ -87,20 +100,58 @@ def gen_random_sexori(seed_):
 
 def gen_random_intro(seed_):
     random.seed(seed_)
-    nb_words = random.randint(100)
+    nb_words = random.randint(0, 20)
     intro = ''
     for i in range(nb_words):
-        len_word = random.randint(10)
+        len_word = random.randint(0, 10)
         word = ''.join((random.choice(string.ascii_lowercase) for _ in range(len_word)))
         intro += f' {word} '
     return intro
 
-"""
-def gen_random_discussions(users_list, seed_):
-def gen_random_likes(users_lst, seed_):
+
+def gen_random_discussions(emails, seed_):
+    random.seed(seed_)
+    rnb = random.randint(0, len(emails))
+    msgs = []
+    for _ in range(rnb):
+        msg = dict()
+        msg['date'] = gen_random_date(seed_)
+        msg['to_email'] = random.choice(emails) #can send to himself
+        msg['msg'] = gen_random_intro(seed_)
+        msgs.append(msg)
+    return msgs
+
+
+
+
+
+
+
+
+def gen_random_likes(emails, seed_):
+    random.seed(seed_)
+    rnb = random.randint(0, len(emails))
+    return [random.choice(emails) for i in range(rnb)]
+
 def gen_random_interests(seed_):
-    random block
-"""
+    random.seed(seed_)
+    tags = ('sports', 'dancing', 'art', 'movies', 'coding', 'law', 'animals', 'games')
+    rnb = random.randint(0, len(tags))
+    return [random.choice(tags) for i in range(rnb)]
+
+def gen_random_block(seed_):
+    random.seed(seed_)
+    return random.choice([True, False])
+def gen_random_activated(seed_):
+    random.seed(seed_)
+    return random.choice([True, False])
+def gen_random_location(seed_):
+    random.seed(seed_)
+    locs = ('USA', 'France', 'Moon')
+    return random.choice(locs)
+     #pip install flask-simple-geoip
+
+
 
 ###############INTEGRATION FUNCTIONS##########################
 import inspect
@@ -114,7 +165,7 @@ def get_all_random_funs():
     check_funs = {}
     cur_file_members = inspect.getmembers(sys.modules[__name__])
     for member in cur_file_members:
-        member_name, member_val = *member,
+        member_name, member_val = member
         if member_name.startswith('get_random'):
             check_funs[member_name] = member_val
     return check_funs
@@ -127,6 +178,11 @@ for f in funs:
         print(rf'fun: {f.__name__} seed{i} : {a}')
     print('------')
 """
+
+
+
+#1generate random emails
+#attach rest of data to them cause some need email list
 
 def gen_random_profiles(master_seed):
     funs = get_all_random_funs()
@@ -148,6 +204,31 @@ def gen_random_profiles(master_seed):
         profiles.append(profile)
     return profiles
 
+
+def gen_random_profiles2(master_seed):
+    nb_users = 20
+    min_seed = (nb_users * master_seed)
+    max_seed = min_seed + nb_users
+
+    funs = get_all_random_funs()
+    seed_nbs = [s for s in range(min_seed, max_seed)]
+    profiles = [] #to put into db list of dicts
+    emails = [gen_random_email(seednb) for seednb in seed_nbs]
+
+
+
+    for seed_nb in range(min_seed, max_seed):
+        #print(f'profile {seed_nb}------')
+        profile = dict()
+        for f in funs:
+            a = f(seed_nb)
+            #print(rf'fun: {f.__name__} seed{seed_nb} : {a}')
+            profile[f.__name__] = a
+        #missing rand funs
+        profile['blocked'] = False
+        profile['activated'] = True
+        profiles.append(profile)
+    return profiles
 
 #def fetch_profile_in_db(cur, data):
 #    r = exec_sql(cur, Sql_cmds.fetch.format('users')
