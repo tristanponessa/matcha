@@ -18,13 +18,11 @@ import string
 import os
 
 
-
 def gen_random_firstname(seed_):
     random.seed(seed_)
     x = random.choice(string.ascii_uppercase)
     y = ''.join((random.choice(string.ascii_lowercase) for _ in range(random.randint(3,8))))
     return x + y
-    
 
 def gen_random_lastname(seed_):
     random.seed(seed_)
@@ -40,9 +38,6 @@ def gen_random_profilepic(seed_):
     p = f'{url}/{pics[r]}'
     return p
 
-
-    #choose 1 of all pics
-
 def gen_random_pics(seed_):
     random.seed(seed_)
     url = './pics'
@@ -53,7 +48,6 @@ def gen_random_pics(seed_):
         r = random.randint(0,len(pics) - 1)
         p.append(f'{url}/{pics[r]}')
     return p
-
 
 def gen_random_email(seed_):
     random.seed(seed_)
@@ -121,13 +115,6 @@ def gen_random_discussions(emails, seed_):
         msgs.append(msg)
     return msgs
 
-
-
-
-
-
-
-
 def gen_random_likes(emails, seed_):
     random.seed(seed_)
     rnb = random.randint(0, len(emails))
@@ -142,9 +129,11 @@ def gen_random_interests(seed_):
 def gen_random_block(seed_):
     random.seed(seed_)
     return random.choice([True, False])
+
 def gen_random_activated(seed_):
     random.seed(seed_)
     return random.choice([True, False])
+
 def gen_random_location(seed_):
     random.seed(seed_)
     locs = ('USA', 'France', 'Moon')
@@ -157,83 +146,42 @@ def gen_random_location(seed_):
 import inspect
 import sys
 
-#funs = (gen_random_firstname, gen_random_lastname,gen_random_profilepic, gen_random_pics, gen_random_email,
-#        gen_random_pwd, gen_random_birthdate, get_random_sexori)
-
 
 def get_all_random_funs():
     check_funs = {}
     cur_file_members = inspect.getmembers(sys.modules[__name__])
     for member in cur_file_members:
         member_name, member_val = member
-        if member_name.startswith('get_random'):
+        if member_name.startswith('gen_random') and ('email' not in member_name):
             check_funs[member_name] = member_val
     return check_funs
-
-"""
-for f in funs:
-    for i in range(1,20):
-        a = f(i)
-        b = f(i)
-        print(rf'fun: {f.__name__} seed{i} : {a}')
-    print('------')
-"""
-
 
 
 #1generate random emails
 #attach rest of data to them cause some need email list
 
 def gen_random_profiles(master_seed):
-    funs = get_all_random_funs()
-    profiles = [] #to put into db list of dicts
 
-    nb_users = 20
-    min_seed = (nb_users * master_seed)
-    max_seed = min_seed + nb_users
-    for seed_nb in range(min_seed, max_seed):
-        #print(f'profile {seed_nb}------')
-        profile = dict()
-        for f in funs:
-            a = f(seed_nb)
-            #print(rf'fun: {f.__name__} seed{seed_nb} : {a}')
-            profile[f.__name__] = a
-        #missing rand funs
-        profile['blocked'] = False
-        profile['activated'] = True
-        profiles.append(profile)
-    return profiles
-
-
-def gen_random_profiles2(master_seed):
     nb_users = 20
     min_seed = (nb_users * master_seed)
     max_seed = min_seed + nb_users
 
     funs = get_all_random_funs()
+    profiles = []  # to put into db list of dicts
     seed_nbs = [s for s in range(min_seed, max_seed)]
-    profiles = [] #to put into db list of dicts
     emails = [gen_random_email(seednb) for seednb in seed_nbs]
-
-
-
-    for seed_nb in range(min_seed, max_seed):
-        #print(f'profile {seed_nb}------')
+    print(funs)
+    for seed_nb, email in zip(seed_nbs, emails):
         profile = dict()
-        for f in funs:
-            a = f(seed_nb)
-            #print(rf'fun: {f.__name__} seed{seed_nb} : {a}')
-            profile[f.__name__] = a
-        #missing rand funs
-        profile['blocked'] = False
-        profile['activated'] = True
+        profile['email'] = email
+        for fun_name, fun_obj in funs.items():
+            args = [emails, seed_nb]
+            if fun_obj.__code__.co_argcount == 1:
+                args.remove(emails)
+            profile[fun_name] = fun_obj(*args)
         profiles.append(profile)
+
     return profiles
 
-#def fetch_profile_in_db(cur, data):
-#    r = exec_sql(cur, Sql_cmds.fetch.format('users')
-#    profiles = r['']
 
-    
-#gen pofile dict to put into db
 

@@ -85,3 +85,24 @@ def like_user(email):
     update_profile(email, {'likes': likes})
 
 
+def print_profile(profile):
+    top = bottom = '-' * 50
+    print(top)
+    for k,v in profile.items():
+        print(f'<{k}>'.center(15, '*'))
+        if isinstance(v, list):
+            for i,e in enumerate(v):
+                print(f'    {i} > {e}')
+        elif isinstance(v, dict):
+            for a,b in v.items():
+                print(f'    {a} > {b}')
+        else:
+            print(f'    {v}')
+    print(bottom)
+
+
+if __name__ == '__main__':
+    ps = gen_random_profiles(0)
+    for p in ps:
+        print_profile(p)
+

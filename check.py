@@ -48,7 +48,7 @@ def check_birthdate(x):
     x = x.split('/')
     if len(x) != 3:
         return False
-    day,month,year = *x,
+    day,month,year = x
     try :
         datetime.datetime(int(year),int(month),int(day))
     except ValueError :
@@ -59,7 +59,7 @@ def get_all_check_funs():
     check_funs = {}
     cur_file_members = inspect.getmembers(sys.modules[__name__])
     for member in cur_file_members:
-        member_name, member_val = *member,
+        member_name, member_val = member
         if member_name.startswith('check'):
             check_funs[member_name] = member_val
     return check_funs
