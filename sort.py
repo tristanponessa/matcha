@@ -15,5 +15,14 @@ def filter_profiles(info):
             matches.append(profile_dct)
     return matches
 
-def ft_matcha(cmp_form_email):
-    return fetch_profiles(info)
+def ft_matcha(cmp_from_email):
+    #must recalc everytime in case someone changes stats
+    cmp_profile = fetch_profiles({'email': cmp_from_email})[0]
+    profiles_dct_lst = extract_profiles_from_db()
+
+    #not itself
+    matchas = [] {'perc' : 75}
+    for pro_dct in profiles_dct_lst:
+
+
+    #perc calc if 5 equal keys 75 7 or more 95

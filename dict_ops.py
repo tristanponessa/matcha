@@ -18,7 +18,3 @@ def is_sub_dict(dct, sub_dct):
             match += 1
     if len(sub_dct) == match:
         return True
-
-
-
-    

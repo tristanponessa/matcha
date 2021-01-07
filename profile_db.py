@@ -16,7 +16,7 @@ def format_profile(profile):
     # fields not seen on sign page
     profile['blocked'] = False
     profile['activated'] = False
-    profile['likes'] = 0
+    profile['likes'] = []
     profile['msgs'] = []
     return profile
 
@@ -78,11 +78,11 @@ def update_profile(email, data):
 def block_user(email):
     update_profile(email, {'blocked':True})
 
-def like_user(email):
-    profile = fetch_profiles({'email': email})[0]
+def like_user(from_email, to_email):
+    profile = fetch_profiles({'email': from_email})[0]
     likes = dict_val_similar_key(profile, 'like')
-    likes = str(int(likes) + 1)
-    update_profile(email, {'likes': likes})
+    likes.append(to_email)
+    update_profile(from_email, {'likes': likes})
 
 
 def print_profile(profile):
@@ -102,7 +102,7 @@ def print_profile(profile):
 
 
 if __name__ == '__main__':
-    ps = gen_random_profiles(0)
+    ps = create_profiles(0)
     for p in ps:
         print_profile(p)
 
