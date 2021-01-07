@@ -162,7 +162,7 @@ def get_all_random_funs():
 
 def gen_random_profiles(master_seed):
 
-    nb_users = 20
+    nb_users = 1
     min_seed = (nb_users * master_seed)
     max_seed = min_seed + nb_users
 
@@ -170,7 +170,7 @@ def gen_random_profiles(master_seed):
     profiles = []  # to put into db list of dicts
     seed_nbs = [s for s in range(min_seed, max_seed)]
     emails = [gen_random_email(seednb) for seednb in seed_nbs]
-    print(funs)
+    print(*funs, sep='\n')
     for seed_nb, email in zip(seed_nbs, emails):
         profile = dict()
         profile['email'] = email
@@ -178,7 +178,8 @@ def gen_random_profiles(master_seed):
             args = [emails, seed_nb]
             if fun_obj.__code__.co_argcount == 1:
                 args.remove(emails)
-            profile[fun_name] = fun_obj(*args)
+            profile[fun_name] = fun_obj(args)
+            break
         profiles.append(profile)
 
     return profiles
