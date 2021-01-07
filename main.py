@@ -13,10 +13,13 @@ from gen_random import *
 from sqlite_db import *
 from dict_ops import *
 from exception_handler import *
+from cmp_ import *
 from profile_db import *
 from check import *
 from security_ import *
 from zemail import *
+
+
 import string
 
 """
@@ -59,10 +62,13 @@ def main(argv):
     if os.path.exists('matcha.db'):
         os.remove('matcha.db')
     init_db()
-    profiles = gen_random_profiles(master_seed)
+    profiles = create_profiles(master_seed)
     load_profiles_in_db(profiles)
     #start site
-    start_web_app()#synchronous, anythin after wont be run until this done
+    test_matcha()
+
+
+    #start_web_app()#synchronous, anythin after wont be run until this done
 
     #except Exception:
     #    print(get_exception())
@@ -107,9 +113,21 @@ def activate_account(token):
     #return redirect('/')
     #redirect to users account render_template('user_main_page.html', data=data)  # the update
 
+###########################TEST#######################
+
+def test_matcha():
+    import random
+    prof_dct_lst = extract_profiles_from_db()
+    rprof = random.choice(prof_dct_lst)
+    matchas = ft_matcha(rprof['email'])
+    print(matchas)
+
 
 if __name__ == '__main__':
     main(sys.argv)
+
+
+
 
 #fetch tests
 """

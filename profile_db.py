@@ -53,7 +53,6 @@ def fetch_all_emails():
     return emails
 
 def fetch_profiles(info):
-    #returns if equal, if more than one than not normal
     profiles_dct_lst = extract_profiles_from_db()
     matches = []
     for profile_dct in profiles_dct_lst:
