@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, make_response
-#...
 
 @app.route('/cookie/')
 def cookie():
@@ -28,6 +27,7 @@ def article():
 
     return render_template('article.html')
 
+"""
 <body style="{% if request.cookies.get('font') %}font-family:{{ request.cookies.get('font') }}{% endif %}">
 
 Select Font Preference: <br>
@@ -37,3 +37,4 @@ Select Font Preference: <br>
         <option value="consolas" {% if request.cookies.get('font') == 'consolas' %}selected{% endif %}>consolas</option>
         <option value="arial" {% if request.cookies.get('font') == 'arial' %}selected{% endif %}>arial</option>
         <option value="verdana" {% if request.cookies.get('font') == 'verdana' %}selected{% endif %}>verdana</o
+"""

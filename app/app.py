@@ -1,3 +1,9 @@
+from flask import Flask
+
+
+app = Flask(__name__)
+app.config.from_object('config.Config')
+
 from flask import Flask, session, redirect, url_for, escape, request
 import os
 app = Flask(__name__)
@@ -35,4 +41,3 @@ def settings():
 {% if current_user.is_authenticated %}
   Hi {{ current_user.name }}!
 {% endif %}
-
