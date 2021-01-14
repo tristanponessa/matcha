@@ -15,53 +15,69 @@ from zemail import *
 """
 
 
+
 #bp_site = Blueprint('site_', __name__)
 
 #app.add_url_rule('/', 'index', index)
 #url_for('find_question' ,question_id=1)
 #@app.route('/questions/<int:question_id>')
 
-class Urls:
+class Views:
+    def home_page():
+        return 'Hi'
 
-    root = 'http://127.0.0.1:5000'
-    index = '/'
-    sign_in = '/sign_in'
-    sign_up = '/sign_up'
-    profile_page = '/user_page/<user>'
-    activate_account = '/activate/<user>/<token>'
+class UrlRules:
+    """
+      admin contains auth that can do anything
+
+          GET /tr@ht.com   get all info , user does what they want with it | 404 bad request if not exist    *need to be signed in
+          DELETE   *must be signed in, you can only aim your account " | else 404
+
+          POST /  *post by body,  | if not complete return errors json | 404 if not exist
+          PUT     *must be signed in, you can only aim your account         in body | if key dont exist or cant be changed
+
+    """
+    """to avoid request payloads, put as much info as possible in link, a msg 1000 long has to be in body"""
+    #urls_root = 'http://127.0.0.1:5000'
+
+    home_page = {'url': '/', 'mthds': None, 'view': Views.home_page}
+    """
+    log_in = {'url': '/login/<email>', 'mthds': ['POST'], 'view': Urlrules.home_page}
+    sign_in = {'url': '/logout/<email>', 'mthds': ['POST'], 'view': FN}
+    sign_up = {'url': '/signup', 'mthds': ['POST'], 'view': FN}
+    sign_up = {'url': '/msg/<from_email>/<to_email>', 'mthds': ['POST', 'PUT', 'DELETE', 'GET'], 'view': FN} #body must contain json 'msg' :
+    sign_up = {'url': '/<email>', 'mthds': ['POST', 'PUT', 'DELETE', 'GET'], 'view': FN} #to search or filter
+    sign_up = {'url': '/users', 'mthds': ['POST', 'PUT', 'DELETE', 'GET'], 'view': FN}  # to search or filter ? + -   ?filter=likes+name+birthdate
+    sign_up = {'url': '/like/<from_email>/<to_email>', 'mthds': ['GET', 'PUT'], 'view': FN}
+    sign_up = {'url': '/block/<from_email>/<to_email>', 'mthds': ['GET' , 'PUT'], 'view': FN}
+    activate_account = {'url': '/activate/<user>/<token>', 'mthds': ['POST'], 'view': FN}
     format_activate_account = 'http://127.0.0.1:5000/matcha_activate_account/{}'
+    """
 
+    @staticmethod
+    def get_cls_data():
+        return {k: v for k, v in UrlRules.__dict__.items() if isinstance(v, dict)}
 
+#all return json
+class Views:
 
-def urlrule_home_page():
-    return 'Hi'
+    def home_page():
+        return 'Hi'
+
+    """
+    def urlrule_login(request):
+        #if clients wants to add data
+        elif request == 'POST':
+            #clean data
+            #check if email exists in db
+            #check pwd vadility
+    
+            #if success create session
+            #if fail display errors
+    """
 
 """
-app.add_url_rule('/', view_func=views.index)
-app.add_url_rule('/other', view_func=views.other)
-"""
-"""
-@bp_site.route('/')
-def home_page():
-    return 'Hi'
-
-
-
-@bp_site.route('/log_in', methods=['GET', 'POST'])
-def login(request):
-    #if clients wants to add data
-    elif request == 'POST':
-        #clean data
-        #check if email exists in db
-        #check pwd vadility
-
-        #if success create session
-        #if fail display errors
-
-
-
-@Global.app.route(Urls.sign_up, methods=['GET', 'POST'])
-def signup_controler():
+def urlrule_signup():
     data = {'errors': False, 'sign_up_valid': False, 'form': True, 'urls': Urls.__dict__}
 
     if request.method == 'POST':
@@ -91,8 +107,8 @@ def activate_account(token):
         return 'account activated!'
     #return redirect('/')
     #redirect to users account render_template('user_main_page.html', data=data)  # the update
-"""
 
+"""
 
 
 
