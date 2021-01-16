@@ -4,7 +4,7 @@ import datetime
 import inspect
 import sys
 
-from dict_ops import *
+from matcha_app.dict_ops import *
 
 #check if someelse exists same pers
 
@@ -27,7 +27,7 @@ def check_email(x):
     email_tags = (f'{_smtp}{_ext}' for _smtp in smtp for _ext in ext) #all combs
 
     #check end
-    if any([x.endswith(email_tag) for email_tag in email_tags]):
+    if any([(x and x.endswith(email_tag)) for email_tag in email_tags]):
         return True
 
     #x = x.split('@')[0]

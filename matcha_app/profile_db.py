@@ -5,11 +5,11 @@ uses all 4 ind. mod.
 import random
 import string
 
-from gen_random import *
-from sqlite_db import *
-from dict_ops import *
-from zemail import *
-from security_ import *
+from matcha_app.gen_random import *
+from matcha_app.sqlite_db import *
+from matcha_app.dict_ops import *
+from matcha_app.zemail import *
+from matcha_app.security_ import *
 
 
 def format_profile(profile):

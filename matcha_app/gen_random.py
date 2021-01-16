@@ -32,7 +32,7 @@ def gen_random_lastname(seed_):
 
 def gen_random_profilepic(seed_):
     #random.seed(seed_)
-    url = './pics'
+    url = './matcha_app/static/pics'
     pics = os.listdir(url)
     r = random.randint(0, len(pics) - 1)
     p = f'{url}/{pics[r]}'
@@ -40,7 +40,7 @@ def gen_random_profilepic(seed_):
 
 def gen_random_pics(seed_):
     #random.seed(seed_)
-    url = './pics'
+    url = './matcha_app/static/pics'
     pics = os.listdir(url)
     nb = random.randint(0,4)
     p = []

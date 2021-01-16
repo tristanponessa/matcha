@@ -71,6 +71,7 @@ def init_db():
 
 
 def exec_sql(sql_cmd):
+    print(sql_cmd)
     with SQLite() as cur:
         cur.execute(sql_cmd)
         res = cur.fetchall()

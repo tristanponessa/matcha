@@ -1,5 +1,6 @@
 #clean user data funs
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from flask import Markup
 
 site_secret_key = 'WEBSITE_SECRET_KEY'
 
@@ -18,12 +19,15 @@ def get_token_data(token):
     return email
 
 def clean_user_data(data):
+    #check sql commands
+    """
     clean_data = {}
     for k,v in data.items():
         if v is None:
             v = ''
-        clean_data[k] = v
-    return clean_data
+        clean_data[k] = escape(v)
+    """
+    return data
 
 #stop sql injection test
 #cross site attack

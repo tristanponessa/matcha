@@ -17,9 +17,9 @@ from flask import Flask, request
 from flask_mail import Mail, Message
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
-from dict_ops import *
-from security_ import *
-from main import Urls
+from matcha_app.dict_ops import *
+from matcha_app.security_ import *
+
 
 def email_activate_account(profile_dict):
     app = Flask(__name__)
@@ -37,10 +37,9 @@ def email_activate_account(profile_dict):
     name = dict_val_similar_key(profile_dict, 'first_name')
     profile_email = dict_val_similar_key(profile_dict, 'email')
     token = gen_unik_token(profile_email)
-    token_link = Urls.format_activate_account.format(token)
+    token_link = f'http://127.0.0.1:5000/activate_account?key={token}'
 
     #token_link = f'http://127.0.0.1:5000/matcha_activate_account/5'
-
 
     message = f'click on this link to activate your account \n {token_link}'
     subject = f"welcome to Matcha, activate your account {name}"

@@ -1,30 +1,59 @@
-from flask import Flask, redirect, url_for, request, render_template, flash, Blueprint
-import sys
+from flask import Flask, redirect, url_for, request, render_template, flash, Blueprint, jsonify
 
-#sys.path.add('matcha_app')
-#from matcha_app.gen_random import *
-"""
-from sqlite_db import *
-from dict_ops import *
-from exception_handler import *
-from cmp_ import *
-from profile_db import *
-from check import *
-from security_ import *
-from zemail import *
-"""
-
-
+from matcha_app.zemail import email_activate_account
+from matcha_app.profile_db import format_profile, load_profiles_in_db, profile_exists, update_profile
+from matcha_app.security_ import clean_user_data, get_token_data
+from matcha_app.check import is_correct_profile
 
 #bp_site = Blueprint('site_', __name__)
-
 #app.add_url_rule('/', 'index', index)
 #url_for('find_question' ,question_id=1)
 #@app.route('/questions/<int:question_id>')
 
 class Views:
-    def home_page():
+
+
+    def home():
         return 'Hi'
+
+
+    def signup():
+
+        data = dict()
+        if request.method == 'GET':
+            data = {'state' : 'get_form', 'fields':['email','pwd']}
+        if request.method == 'POST':
+            data = request.json #form.to_dict()
+            data = clean_user_data(data)  # if key is not present ,its None, causing checkers to raise an exc.
+            if is_correct_profile(data):
+                profile = format_profile(data)  # add token
+                load_profiles_in_db([profile])
+                email_activate_account(profile)
+                data = {'state': 'success', 'msg': 'email sent to you, activate account'}
+            else:
+                data = {'state': 'error', 'email':'email must be', 'pwd' : 'must be'}
+        return jsonify(data)
+
+    #have to be loged in
+    def activate_account():
+        """args -> /activate_account?key= :  """
+        token = request.args.get('key') #fails return None
+        data = dict()
+
+        email = get_token_data(token) #-> if fails returns {'email' : ''}
+        if not profile_exists({'email': email}):  # if token expired, email is empty
+            data = {'msg' : 'This is an invalid or expired URL, please generate a new one!'}
+        else:
+            #i have no fn idea but maybe theres a hack if no protection but everythings is hackable
+            update_profile(email, {'activated': True})
+            data = {'state': 'success', 'msg' : 'account activated!'}
+
+        return jsonify(data)
+        # return redirect('/')
+        # redirect to users account render_template('user_main_page.html', data=data)  # the update
+
+
+
 
 class UrlRules:
     """
@@ -40,7 +69,9 @@ class UrlRules:
     """to avoid request payloads, put as much info as possible in link, a msg 1000 long has to be in body"""
     #urls_root = 'http://127.0.0.1:5000'
 
-    home_page = {'url': '/', 'mthds': None, 'view': Views.home_page}
+    home_page = {'url': '/', 'mthds': None, 'view': Views.home}
+    sign_up = {'url': '/signup', 'mthds': ['GET', 'POST'], 'view': Views.signup}
+    activate_account = {'url': '/activate_account', 'mthds': ['GET'], 'view': Views.activate_account} # ?key=
     """
     log_in = {'url': '/login/<email>', 'mthds': ['POST'], 'view': Urlrules.home_page}
     sign_in = {'url': '/logout/<email>', 'mthds': ['POST'], 'view': FN}
@@ -58,23 +89,19 @@ class UrlRules:
     def get_cls_data():
         return {k: v for k, v in UrlRules.__dict__.items() if isinstance(v, dict)}
 
-#all return json
-class Views:
 
-    def home_page():
-        return 'Hi'
 
-    """
-    def urlrule_login(request):
-        #if clients wants to add data
-        elif request == 'POST':
-            #clean data
-            #check if email exists in db
-            #check pwd vadility
-    
-            #if success create session
-            #if fail display errors
-    """
+"""
+def urlrule_login(request):
+    #if clients wants to add data
+    elif request == 'POST':
+        #clean data
+        #check if email exists in db
+        #check pwd vadility
+
+        #if success create session
+        #if fail display errors
+"""
 
 """
 def urlrule_signup():
