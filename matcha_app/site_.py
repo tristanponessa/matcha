@@ -1,7 +1,8 @@
 from flask import Flask, redirect, url_for, request, render_template, flash, Blueprint, jsonify
 
 from matcha_app.zemail import email_activate_account
-from matcha_app.profile_db import format_profile, load_profiles_in_db, profile_exists, update_profile
+from matcha_app.profile_db import format_profile, load_profiles_in_db, profile_exists, update_profile, \
+                                is_profile_signedIn
 from matcha_app.security_ import clean_user_data, get_token_data
 from matcha_app.check import is_correct_profile
 
@@ -26,7 +27,7 @@ class Views:
             data = request.json #form.to_dict()
             data = clean_user_data(data)  # if key is not present ,its None, causing checkers to raise an exc.
             if is_correct_profile(data):
-                profile = format_profile(data)  # add token
+                profile = format_profile(data)
                 load_profiles_in_db([profile])
                 email_activate_account(profile)
                 data = {'state': 'success', 'msg': 'email sent to you, activate account'}
@@ -40,7 +41,10 @@ class Views:
         token = request.args.get('key') #fails return None
         data = dict()
 
+        #if request is get?
         email = get_token_data(token) #-> if fails returns {'email' : ''}
+        #CLEAN DATA
+        #CHECK DTA FORMALITY
         if not profile_exists({'email': email}):  # if token expired, email is empty
             data = {'msg' : 'This is an invalid or expired URL, please generate a new one!'}
         else:
@@ -52,6 +56,28 @@ class Views:
         # return redirect('/')
         # redirect to users account render_template('user_main_page.html', data=data)  # the update
 
+    def account_manager():
+        data = dict()
+        email = request.path.split('/')[-1]
+
+        # NEEDS TO BE SIGNED IN
+        if profile_exists(email) and is_profile_signedIn(email):
+            if request.method == 'GET':
+                profile = fetch_profiles({'email': email})[0]
+
+            #ALL 3
+            # NEEDS TO BE SIGNED IN
+            # NEEDS AUTH
+            # NEEDS TO BE HIS OWN
+            if
+                if request.method == 'POST':
+                if request.method == 'PUT':
+                if request.method == 'DELETE':
+
+        else:
+            data = {'status': 'error', 'msg': "email don't have an account"}
+
+        return jsonify(data)
 
 
 
@@ -72,6 +98,7 @@ class UrlRules:
     home_page = {'url': '/', 'mthds': None, 'view': Views.home}
     sign_up = {'url': '/signup', 'mthds': ['GET', 'POST'], 'view': Views.signup}
     activate_account = {'url': '/activate_account', 'mthds': ['GET'], 'view': Views.activate_account} # ?key=
+    manage_account = {'url': '/<email>', 'mthds': ['POST', 'PUT', 'DELETE', 'GET'], 'view': Views.account_manager}  # to search or filter
     """
     log_in = {'url': '/login/<email>', 'mthds': ['POST'], 'view': Urlrules.home_page}
     sign_in = {'url': '/logout/<email>', 'mthds': ['POST'], 'view': FN}
