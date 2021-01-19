@@ -45,13 +45,24 @@ class Views:
             data = request.json #form.to_dict()
             data = clean_user_data(data)  # if key is not present ,its None, causing checkers to raise an exc.
 
+            #!!fetch profiles called 3 times profomrance issue?
             #check profile exists
             if profile_exists(data['email']):
             #if yes
-                if is_profile_signedIn(data['email']):
+                if not is_profile_signedIn(data['email']):
                 #if not signed in
 
                 #   check pwd
+                    if data['pwd'] == fetch_profiles({'email': data['email']})[0]['pwd']:
+                        if blockes :
+                            data = {'msg': 'you have been blocked contact admin'}
+                        else:
+                            #session add
+                            #update sign in? already have session
+                            data = {'msg': 'you are signed in'}
+                    else:
+                        data = {'msg': 'pwd or login wrong'}
+
                 #   if pwd correct:
                 #       session add
                 #       update db signed in
