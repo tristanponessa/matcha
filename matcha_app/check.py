@@ -6,6 +6,22 @@ import sys
 
 from matcha_app.dict_ops import *
 
+class Sets:
+    symbs = '+_-!#$&*'
+
+class Limits:
+
+    sets_ = (string.ascii_lowercase, string.ascii_uppercase, symbs, string.digits)
+    smtp = ('@hotmail', '@outlook', '@gmail')
+    smpt_ext = ('.com', '.fr')
+    email_tags = (f'{_smtp}{_ext}' for _smtp in smtp for _ext in ext)
+    age_nb = range(18, 100)
+    pwd_len = range(8, 64)
+    pwd_str = (string.ascii_lowercase, string.ascii_uppercase, string.punctuation, string.digits)
+    pic_ext = ('png', 'jpg', 'jpeg')
+    pic_valid = check_pic
+
+
 #check if someelse exists same pers
 
 def check_age(iage):

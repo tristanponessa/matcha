@@ -42,6 +42,8 @@ class Views:
         if request.method == 'GET':
             data = {'state' : 'get_form', 'fields':['email','pwd']}
         if request.method == 'POST':
+
+
             data = request.json #form.to_dict()
             data = clean_user_data(data)  # if key is not present ,its None, causing checkers to raise an exc.
 

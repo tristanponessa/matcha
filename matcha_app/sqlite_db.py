@@ -90,9 +90,11 @@ class FakeDb:
 
 class Sql_cmds:
 
+    #fetch_opti - 'SELECT json_field FROM users WHERE email='iemail'
     fetch = 'SELECT * FROM {}'
     insert = "INSERT INTO {} ('{}') VALUES ('{}')"
     add_col = 'ALTER TABLE {} ADD {} {}'
+    #create_table_opti = "CREATE TABLE users ('email' VARCHAR(100))"
     create_table = "CREATE TABLE {} ('id' INTEGER PRIMARY KEY AUTOINCREMENT)"
     delete_row = "DELETE FROM {} WHERE {}='{}'"
 

@@ -18,6 +18,8 @@ import string
 import os
 
 
+
+
 def gen_random_firstname(seed_):
     #random.seed(seed_)
     x = random.choice(string.ascii_uppercase)
@@ -76,7 +78,7 @@ def gen_random_birthdate(seed_):
     year = random.randint(1955,2000)
     return f'{day}/{month}/{year}'
 
-def gen_random_date(seed_):
+def ggen_random_date(seed_): #do not assign to rand list
     #random.seed(seed_)
     day = random.randint(1, 28)
     month = random.randint(1, 12)
@@ -113,7 +115,7 @@ def gen_random_msgs(emails, seed_):
     msgs = []
     for _ in range(rnb):
         msg = dict()
-        msg['date'] = gen_random_date(seed_ + 5)
+        msg['date'] = ggen_random_date(seed_ + 5)
         msg['to_email'] = random.choice(emails) #can send to himself
         msg['msg'] = gen_random_intro(seed_ + 10)
         msgs.append(msg)
@@ -167,7 +169,7 @@ def get_all_random_funs():
 import random
 def create_profiles(master_seed):
 
-    nb_users = 5
+    nb_users = 10
     min_seed = 0#(nb_users * master_seed)
     max_seed = 99999#min_seed + nb_users
 
@@ -189,4 +191,23 @@ def create_profiles(master_seed):
     return profiles
 
 
+if __name__ == '__main__':
+    def print_profile(profile):
+        top = bottom = '-' * 50
+        print(top)
+        for k, v in profile.items():
+            print(f'<{k}>'.center(15, '*'))
+            if isinstance(v, list):
+                for i, e in enumerate(v):
+                    print(f'    {i} > {e}')
+            elif isinstance(v, dict):
+                for a, b in v.items():
+                    print(f'    {a} > {b}')
+            else:
+                print(f'    {v}')
+        print(bottom)
+
+    x = create_profiles(0)
+    for i in x:
+        print_profile(i)
 
