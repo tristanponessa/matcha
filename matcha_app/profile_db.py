@@ -45,7 +45,7 @@ keys_visibility = {
 # db + dict_ops
 
 #DB ACTION
-def load_profiles_in_db(profiles: ) -> None:
+def load_profiles_in_db(profiles) -> None:
     for profile_dict in profiles:
         profile_str = dict_to_str(profile_dict)
         exec_sql(Sql_cmds.insert.format('users', 'profile', profile_str))
@@ -97,7 +97,7 @@ def fetch_all_emails():
 def like_user(from_email, to_email):
     profile = fetch_profiles({'email': from_email})[0]
     #likes = dict_val_similar_key(profile, 'like')
-    profile['likes'].append(to_email)
+    likes = profile['likes'].append(to_email)
     update_profile(from_email, {'likes': likes})
 
 def format_profile(profile):

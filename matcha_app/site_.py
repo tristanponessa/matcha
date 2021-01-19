@@ -1,10 +1,10 @@
-from flask import Flask, redirect, url_for, request, render_template, flash, Blueprint, jsonify
+from flask import Flask, redirect, url_for, request, render_template, flash, Blueprint, jsonify, session
 
 from matcha_app.zemail import email_activate_account
 from matcha_app.profile_db import format_profile, load_profiles_in_db, profile_exists, update_profile, \
                                 is_profile_signedIn
 from matcha_app.security_ import clean_user_data, get_token_data
-from matcha_app.check import is_correct_profile
+from matcha_app.check import profile_form_valid
 
 #bp_site = Blueprint('site_', __name__)
 #app.add_url_rule('/', 'index', index)
@@ -22,11 +22,50 @@ class Views:
 
         data = dict()
         if request.method == 'GET':
+            data = {'state' : 'get_form', 'fields':['email','pwd', 'name','location']}
+        if request.method == 'POST':
+            data = request.json #form.to_dict()
+            data = clean_user_data(data)  # if key is not present ,its None, causing checkers to raise an exc.
+            if profile_form_valid(data):
+                profile = format_profile(data)
+                load_profiles_in_db([profile])
+                email_activate_account(profile)
+                data = {'state': 'success', 'msg': 'email sent to you, activate account'}
+            else:
+                data = {'state': 'error', 'email':'email must be', 'pwd' : 'must be'}
+        return jsonify(data)
+
+
+    def signin():
+
+        data = dict()
+        if request.method == 'GET':
             data = {'state' : 'get_form', 'fields':['email','pwd']}
         if request.method == 'POST':
             data = request.json #form.to_dict()
             data = clean_user_data(data)  # if key is not present ,its None, causing checkers to raise an exc.
-            if is_correct_profile(data):
+
+            #check profile exists
+            if profile_exists(data['email']):
+            #if yes
+                if is_profile_signedIn(data['email']):
+                #if not signed in
+
+                #   check pwd
+                #   if pwd correct:
+                #       session add
+                #       update db signed in
+                #       data = {msg you are signed in}
+                #   else
+                #       data = {login or pwd wrong}
+                #if signed in
+                #   data = {already signed in}
+                #if blocked
+                #   data = {you are blocked contact admin}
+            #else
+                #data = {login or pwd wrong}
+
+            if  not blocked  is_profile(data):
                 profile = format_profile(data)
                 load_profiles_in_db([profile])
                 email_activate_account(profile)
@@ -57,6 +96,8 @@ class Views:
         # redirect to users account render_template('user_main_page.html', data=data)  # the update
 
     def account_manager():
+        pass
+        """
         data = dict()
         email = request.path.split('/')[-1]
 
@@ -78,6 +119,7 @@ class Views:
             data = {'status': 'error', 'msg': "email don't have an account"}
 
         return jsonify(data)
+        """
 
 
 
@@ -97,6 +139,7 @@ class UrlRules:
 
     home_page = {'url': '/', 'mthds': None, 'view': Views.home}
     sign_up = {'url': '/signup', 'mthds': ['GET', 'POST'], 'view': Views.signup}
+    sign_in = {'url': '/signin', 'mthds': ['GET', 'POST'], 'view': Views.signin}
     activate_account = {'url': '/activate_account', 'mthds': ['GET'], 'view': Views.activate_account} # ?key=
     manage_account = {'url': '/<email>', 'mthds': ['POST', 'PUT', 'DELETE', 'GET'], 'view': Views.account_manager}  # to search or filter
     """
