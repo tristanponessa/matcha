@@ -49,16 +49,23 @@ class Views:
 
             #!!fetch profiles called 3 times profomrance issue?
             #check profile exists
-            if profile_exists(data['email']):
-            #if yes
-                if not is_profile_signedIn(data['email']):
-                #if not signed in
+            #profile = None
+            profile = profile_exists(data['email'], True)
+            if profile and data['pwd'] == profile['pwd']:
+                if profile['blocked']:
+                    data = {'msg': 'you have been blocked contact admin'}
+                elif not profile['activated']:
+                    data = {'msg': 'please activate your account threw the mail, if expired request new'}
+                elif profile['signed_in']:
+                    data = {'msg' : 'you are already signed in'}
+                else:
+                    update_profile(data['email'], {'signed_in' : True})
+            else:
+                data = {'msg': 'pwd or login wrong'}
 
-                #   check pwd
-                    if data['pwd'] == fetch_profiles({'email': data['email']})[0]['pwd']:
-                        if blockes :
-                            data = {'msg': 'you have been blocked contact admin'}
-                        else:
+
+
+
                             #session add
                             #update sign in? already have session
                             data = {'msg': 'you are signed in'}

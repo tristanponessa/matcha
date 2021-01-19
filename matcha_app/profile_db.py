@@ -58,8 +58,16 @@ def update_profile(email, data):
     load_profiles_in_db([profile]) #will have new unik id
 
 #CHECK FUNS
-def profile_exists(email):
-    return len(fetch_profiles({'email': email})) == 1
+def profile_get(email, key):
+    return fetch_profiles({'email': email})[0][key]
+
+
+def profile_exists(email, fetch=False):
+    x = fetch_profiles({'email': email})
+    if fetch:
+        return x
+    return len(x) == 1
+    #return len(fetch_profiles({'email': email})) == 1
 
 
 def is_profile_signedIn(email):
