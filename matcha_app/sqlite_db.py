@@ -17,76 +17,12 @@ Never use Python string operations to dynamically create a SQL statement string.
     geo location in db shouldnt be there but the pro demande to always locate despite an eventual block, ill store the last place just in case
     tmp vars like sign up token , received msg alert, recent like , is stored in session object
 
-    class SQLite():
-    def __init__(self, file='sqlite.db'):
-        self.file=file
-    def __enter__(self):
-        self.conn = sqlite3.connect(self.file)
-        self.conn.row_factory = sqlite3.Row
-        return self.conn.cursor()
-    def __exit__(self, type, value, traceback):
-        self.conn.commit()
-        self.conn.close()
 """
 
 import sqlite3
 import sys
 import os
-
-
-class FakeDb:
-
-    data = [
-            {'id':123456, 'profile': {
-                                        'first_name': 'tristan',
-                                        'last_name': 'superstar',
-                                        'location': 'Mars',
-                                        'msgs': [
-                                                {'date': '14/08/2014 10:45:06', 'to_email': 'mariafox@hotmail.com', 'msg': 'hi your my friend bye'},
-                                                {'date': '22/01/2002 19:23:06', 'to_email': 'mariafox@hotmail.com', 'msg': 'hi hi hi'},
-                                                {'date': '19/08/2009 02:45:06', 'to_email': 'unknown@hotmail.com', 'msg': 'whats up'}
-                                                ],
-                                        'email' : 'trponess@hotmail.com',
-                                        'likes': ['mariafox@hotmail.com', 'unknown@hotmail.com'],
-                                        'pics': {'profile' : './matcha_app/static/pics/1.jpg', 'other' : []},
-                                        'birthdate': '17/03/95',
-                                        'gender': 'male',
-                                        'sex_ori' : 'straight',
-                                        'tags': ['C++','power'],
-                                        'intro': 'im a GOD',
-                                        'signed_in': False,
-                                        'blocked': False,
-                                        'activated': True,
-                                        'pwd' : '1234'
-                                }
-            },
-
-            {'id': 789123, 'profile': {
-                                        'first_name': 'Maria',
-                                        'last_name': 'Fox',
-                                        'location': 'Mars',
-                                        'msgs': [
-                                                {'date': '14/08/2014 11:00:00', 'to_email': 'mariafox@hotmail.com', 'msg': 'hiiiiiiiiiii'},
-                                                {'date': '22/01/2002 04:18:56', 'to_email': 'trponess@hotmail.com', 'msg': 'dig it'},
-                                                {'date': '19/08/2009 00:00:05', 'to_email': 'unknown@hotmail.com', 'msg': 'i dont know'}
-                                                ],
-                                        'email': 'mariafox@hotmail.com',
-                                        'likes': ['trponess@hotmail.com', 'unknown@hotmail.com'],
-                                        'pics': {'profile': './matcha_app/static/pics/c.png', 'other': ['./matcha_app/static/pics/2.png']},
-                                        'birthdate': '01/06/96',
-                                        'gender': 'female',
-                                        'sex_ori': 'straight',
-                                        'tags': ['Java', 'AVGN'],
-                                        'intro': 'im a GODDESS',
-                                        'signed_in': False,
-                                        'blocked': False,
-                                        'activated': True,
-                                        'pwd': '0000'
-                                }
-            }
-
-    ]
-
+from typing import List, Dict
 
 class Sql_cmds:
 
@@ -126,7 +62,16 @@ def init_db():
     exec_sql(Sql_cmds.add_col.format('users', 'profile', 'TEXT')) #2gb of text 1,048,576 bytes * 2 > 162 * 2 big msgs
 
 
-def exec_sql(sql_cmd):
+def exec_sql(sql_cmd : str, *args: List[str]) -> List[Dict[str, str]]:
+    print(sql_cmd)
+    with SQLite() as cur:
+        fsql_cmd = sql_cmd.format(*args)
+        cur.execute(fsql_cmd)
+        res = cur.fetchall()
+        return res
+        # get output put in log
+
+def exec_sql(sql_cmd : str, **args) -> List[Dict[str, str]]:
     print(sql_cmd)
     with SQLite() as cur:
         cur.execute(sql_cmd)

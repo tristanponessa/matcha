@@ -1,10 +1,9 @@
-import db1
-import db2
+import sqlite_db
+import fakedb
 
-db_manager:
+from typing import List, Dict
 
-    def exec_sql_fr_db(sql_cmd, db=''):
 
-        db = {'sqlite' : db1.execsqlFUN , 'fakedb ' : db2.execsqlFUN}
-
-        if db == 'sqlite':
+def exec_db(db_name: str, cmd: str, *args) -> List[Dict[str, str]]:
+    db = {'sqlite': sqlite_db.exec_sql, 'fakedb ': fakedb.exec_cmd}
+    return db[db_name](cmd, *args)

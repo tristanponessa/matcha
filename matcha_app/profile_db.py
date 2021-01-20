@@ -11,6 +11,8 @@ from matcha_app.dict_ops import *
 from matcha_app.zemail import *
 from matcha_app.security_ import *
 
+from typing import List,Dict
+
 """
 class ProfileInfo:
     
@@ -45,7 +47,7 @@ keys_visibility = {
 # db + dict_ops
 
 #DB ACTION
-def load_profiles_in_db(profiles) -> None:
+def load_profiles_in_db(profiles : List[Dict[str, str]]) -> None:
     for profile_dict in profiles:
         profile_str = dict_to_str(profile_dict)
         exec_sql(Sql_cmds.insert.format('users', 'profile', profile_str))
