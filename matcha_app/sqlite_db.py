@@ -62,8 +62,9 @@ def init_db():
     exec_sql(Sql_cmds.add_col.format('users', 'profile', 'TEXT')) #2gb of text 1,048,576 bytes * 2 > 162 * 2 big msgs
 
 
-def exec_sql(sql_cmd : str, *args: List[str]) -> List[Dict[str, str]]:
-    print(sql_cmd)
+def Sexec_sql(sql_cmd : str, *args: List[str]) -> List[Dict[str, str]]:
+    with open('./matcha_app/log.txt', 'w+') as f:
+        print(f'{sql_cmd} \n', file=f)
     with SQLite() as cur:
         fsql_cmd = sql_cmd.format(*args)
         cur.execute(fsql_cmd)
@@ -71,14 +72,15 @@ def exec_sql(sql_cmd : str, *args: List[str]) -> List[Dict[str, str]]:
         return res
         # get output put in log
 
-def exec_sql(sql_cmd : str, **args) -> List[Dict[str, str]]:
-    print(sql_cmd)
+
+def exec_sql(sql_cmd : str) -> List[Dict[str, str]]:
+    with open('./matcha_app/log.txt', 'w+') as f:
+        print(f'{sql_cmd} \n', file=f)
     with SQLite() as cur:
         cur.execute(sql_cmd)
         res = cur.fetchall()
         return res
-        # get output put in log
-
+        # get output put in lo
 
 def dict_factory(cursor, row):
     # get fetch in dict

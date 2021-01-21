@@ -21,8 +21,9 @@ def add_url_rules(app):
         app.add_url_rule(v['url'], methods=v['mthds'], view_func=v['view'])
 
 def setup_db():
-    if_file_del('./matcha.db')
-    init_db()
+    #if_file_del('./matcha.db')
+    if not os.path.exists('./matcha.db'):
+        init_db()
     profiles = create_profiles(0)
     load_profiles_in_db(profiles)
 

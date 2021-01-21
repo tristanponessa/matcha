@@ -11,15 +11,15 @@ class Sets:
 
 class Limits:
 
-    sets_ = (string.ascii_lowercase, string.ascii_uppercase, symbs, string.digits)
+    sets_ = (string.ascii_lowercase, string.ascii_uppercase, Sets.symbs, string.digits)
     smtp = ('@hotmail', '@outlook', '@gmail')
     smpt_ext = ('.com', '.fr')
-    email_tags = (f'{_smtp}{_ext}' for _smtp in smtp for _ext in ext)
+    email_tags = (f'{_smtp}{_ext}' for _smtp in smtp for _ext in smpt_ext)
     age_nb = range(18, 100)
     pwd_len = range(8, 64)
     pwd_str = (string.ascii_lowercase, string.ascii_uppercase, string.punctuation, string.digits)
     pic_ext = ('png', 'jpg', 'jpeg')
-    pic_valid = check_pic
+    #pic_valid = check_pic
 
 
 #check if someelse exists same pers
@@ -88,6 +88,8 @@ def proform_check_for_key(profile, check_funs, key):
 def profile_form_valid(form_data):
     #check_funs = get_all_check_funs()
     #if all(proform_check_for_key(profile, check_funs, key) for key in check_funs.keys()):
+    if ['email'] != list(form_data.keys()):
+        return False
     val = dict_val_similar_key(form_data, 'email')
     if check_email(val):
         return True

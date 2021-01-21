@@ -1,5 +1,6 @@
 #clean user data funs
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer)
+from itsdangerous.exc import SignatureExpired
 from flask import Markup
 
 site_secret_key = 'WEBSITE_SECRET_KEY'
@@ -11,12 +12,12 @@ def gen_unik_token(email):
 
 def get_token_data(token):
     s = Serializer(site_secret_key)
-    email = {'email': ''}
     try:
-        email = s.loads(token)['email']
-    except Exception as e:
-        print(e)
-    return email
+        return s.loads(token)['email']
+    except SignatureExpired:
+        return 'expired'
+    except KeyError:
+        return 'no email key'
 
 def clean_user_data(data):
     #check sql commands

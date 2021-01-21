@@ -1,0 +1,2 @@
+INSERT INTO users ('profile') VALUES ('{"email": "trponess@hotmail.com", "blocked": false, "activated": false, "signed_in": false, "likes": [], "msgs": []}') 
+

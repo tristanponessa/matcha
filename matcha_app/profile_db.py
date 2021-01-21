@@ -59,6 +59,11 @@ def update_profile(email, data):
     profile.update(data)
     load_profiles_in_db([profile]) #will have new unik id
 
+def del_profile(email):
+    profile = fetch_profiles({'email': email})[0]
+    unik_id = fetch_unikid_profile_by_email(email)
+    exec_sql(Sql_cmds.delete_row.format('users', 'id', unik_id))
+
 #CHECK FUNS
 def profile_get(email, key):
     return fetch_profiles({'email': email})[0][key]

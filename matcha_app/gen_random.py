@@ -17,13 +17,6 @@ import random
 import string
 import os
 
-chosen = []
-def chosen(fn):
-    def fun_wrap(fn):
-        chosen.append()
-
-
-#@chosen
 def gen_random_firstname(seed_):
     #random.seed(seed_)
     x = random.choice(string.ascii_uppercase)
