@@ -23,6 +23,7 @@ import sqlite3
 import sys
 import os
 from typing import List, Dict
+from matcha_app.profile_db import db_to_file
 
 class Sql_cmds:
 
@@ -73,9 +74,11 @@ def Sexec_sql(sql_cmd : str, *args: List[str]) -> List[Dict[str, str]]:
         # get output put in log
 
 
+from matcha_app.profile_db import *
 def exec_sql(sql_cmd : str) -> List[Dict[str, str]]:
     with open('./matcha_app/log.txt', 'w+') as f:
         print(f'{sql_cmd} \n', file=f)
+    db_to_file('db.txt')
     with SQLite() as cur:
         cur.execute(sql_cmd)
         res = cur.fetchall()

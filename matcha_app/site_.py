@@ -1,8 +1,7 @@
 from flask import Flask, redirect, url_for, request, render_template, flash, Blueprint, jsonify, session
 import time
 from matcha_app.zemail import email_activate_account
-from matcha_app.profile_db import format_profile, load_profiles_in_db, profile_exists, update_profile, \
-                                is_profile_signedIn, del_profile
+from matcha_app.profile_db import *
 from matcha_app.security_ import clean_user_data, get_token_data
 from matcha_app.check import profile_form_valid
 
@@ -34,8 +33,9 @@ class Views:
                     email_activate_account(fprofile)
                     data = {'state': 'success', 'msg': 'email sent to you, activate account'}
 
-                if profile := profile_exists(data['email'], True):
-                    if profile['activated'] == False:
+                profile = profile_exists(data['email'], True)
+                if profile:
+                    if not profile['activated']:
                         del_profile(data['email'])
                         time.sleep(1)
                         x(data)
@@ -43,12 +43,6 @@ class Views:
                        data = {'msg': 'email already taken'}
                 else:
                     x(data)
-
-
-
-
-
-
             else:
                 data = {'state': 'error', 'email':'email must be', 'pwd' : 'must be'}
         return jsonify(data)
@@ -68,7 +62,10 @@ class Views:
             #!!fetch profiles called 3 times profomrance issue?
             #check profile exists
             #profile = None
+
+
             profile = profile_exists(data['email'], True)
+            print()
             if profile and data['pwd'] == profile['pwd']:
                 if profile['blocked']:
                     data = {'msg': 'you have been blocked contact admin'}
@@ -102,8 +99,8 @@ class Views:
 
 
             else:
-
-                update_profile(email := res, {'activated': True})
+                email = res
+                update_profile(email, {'activated': True})
                 data = {'state': 'success', 'msg' : 'account activated!'}
 
 
@@ -112,31 +109,38 @@ class Views:
         # redirect to users account render_template('user_main_page.html', data=data)  # the update
 
 
-    def account_manager():
-        pass
-        """
-        data = dict()
-        email = request.path.split('/')[-1]
+    #def account_manager():
+    #pass
+    """
+    data = dict()
+    email = request.path.split('/')[-1]
 
+    # NEEDS TO BE SIGNED IN
+    if profile_exists(email) and is_profile_signedIn(email):
+        if request.method == 'GET':
+            profile = fetch_profiles({'email': email})[0]
+
+        #ALL 3
         # NEEDS TO BE SIGNED IN
-        if profile_exists(email) and is_profile_signedIn(email):
-            if request.method == 'GET':
-                profile = fetch_profiles({'email': email})[0]
+        # NEEDS AUTH
+        # NEEDS TO BE HIS OWN
+        if
+            if request.method == 'POST':
+            if request.method == 'PUT':
+            if request.method == 'DELETE':
 
-            #ALL 3
-            # NEEDS TO BE SIGNED IN
-            # NEEDS AUTH
-            # NEEDS TO BE HIS OWN
-            if
-                if request.method == 'POST':
-                if request.method == 'PUT':
-                if request.method == 'DELETE':
+    else:
+        data = {'status': 'error', 'msg': "email don't have an account"}
 
-        else:
-            data = {'status': 'error', 'msg': "email don't have an account"}
+    return jsonify(data)
+    """
 
-        return jsonify(data)
-        """
+    def save_db_to_file():
+        if request.method == 'GET':
+            with open('db.json', 'w+') as f:
+                for pros in extract_profiles_from_db():
+                    print_profile(pros, f)
+        return jsonify({'msg': 'saved to file, FUCK YOU if your a hacker'})
 
 
 
@@ -158,7 +162,9 @@ class UrlRules:
     sign_up = {'url': '/signup', 'mthds': ['GET', 'POST'], 'view': Views.signup}
     sign_in = {'url': '/signin', 'mthds': ['GET', 'POST'], 'view': Views.signin}
     activate_account = {'url': '/activate_account', 'mthds': ['GET'], 'view': Views.activate_account} # ?key=
-    manage_account = {'url': '/<email>', 'mthds': ['POST', 'PUT', 'DELETE', 'GET'], 'view': Views.account_manager}  # to search or filter
+    #manage_account = {'url': '/<email>', 'mthds': ['POST', 'PUT', 'DELETE', 'GET'], 'view': Views.account_manager}  # to search or filter
+
+    save_db_to_file = {'url': '/db_to_file', 'mthds': ['GET'], 'view': Views.save_db_to_file}  # to search or filter
 
     """
     log_in = {'url': '/login/<email>', 'mthds': ['POST'], 'view': Urlrules.home_page}

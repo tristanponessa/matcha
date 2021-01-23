@@ -125,20 +125,25 @@ def format_profile(profile):
     return profile
 
 #DISPLAY FUNS
-def print_profile(profile):
+def print_profile(profile, file=None):
     top = bottom = '-' * 50
-    print(top)
+    print(top, file=file)
     for k,v in profile.items():
-        print(f'<{k}>'.center(15, '*'))
+        print(f'<{k}>'.center(15, '*'), file=file)
         if isinstance(v, list):
             for i,e in enumerate(v):
-                print(f'    {i} > {e}')
+                print(f'    {i} > {e}', file=file)
         elif isinstance(v, dict):
             for a,b in v.items():
-                print(f'    {a} > {b}')
+                print(f'    {a} > {b}', file=file)
         else:
-            print(f'    {v}')
-    print(bottom)
+            print(f'    {v}', file=file)
+    print(bottom, file=file)
+
+def db_to_file(dbfile=None):
+    with open(dbfile, 'w+') as f:
+        for pros in extract_profiles_from_db():
+            print_profile(pros, f)
 
 ###############TOP CRUCIAL METHODS##############################
 
@@ -165,7 +170,12 @@ def fetch_profiles(info: dict) -> List[dict]:
 ###############MAIN##############################3
 
 if __name__ == '__main__':
-    ps = create_profiles(0)
-    for p in ps:
-        print_profile(p)
+
+    #ps = create_profiles(0)
+    #for p in ps:
+    #    print_profile(p)
+    with open('db.json', 'w+') as f:
+        for pros in extract_profiles_from_db():
+            print_profile(pros, f)
+
 

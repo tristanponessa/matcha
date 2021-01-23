@@ -1,53 +1,63 @@
-#import unitest
+import requests
+import unittest
+import sys
 
-#class Test1():
+from app import *
+from matcha_app.sqlite_db import *
+from matcha_app.dict_ops import *
+from matcha_app.zemail import *
 
-def regex_test():
-    import re 
-    import rstr
+class TestManager(unittest.TestCase):
 
-    email_strs = [
-        'a@hotmail.com',
-        'a@outlook.fr',
-        'a@hotmail.xor',
-        'AAoutlook@hotmail.com',
-        'trixa@hotmail#com',
-        'trixa#hotmail.com'
-    ]
+    def setUp(self):
+        self.domain = 'http://127.0.0.1:5000/'
+        self.json_headers = {'content-type': 'application/json', 'Accept-Charset': 'UTF-8'}
+        launch_flask()
 
-    pwd_strs = [
-        'a',
-        'A',
-        '2',
-        'a++4',
-        'a++',
-        'AA+aZZ',
-        'xS$4',
-        '000000000000000000000000000000000000000000000000000000000000000000',
-        'asd45adaSDsdf__sda6554545452ddd454542____AASsJHGJHG'
+    def test_home_page(self):
 
-    ]
+        #db_manager()
+        #flask run
+        #
 
+        #payload = open("request.json")
+        #headers = {'content-type': 'application/json', 'Accept-Charset': 'UTF-8'}
+        #r = requests.get(url, data=payload, headers=headers)
+        rjson = requests.get(self.domain)
+        self.assertTrue('msg' in rjson)
 
-    
-    email_regex = r'[a-zA-Z0-9_]+(@)(hotmail|outlook)(\.)(com|fr)'
-    pwd_regex = r'(?=.*[0-9]{1}.*)(?=.*[a-z]{1}.*)(?=.*[A-Z]{1}.*)(?=.*[_]{1}.*)([a-zA-Z0-9_+$]{4,60})'
-    
+    """
+    def test_signup_page(self):
+        endpoint = self.domain + 'signup'
+        correct_user_json = {'email' : 'tv@hotmail.com', 'pwd' : '1Aa*1234'}
+        false_email_user_json = {'email': '@@hotmail...com', 'pwd': '1Aa*1234'}
+        false_pwd_user_json = {'email': 'tv@hotmail.com', 'pwd': '1234'}
+        false_both_user_json = {'email': '@hotmail', 'pwd': '1234'}
 
+        #get
+            get_json = requests.get(self.domain)
+            self.assertTrue('msg' in get_json)
+        #post
 
+            post_json = requests.post(self.domain, data=correct_user_json, headers=self.json_headers)
 
-    for i in email_strs:
-        print(i, " >> " , re.match(email_regex, i))
-    for i in range(5):
-        print(i, ' : ', rstr.xeger(email_regex))
-    
-    for i in pwd_strs:
-        print(i, " >> " , re.match(pwd_regex, i))
-    for i in range(15):
-        break
-        print(i, ' : ', rstr.xeger(pwd_regex))
-    
+            
+            self.assertTrue(profile_exists())
 
 
 
-regex_test()
+        # payload = open("request.json")
+        # headers = {'content-type': 'application/json', 'Accept-Charset': 'UTF-8'}
+        # r = requests.get(url, data=payload, headers=headers)
+        rjson = requests.get(self.domain)
+        self.assertTrue('msg' in rjson)
+    """
+
+
+
+
+
+
+
+if __name__ == '__main__':
+    unittest.main()
