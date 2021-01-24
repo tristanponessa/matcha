@@ -23,7 +23,17 @@ import sqlite3
 import sys
 import os
 from typing import List, Dict
-from matcha_app.profile_db import db_to_file
+
+import random
+import string
+from typing import List
+from matcha_app.gen_random import *
+from matcha_app.dict_ops import *
+from matcha_app.zemail import *
+from matcha_app.security_ import *
+
+
+
 
 class Sql_cmds:
 
@@ -74,7 +84,7 @@ def Sexec_sql(sql_cmd : str, *args: List[str]) -> List[Dict[str, str]]:
         # get output put in log
 
 
-from matcha_app.profile_db import *
+
 def exec_sql(sql_cmd : str) -> List[Dict[str, str]]:
     with open('./matcha_app/log.txt', 'w+') as f:
         print(f'{sql_cmd} \n', file=f)
@@ -93,34 +103,151 @@ def dict_factory(cursor, row):
     return d
 
 
-"""
-def db_conn():
-    conn = sqlite3.connect("matcha.db")
-    conn.row_factory = dict_factory
-    cur = conn.cursor()
-    return cur
+###########################################################################################
 
-def db_close(conn, cur):
-    if cur:
-        cur.close()
-    if conn:
-        conn.commit()
-        conn.close()
+# db + dict_ops
 
-def clean_exit(msg):
-    print("exit error : ",msg)
-    # close what you need
-    sys.exit(0)
+# DB ACTION
+def load_profiles_in_db(profiles: List[Dict[str, str]]) -> None:
+    for profile_dict in profiles:
+        profile_str = dict_to_str(profile_dict)
+        exec_sql(Sql_cmds.insert.format('users', 'profile', profile_str))
 
-"""
 
+def update_profile(email, data):
+    profile = fetch_profiles({'email': email})[0]
+    unik_id = fetch_unikid_profile_by_email(email)
+    exec_sql(Sql_cmds.delete_row.format('users', 'id', unik_id))
+    profile.update(data)
+    load_profiles_in_db([profile])  # will have new unik id
+
+
+def del_profile(email):
+    profile = fetch_profiles({'email': email})[0]
+    unik_id = fetch_unikid_profile_by_email(email)
+    exec_sql(Sql_cmds.delete_row.format('users', 'id', unik_id))
+
+
+# CHECK FUNS
+def profile_get(email, key):
+    return fetch_profiles({'email': email})[0][key]
+
+
+def profile_exists(email, fetch=False):
+    x = fetch_profiles({'email': email})
+    if fetch:
+        return x
+    return len(x) == 1
+    # return len(fetch_profiles({'email': email})) == 1
+
+
+def is_profile_signedIn(email):
+    return fetch_profiles({'email': email})[0]['signed_in']
+
+
+# GET FUNS
+def get_general_profile_data(email):
+    profile = fetch_profiles({'email': email})[0]
+    del profile['blocked']
+    del profile['activated']
+    del profile['signed_in']
+    del profile['msgs']
+    return profile
+
+
+def fetch_unikid_profile_by_email(email):
+    users_table = exec_sql(Sql_cmds.fetch.format('users'))
+    for row_nb in range(len(users_table)):
+        unik_id = users_table[row_nb]['id']
+        profile_str = users_table[row_nb]['profile']
+        if email in profile_str:
+            return unik_id
+
+
+def fetch_all_emails():
+    profiles_dct_lst = extract_profiles_from_db()
+    emails = []
+    for profile_dct in profiles_dct_lst:
+        emails.append(profile_dct['email'])
+    return emails
+
+
+# MODIFY FUNS
+# def block_user(email):
+#    update_profile(email, {'blocked':True})
+
+def like_user(from_email, to_email):
+    profile = fetch_profiles({'email': from_email})[0]
+    # likes = dict_val_similar_key(profile, 'like')
+    likes = profile['likes'].append(to_email)
+    update_profile(from_email, {'likes': likes})
+
+
+def format_profile(profile):
+    # fields not seen on sign page
+    profile['blocked'] = False
+    profile['activated'] = False
+    profile['signed_in'] = False
+    profile['likes'] = []
+    profile['msgs'] = []
+    return profile
+
+
+# DISPLAY FUNS
+def print_profile(profile, file=None):
+    top = bottom = '-' * 50
+    print(top, file=file)
+    for k, v in profile.items():
+        print(f'<{k}>'.center(15, '*'), file=file)
+        if isinstance(v, list):
+            for i, e in enumerate(v):
+                print(f'    {i} > {e}', file=file)
+        elif isinstance(v, dict):
+            for a, b in v.items():
+                print(f'    {a} > {b}', file=file)
+        else:
+            print(f'    {v}', file=file)
+    print(bottom, file=file)
+
+
+def db_to_file(dbfile=None):
+    with open(dbfile, 'w+') as f:
+        for pros in extract_profiles_from_db():
+            print_profile(pros, f)
+
+
+###############TOP CRUCIAL METHODS##############################
+
+def extract_profiles_from_db() -> List[dict]:
+    users_table = exec_sql(Sql_cmds.fetch.format('users'))
+    col_str = 'profile'
+    profiles_dct_lst = []
+    for row_nb in range(len(users_table)):
+        profile_str = users_table[row_nb][col_str]
+        profile_dct = str_to_dict(profile_str)
+        profiles_dct_lst.append(profile_dct)
+    return profiles_dct_lst
+
+
+def fetch_profiles(info: dict) -> List[dict]:
+    profiles_dct_lst = extract_profiles_from_db()
+    matches = []
+    for profile_dct in profiles_dct_lst:
+        if is_sub_dict(profile_dct, info):
+            matches.append(profile_dct)
+    return matches
+
+
+###############MAIN##############################3
 """
 if __name__ == '__main__':
-    cur = db_conn()
-    init_db(cur)
-    r = exec_sql(cur, Sql_cmds.fetch.format('users'))  # 2gb of text 1,048,576 bytes * 2 > 162 * 2 big msgs
-    print(r)
-    os.remove('matcha.db')
+
+    #ps = create_profiles(0)
+    #for p in ps:
+    #    print_profile(p)
+    with open('db.json', 'w+') as f:
+        for pros in extract_profiles_from_db():
+            print_profile(pros, f)
 """
 
 

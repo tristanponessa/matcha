@@ -2,7 +2,7 @@ import requests
 import unittest
 import sys
 
-from app import *
+from app_ import *
 from matcha_app.sqlite_db import *
 from matcha_app.dict_ops import *
 from matcha_app.zemail import *
@@ -57,7 +57,8 @@ class TestManager(unittest.TestCase):
 
 
 
-
+"""
 
 if __name__ == '__main__':
     unittest.main()
+"""

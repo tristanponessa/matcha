@@ -1,5 +1,5 @@
 from dict_ops import *
-from profile_db import *
+from sqlite_db import *
 
 import sys
 import inspect
