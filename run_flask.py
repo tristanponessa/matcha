@@ -20,12 +20,6 @@ def add_url_rules(app):
      for name,v in UrlRules.get_cls_data().items():
         app.add_url_rule(v['url'], methods=v['mthds'], view_func=v['view'])
 
-def setup_db():
-    #if_file_del('./matcha.db')
-    if not os.path.exists('./matcha.db'):
-        init_db()
-    profiles = create_profiles(0)
-    load_profiles_in_db(profiles)
 
 def launch_flask():
     load_env()

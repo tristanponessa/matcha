@@ -1,4 +1,4 @@
-class SignIn(SiteBody):
+class SignIn(RequestData, Db):
 
     def __init__(self):
 
@@ -13,7 +13,7 @@ class SignIn(SiteBody):
 
     return_data  if sign_in sucess : FUN
 
-    CLEAN : fun
+    /
 
 
     log:
@@ -25,6 +25,10 @@ class SignIn(SiteBody):
 
 
     def get():
+        def check():
+    def post():
+        def check():
+
 
 
 

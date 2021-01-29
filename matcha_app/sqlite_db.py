@@ -72,6 +72,12 @@ def init_db():
     exec_sql(Sql_cmds.create_table.format('users'))
     exec_sql(Sql_cmds.add_col.format('users', 'profile', 'TEXT')) #2gb of text 1,048,576 bytes * 2 > 162 * 2 big msgs
 
+def setup_db():
+    #if_file_del('./matcha.db')
+    if not os.path.exists('./matcha.db'):
+        init_db()
+    profiles = create_profiles(0)
+    load_profiles_in_db(profiles)
 
 def Sexec_sql(sql_cmd : str, *args: List[str]) -> List[Dict[str, str]]:
     with open('./matcha_app/log.txt', 'w+') as f:
