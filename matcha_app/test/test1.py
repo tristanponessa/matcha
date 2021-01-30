@@ -26,7 +26,7 @@ class TestManager(unittest.TestCase):
         rjson = requests.get(self.domain)
         self.assertTrue('msg' in rjson)
 
-    """
+
     def test_signup_page(self):
         endpoint = self.domain + 'signup'
         correct_user_json = {'email' : 'tv@hotmail.com', 'pwd' : '1Aa*1234'}
@@ -40,8 +40,6 @@ class TestManager(unittest.TestCase):
         #post
 
             post_json = requests.post(self.domain, data=correct_user_json, headers=self.json_headers)
-
-            
             self.assertTrue(profile_exists())
 
 
@@ -51,7 +49,7 @@ class TestManager(unittest.TestCase):
         # r = requests.get(url, data=payload, headers=headers)
         rjson = requests.get(self.domain)
         self.assertTrue('msg' in rjson)
-    """
+
 
 
 

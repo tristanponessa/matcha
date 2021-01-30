@@ -98,8 +98,6 @@ class Views:
             #CHECK DTA FORMALITY
             if res == 'expired':
                 data = {'msg' : 'This is an invalid or expired token, please generate a new one by signing up!'}
-
-
             else:
                 email = res
                 update_profile(email, {'activated': True})
@@ -109,6 +107,68 @@ class Views:
         return jsonify(data)
         # return redirect('/')
         # redirect to users account render_template('user_main_page.html', data=data)  # the update
+
+    def modify_account():
+        #?email=''
+        # check if demador signed in
+        if request.method == 'GET':
+            #get modifiable user fields dict + get profile from db
+        if request.method == 'POST':
+            #aiming himself
+            #dont have to put ll fields,
+        if request.method == 'DELETE':
+            #aiming himself
+
+    def send_msg():
+        #?from_email='';to_mail=''  JSON 'msg'
+        # check if demador signed in
+        if request.method == 'GET':
+            # get conversiation between a b
+        if request.method == 'POST':
+            # send json with field msg
+
+    def toggle_like_user():
+        # ?from_email='';to_mail='';n='-1'
+        # check if demador signed in
+        if request.method == 'GET':
+            # get bool if you liked user
+        if request.method == 'POST':
+            #add n
+            #add like if not not liked
+            # -1 if at 1
+
+    def toggle_block_user():
+        # ?from_email='';to_mail='';n='-1'
+        # check if demador signed in
+        if request.method == 'GET':
+        # get bool if blocked users
+        if request.method == 'POST':
+            # add n
+            # add like if not not liked
+            # -1 if at 1
+
+    def ft_matcha():
+        # ?cmp_email=''
+        if request.method == 'GET':
+            # get lst of users who match you with % indicator
+
+    def filter_users():
+        # ?ways=time='05:45:22',name=,... multiple of JSON
+        if request.method == 'GET':
+            #check if fields has to be one and fields are correct
+            #get lst
+
+    def unblock_user():
+        # ?blocked_email=''
+        #needs admin auth
+
+
+
+
+
+
+
+
 
 
     #def account_manager():
