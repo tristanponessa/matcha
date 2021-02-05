@@ -24,6 +24,30 @@ class Limits:
 
 
 
+def is_profile_in_states(fns : 'List[Callable]'):
+    errs = []
+    for fn in fns:
+        if not fn():
+            if fn.__name__
+
+    if all(()):
+        return jsonify({''})
+
+    if profile and data['pwd'] == profile['pwd']:
+                if profile['blocked']:
+                    data = {'msg': 'you have been blocked contact admin'}
+                elif not profile['activated']:
+                    data = {'msg': 'please activate your account threw the mail, if expired request new'}
+                elif profile['signed_in']:
+                    data = {'msg' : 'you are already signed in'}
+                else:
+                    update_profile(data['email'], {'signed_in' : True})
+            else:
+                data = {'msg': 'pwd or login wrong'}
+
+    for fn in fnsl
+
+
 #check if someelse exists same pers
 
 def check_age(iage):

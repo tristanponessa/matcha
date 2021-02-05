@@ -11,6 +11,28 @@ from matcha_app.check import profile_form_valid
 #app.add_url_rule('/', 'index', index)
 #url_for('find_question' ,question_id=1)
 #@app.route('/questions/<int:question_id>')
+class Notifications:
+
+    pwd = 'wrong pwd'
+    email = 'wrong email'
+    credentials = 'wrong credentials'
+    signin = 'your not signed in'
+    blocked = 'your blocked, contact admin'
+    token = 'token is expired'
+
+    token_sent = 'a token has be sent to you in your email.'
+
+    notifications = {'liked' : '{nickname} liked you',
+                     'liked_back': '! {nickname} liked you back !',
+                     'dislike': '{nickname} unlinked you',
+                     'msg' :  '{nickname} sent you a new message',
+                     'visit': '{nickname} checked out your profile',
+                     'loged_in': 'welcome back {nickname}!'}
+
+
+    def print_errs(errs: list):
+        return '\n'.join(errs)
+
 
 class Views:
 
@@ -111,6 +133,9 @@ class Views:
     def modify_account():
         #?email=''
         # check if demador signed in
+        if all(()):
+            return jsonify({''})
+
         if request.method == 'GET':
             #get modifiable user fields dict + get profile from db
         if request.method == 'POST':

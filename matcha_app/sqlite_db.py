@@ -34,6 +34,38 @@ from matcha_app.security_ import *
 
 
 
+class ProfileInfo:
+    """
+        each field contains a lst of states
+        '' means user can modify it
+        admin_modify is a field that can modified only by admin, 
+        matcha_cmp is the fields for matcha
+    
+    """
+    fields = {
+                #user_modify fields
+              'email': ['user_modify'],
+              'pwd': ['user_modify'],
+              'nick_name' : ['user_modify'],
+              'first_name': ['user_modify'],
+              'last_name': ['user_modify'],
+              'pics': ['user_modify'],
+              'gender': ['user_modify'],
+              'intro': ['user_modify'],
+              'likes': ['user_modify'],
+              'msgs': ['user_modify'],
+                # user_modify fields & matcha_cmp
+              'tags': ['user_modify', 'matcha_cmp'],
+              'sex_orientation': ['user_modify', 'matcha_cmp'],
+              'location': ['user_modify', 'matcha_cmp'],
+              'birthday': ['user_modify', 'matcha_cmp'],
+                #admin_modify
+              'activated': ['admin_modify'],
+              'blocked' : ['admin_modify'] 
+              }
+
+
+
 
 class Sql_cmds:
 
