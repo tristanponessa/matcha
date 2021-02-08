@@ -34,6 +34,27 @@ from matcha_app.security_ import *
 
 
 
+import json
+
+def dict_to_str(idict):
+    return json.dumps(idict)
+
+def str_to_dict(istr):
+    return json.loads(istr)
+
+def is_sub_dct(dct, sub_dct):
+    return sub_dct < dct
+
+
+class DbDct:
+
+
+    db_dct = dict()
+
+
+
+
+
 class ProfileInfo:
     """
         each field contains a lst of states
@@ -42,40 +63,29 @@ class ProfileInfo:
         matcha_cmp is the fields for matcha
     
     """
-    fields = {
-                #user_modify fields
-              'email': ['user_modify'],
-              'pwd': ['user_modify'],
-              'nick_name' : ['user_modify'],
-              'first_name': ['user_modify'],
-              'last_name': ['user_modify'],
-              'pics': ['user_modify'],
-              'gender': ['user_modify'],
-              'intro': ['user_modify'],
-              'likes': ['user_modify'],
-              'msgs': ['user_modify'],
-                # user_modify fields & matcha_cmp
-              'tags': ['user_modify', 'matcha_cmp'],
-              'sex_orientation': ['user_modify', 'matcha_cmp'],
-              'location': ['user_modify', 'matcha_cmp'],
-              'birthday': ['user_modify', 'matcha_cmp'],
-                #admin_modify
-              'activated': ['admin_modify'],
-              'blocked' : ['admin_modify'] 
-              }
 
 
 
 
-class Sql_cmds:
 
-    #fetch_opti - 'SELECT json_field FROM users WHERE email='iemail'
-    fetch = 'SELECT * FROM {}'
-    insert = "INSERT INTO {} ('{}') VALUES ('{}')"
-    add_col = 'ALTER TABLE {} ADD {} {}'
-    #create_table_opti = "CREATE TABLE users ('email' VARCHAR(100))"
-    create_table = "CREATE TABLE {} ('id' INTEGER PRIMARY KEY AUTOINCREMENT)"
-    delete_row = "DELETE FROM {} WHERE {}='{}'"
+class SqlCmds:
+
+    __ = {
+    'sqlite' : {
+                     #fetch = "SELECT profile FROM users WHERE profile LIKE '%email={}%'"
+                    'fetch' : 'SELECT profile FROM users WHERE email="{}"',
+                    'insert' : "INSERT INTO users ('{}') VALUES ('{}')",
+                    'add_col' : 'ALTER TABLE {} ADD {} {}',
+                    'create_table' : "CREATE TABLE {} ('id' INTEGER PRIMARY KEY AUTOINCREMENT)",
+                    'delete_row' : "DELETE FROM {} WHERE {}='{}'",
+                    'update' : 'UPDATE users SET profile={} WHERE email="{}"'
+                },
+    'fakedb' : {
+        'add' :
+
+    }
+
+    }
 
 
 class SQLite:
@@ -100,9 +110,38 @@ class SQLite:
         #print(f'closed instance db connection!')
 
 
-def init_db():
-    exec_sql(Sql_cmds.create_table.format('users'))
-    exec_sql(Sql_cmds.add_col.format('users', 'profile', 'TEXT')) #2gb of text 1,048,576 bytes * 2 > 162 * 2 big msgs
+def init_db(dbname='sqlite'):
+    if dbname == 'sqlite':
+        """
+        exec_sql(SqlCmds.__['sqlite']['create_table'].format('users'))
+        exec_sql(SqlCmds.__['sqlite']['add_col'].format('users', 'profile', 'TEXT')) #2gb of text 1,048,576 bytes * 2 > 162 * 2 big msgs
+        exec_sql(SqlCmds.__['sqlite']['add_col'].format('users', 'email', 'TEXT'))  # 2gb of text 1,048,576 bytes * 2 > 162 * 2 big msgs
+        """
+
+        db_exec('create_table', {'table': 'users'}, 'sqlite')
+        db_exec('create_table', {'table': 'users', 'field': 'email', 'type': 'TEXT'}, 'sqlite')
+        db_exec('create_table', {'table': 'users', 'field': 'profile', 'type': 'TEXT'}, 'sqlite')
+
+
+
+
+def action_db(action, data:'{email:dct}', dbname='sqlite'):
+    exec_sql(SqlCmds.__[dbname][action].format(*data.values()))
+
+
+    """
+    if action == 'get':
+        exec_sql(SqlCmds.__[dbname]['fetch'].format(*data.values()))
+    #sql actions
+    if action == 'add':
+        exec_sql(SqlCmds.__[dbname]['insert'].format(*data.values()))
+    if action == 'update':
+        exec_sql(SqlCmds.__[dbname]['update'].format(*data.values()))
+        if action == 'delete':
+    """
+
+
+
 
 def setup_db():
     #if_file_del('./matcha.db')
@@ -123,15 +162,21 @@ def Sexec_sql(sql_cmd : str, *args: List[str]) -> List[Dict[str, str]]:
 
 
 
-def exec_sql(sql_cmd : str) -> List[Dict[str, str]]:
+def db_exec(action, data:'{email:dct}', dbname='sqlite') -> List[Dict[str, str]]:
+    """
+        1.writes in log
+        2.
+
+    """
+    cmd = SqlCmds.__[dbname][action].format(*data.values())
     with open('./matcha_app/log.txt', 'w+') as f:
-        print(f'{sql_cmd} \n', file=f)
-    db_to_file('db.txt')
-    with SQLite() as cur:
-        cur.execute(sql_cmd)
-        res = cur.fetchall()
-        return res
-        # get output put in lo
+        print(f'{dbname} >> {cmd} \n', file=f)
+    if dbname == 'sqlite':
+        with SQLite() as cur:
+            cur.execute(cmd)
+            res = cur.fetchall()
+            return res
+
 
 def dict_factory(cursor, row):
     # get fetch in dict

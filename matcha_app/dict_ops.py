@@ -14,7 +14,9 @@ def dict_val_similar_key(dct, key):
 def is_sub_dict(dct, sub_dct):
     match = 0
     for k,v in sub_dct.items():
-        if dict_val_similar_key(dct, k) == v:
+        if dct[k] == v:
             match += 1
     if len(sub_dct) == match:
         return True
+
+
