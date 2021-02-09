@@ -33,53 +33,22 @@ from matcha_app.zemail import *
 from matcha_app.security_ import *
 
 
-
+from fields import *
 import json
-"""
-def dict_to_str(idict):
-    return json.dumps(idict)
-
-def str_to_dict(istr):
-    return json.loads(istr)
-
-def is_sub_dct(dct, sub_dct):
-    return sub_dct < dct
-    
-    def setup_db(dbname='sqlite'):
-    if dbname == 'sqlite':
-        #if_file_del('./matcha.db')
-        if not os.path.exists('./matcha.db'):
-            init_db()
-        profiles = create_profiles(0)
-        load_profiles_in_db(profiles)
-"""
-
-
-
-class ProfileInfo:
-    """
-        each field contains a lst of states
-        '' means user can modify it
-        admin_modify is a field that can modified only by admin, 
-        matcha_cmp is the fields for matcha
-    
-    """
-
-
-
-
+import inspect
 
 class SqlCmds:
 
     __ = {
     'sqlite' : {
-                     #fetch = "SELECT profile FROM users WHERE profile LIKE '%email={}%'"
-                    'fetch' : 'SELECT profile FROM users WHERE email="{}"',
+                    #'fetch' = "SELECT profile FROM users WHERE profile LIKE {}" #'%email={}%' || '%email={}%'
+                    'fetch_profile' : 'SELECT profile FROM users WHERE email="{}"',
+                    'fetch_all': 'SELECT profile FROM users',
                     'insert' : "INSERT INTO users ('{}') VALUES ('{}')",
                     'add_col' : 'ALTER TABLE {} ADD {} {}',
                     'create_table' : "CREATE TABLE {} ('id' INTEGER PRIMARY KEY AUTOINCREMENT)",
                     'delete_row' : "DELETE FROM {} WHERE {}='{}'",
-                    'update' : 'UPDATE users SET profile={} WHERE email="{}"'
+                    'update' : 'UPDATE users SET profile="{}" WHERE email="{}"'
                 }
     }
 
@@ -113,10 +82,6 @@ def init_db(dbname='sqlite'):
         db_exec('create_table', {'table': 'users', 'field': 'profile', 'type': 'TEXT'}, 'sqlite')
 
 
-
-
-
-
 def db_exec(action, data:'{email:dct}', dbname='sqlite') -> Dict[str, str]:
     """
         -writes in log
@@ -134,8 +99,7 @@ def db_exec(action, data:'{email:dct}', dbname='sqlite') -> Dict[str, str]:
         with SQLite() as cur:
             cur.execute(cmd)
             res = cur.fetchall()
-            if len(res) > 0:
-                res = [json.loads(r['profile']) for r in res] #convert str to dct
+            res = [json.loads(r['profile']) for r in res] #convert str to dct
             return res
 
 
@@ -145,95 +109,59 @@ def dict_factory(cursor, row):
         d[col[0]] = row[idx]
     return d
 
+#########################
 
-###########################################################################################
+#{'birthdate':'03/05/95', 'first_name':'natsirt'}
+def get_profiles(data):
+    all_profiles = db_exec('fetch_all', {}, 'sqlite')
+    return (p for p in all_profiles if data <= p)
 
-# db + dict_ops
+def profile_exists(email):
+    return len(db_exec('fetch_profile', {'email': email}, 'sqlite')) == 1
 
-# DB ACTION
-def load_profiles_in_db(profiles: List[Dict[str, str]]) -> None:
-    for profile_dict in profiles:
-        profile_str = dict_to_str(profile_dict)
-        exec_sql(Sql_cmds.insert.format('users', 'profile', profile_str))
-
-
-def update_profile(email, data):
-    profile = fetch_profiles({'email': email})[0]
-    unik_id = fetch_unikid_profile_by_email(email)
-    exec_sql(Sql_cmds.delete_row.format('users', 'id', unik_id))
-    profile.update(data)
-    load_profiles_in_db([profile])  # will have new unik id
-
-
-def del_profile(email):
-    profile = fetch_profiles({'email': email})[0]
-    unik_id = fetch_unikid_profile_by_email(email)
-    exec_sql(Sql_cmds.delete_row.format('users', 'id', unik_id))
+def stock_profiles(ps):
+    for p in ps:
+        if len(db_exec('fetch_profile', {'email': p['email']}, 'sqlite')) == 0:
+            db_exec('insert', {'email': p['email']}, 'sqlite')
+            db_exec('insert', {'profile': p}, 'sqlite')
+        else:
+            db_exec('update', {'profile': p}, 'sqlite')
 
 
-# CHECK FUNS
-def profile_get(email, key):
-    return fetch_profiles({'email': email})[0][key]
+def create_profiles(master_seed):
+
+    nb_users = 10
+    min_seed = 0#(nb_users * master_seed)
+    max_seed = 99999#min_seed + nb_users
+
+    profiles = []  # to put into db list of dicts
+    seed_nbs = (random.randint(0,99999) for _ in range(nb_users))
+    emails = (Email.random_(seednb) for seednb in seed_nbs)
+    fields = inspect.getmembers(sys.modules['fields'], inspect.isclass)
+
+    for seed_nb, email in zip(seed_nbs, emails):
+        profile = dict()
+        for clsname, clsobj in fields.items():
+            if clsname != 'Email':
+                if clsobj.random.__code__.co_argcount == 2:
+                    profile[clsobj.lowercase()] = clsobj.random_(emails, seed_nb)
+                else:
+                    profile[clsobj.lowercase()] = clsobj.random_(seed_nb)
+        profiles.append(profile)
+    return profiles
 
 
-def profile_exists(email, fetch=False):
-    x = fetch_profiles({'email': email})
-    if fetch:
-        return x
-    return len(x) == 1
-    # return len(fetch_profiles({'email': email})) == 1
+def load_db(dbname, what):
+    if dbname == 'sqlite':
+        ps = []
+        if what == 'random':
+            ps = create_profiles(0)
+        if what == 'fake':
+            ps =
 
-
-def is_profile_signedIn(email):
-    return fetch_profiles({'email': email})[0]['signed_in']
-
-
-# GET FUNS
-def get_general_profile_data(email):
-    profile = fetch_profiles({'email': email})[0]
-    del profile['blocked']
-    del profile['activated']
-    del profile['signed_in']
-    del profile['msgs']
-    return profile
-
-
-def fetch_unikid_profile_by_email(email):
-    users_table = exec_sql(Sql_cmds.fetch.format('users'))
-    for row_nb in range(len(users_table)):
-        unik_id = users_table[row_nb]['id']
-        profile_str = users_table[row_nb]['profile']
-        if email in profile_str:
-            return unik_id
-
-
-def fetch_all_emails():
-    profiles_dct_lst = extract_profiles_from_db()
-    emails = []
-    for profile_dct in profiles_dct_lst:
-        emails.append(profile_dct['email'])
-    return emails
-
-
-# MODIFY FUNS
-# def block_user(email):
-#    update_profile(email, {'blocked':True})
-
-def like_user(from_email, to_email):
-    profile = fetch_profiles({'email': from_email})[0]
-    # likes = dict_val_similar_key(profile, 'like')
-    likes = profile['likes'].append(to_email)
-    update_profile(from_email, {'likes': likes})
-
-
-def format_profile(profile):
-    # fields not seen on sign page
-    profile['blocked'] = False
-    profile['activated'] = False
-    profile['signed_in'] = False
-    profile['likes'] = []
-    profile['msgs'] = []
-    return profile
+            for p in ps:
+                db_exec('insert', {'email': p['email']}, 'sqlite')
+                db_exec('insert', {'profile': p}, 'sqlite')
 
 
 # DISPLAY FUNS
@@ -255,30 +183,15 @@ def print_profile(profile, file=None):
 
 def db_to_file(dbfile=None):
     with open(dbfile, 'w+') as f:
-        for pros in extract_profiles_from_db():
-            print_profile(pros, f)
+        for pro in db_exec('fetch_all', {}, 'sqlite'):
+            print_profile(pro, f)
 
 
 ###############TOP CRUCIAL METHODS##############################
 
-def extract_profiles_from_db() -> List[dict]:
-    users_table = exec_sql(Sql_cmds.fetch.format('users'))
-    col_str = 'profile'
-    profiles_dct_lst = []
-    for row_nb in range(len(users_table)):
-        profile_str = users_table[row_nb][col_str]
-        profile_dct = str_to_dict(profile_str)
-        profiles_dct_lst.append(profile_dct)
-    return profiles_dct_lst
 
 
-def fetch_profiles(info: dict) -> List[dict]:
-    profiles_dct_lst = extract_profiles_from_db()
-    matches = []
-    for profile_dct in profiles_dct_lst:
-        if is_sub_dict(profile_dct, info):
-            matches.append(profile_dct)
-    return matches
+
 
 
 ###############MAIN##############################3

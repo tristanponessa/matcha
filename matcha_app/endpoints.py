@@ -7,6 +7,9 @@ from matcha_app.check import profile_form_valid
 
 
 
+domain = 'http://127.0.0.1:5000/'
+json_headers = {'content-type': 'application/json', 'Accept-Charset': 'UTF-8'}
+
 #bp_site = Blueprint('site_', __name__)
 #app.add_url_rule('/', 'index', index)
 #url_for('find_question' ,question_id=1)
