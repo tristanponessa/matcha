@@ -1,23 +1,3 @@
-"""
-Never use Python string operations to dynamically create a SQL statement string. Using Python string operations to assemble a SQL statement string leaves you vulnerable to SQL injection attacks. SQL injection attacks 
-
-    have to manually connect to root localhost and create another user to whom you will connect here
-    default engine is innoDB
-    tous les emojis et autres sont sur 4 octets
-    UTF8 de MySQL ne peut coder les caracteres que sur 3 octets
-    depuis ver5 MySQL permet le codage sur 4 octets mais le codage doit être modifié en UTF8mb4
-
-    show tables;
-    SHOW TABLE STATUS;
-    describe users;
-
-    normally the project should be done with an orm for better db manag, the project demands us to use an ancient technik which is brut sql calls in python, 
-    the proeject might not be completed at the best
-
-    geo location in db shouldnt be there but the pro demande to always locate despite an eventual block, ill store the last place just in case
-    tmp vars like sign up token , received msg alert, recent like , is stored in session object
-
-"""
 
 import sqlite3
 import sys
@@ -27,8 +7,6 @@ from typing import List, Dict
 import random
 import string
 from typing import List
-from matcha_app.gen_random import *
-from matcha_app.dict_ops import *
 from matcha_app.zemail import *
 from matcha_app.security_ import *
 
@@ -36,6 +14,8 @@ from matcha_app.security_ import *
 from fields import *
 import json
 import inspect
+
+import matcha_app.file_paths
 
 class SqlCmds:
 
@@ -55,7 +35,7 @@ class SqlCmds:
 
 class SQLite:
     """there must be a connexion for every thread, use cont.manag."""
-    def __init__(self, file='matcha.db'):
+    def __init__(self, file=file_paths.sqlitefile):
         self.file = file
         self.conn = None
         self.cur = None
@@ -92,8 +72,9 @@ def db_exec(action, data:'{email:dct}', dbname='sqlite') -> Dict[str, str]:
 
     cmd = SqlCmds.__[dbname][action].format(*data.values())
 
-    with open('./matcha_app/log.txt', 'w+') as f:
+    with open(file_paths.generallog, 'w+') as f:
         print(f'{dbname} >> {cmd} \n', file=f)
+    db_to_file(file_paths.dblivetxt)
 
     if dbname == 'sqlite':
         with SQLite() as cur:
@@ -157,7 +138,7 @@ def load_db(dbname, what):
         if what == 'random':
             ps = create_profiles(0)
         if what == 'fake':
-            ps =
+            ps = json.load(file_paths.fakedb)
 
             for p in ps:
                 db_exec('insert', {'email': p['email']}, 'sqlite')
@@ -187,24 +168,17 @@ def db_to_file(dbfile=None):
             print_profile(pro, f)
 
 
-###############TOP CRUCIAL METHODS##############################
 
 
 
 
 
 
-###############MAIN##############################3
-"""
-if __name__ == '__main__':
 
-    #ps = create_profiles(0)
-    #for p in ps:
-    #    print_profile(p)
-    with open('db.json', 'w+') as f:
-        for pros in extract_profiles_from_db():
-            print_profile(pros, f)
-"""
+
+
+
+
 
 
 

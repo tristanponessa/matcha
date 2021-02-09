@@ -264,3 +264,17 @@ class Blocked:
     def random_(seed_):
         # random.seed(seed_)
         return random.choice([True, False])
+
+
+def get_field_fns(which):
+    clss = inspect.getmembers(sys.modules[__name__], inspect.isclass)
+    return {clsname: clsobj.__dict__[which] for clsname, clsobj in clss}
+
+    """
+    if which == 'cmp':
+        return {clsname:clsobj.cmp_ for clsname,clsobj in clss}
+    if which == 'random':
+        return {clsname: clsobj.random_ for clsname, clsobj in clss}
+    if which == 'check':
+        return {clsname: clsobj.cmp_ for clsname, clsobj in clss}
+    """
