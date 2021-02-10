@@ -10,6 +10,14 @@ import random
 
 symbs = '+_-!#$&*'
 sets_ = (string.ascii_lowercase, string.ascii_uppercase, symbs, string.digits)
+nosymbs_str = string.ascii_lowercase + string.ascii_uppercase + string.digits
+
+
+def gen_rand_nosymbs(len) -> str:
+    return ''.join((random.choice(nosymbs_str) for _ in range(len)))
+
+def gen_rand_chs(len, chs: str) -> str:
+    return ''.join((random.choice(chs) for _ in range(len)))
 
 
 class Timestamp:
@@ -182,7 +190,7 @@ class Location:
 
     def random_(seed_):
         # random.seed(seed_)
-        locs = ('USA', 'France', 'Moon')
+        locs = ('USA', 'France', 'Moon', 'Spain', 'Canada', 'Turkey', 'Mexico')
         return random.choice(locs)
         # pip install flask-simple-geoip
 
@@ -195,7 +203,7 @@ class Tags:
 
     def random_(seed_):
         # random.seed(seed_)
-        tags = ('sports', 'dancing', 'art', 'movies', 'coding', 'law', 'animals', 'games')
+        tags = ('sports', 'dancing', 'art', 'movies', 'coding', 'law', 'animals', 'games', 'building', 'photograph')
         rnb = random.randint(0, len(tags))
         return (random.choice(tags) for i in range(rnb))
 

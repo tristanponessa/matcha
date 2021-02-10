@@ -1,24 +1,18 @@
-
-
 import sqlite3
 import sys
 sys.path.append('/home/user/Documents/coding/matcha')
 sys.path.append('/home/user/Documents/coding/matcha/matcha_app')
+sys.path.append('/home/user/Documents/coding/matcha/matcha_app/db_files')
+
 import os
 from typing import List, Dict
-
 import random
 import string
-from typing import List
-from matcha_app.zemail import *
-from matcha_app.security_ import *
-
-
-from fields import *
 import json
 import inspect
 
-import matcha_app.file_paths
+from matcha_app.fields import *
+from matcha_app import file_paths
 
 
 
@@ -39,7 +33,10 @@ class SqlCmds:
 
 
 class SQLite:
-    """there must be a connexion for every thread, use cont.manag."""
+    """
+        auto creates file if dont exist
+        there must be a connexion for every thread, use cont.manag.
+    """
     def __init__(self, file=file_paths.sqlitefile):
         self.file = file
         self.conn = None
@@ -62,12 +59,36 @@ class SQLite:
 
 def init_db(dbname='sqlite'):
     if dbname == 'sqlite':
-        db_exec('create_table', {'table': 'users'}, 'sqlite')
-        db_exec('create_table', {'table': 'users', 'field': 'email', 'type': 'TEXT'}, 'sqlite')
-        db_exec('create_table', {'table': 'users', 'field': 'profile', 'type': 'TEXT'}, 'sqlite')
+        file_paths.if_file_del(file_paths.sqlitefile)
+        file_paths.create_file(file_paths.sqlitefile)
+        db_exec('create_table', {'table': 'users'}, dbname)
+        db_exec('create_table', {'table': 'users', 'field': 'email', 'type': 'TEXT'}, dbname)
+        db_exec('create_table', {'table': 'users', 'field': 'profile', 'type': 'TEXT'}, dbname)
 
+"""
+def setup_db(dbfile, action):
+    
+    #if_file_del('./matcha.db')
+    if action == 'new':
+        randstr = gen_rand_nosymbs(5) 
+        sqlitefile =  
+        if not os.path.exists(file_paths.sqlitefile):
+            init_db()
+    profiles = create_profiles(0)
+    load_profiles_in_db(profiles)
+"""
 
-def db_exec(action, data:'{email:dct}', dbname='sqlite') -> Dict[str, str]:
+#BIG FN
+
+def spy_on(func):
+    def inner(*args, **kwargs):
+        #func(*args, **kwargs)
+        #db_to_file(file_paths.sqlitefile)
+        return func(*args, **kwargs)
+    return inner
+
+@spy_on
+def db_exec(action, data:'{email:dct}', out=False, dbname='sqlite') -> Dict[str, str]:
     """
         -writes in log
         -converts json to str for db ; reverse for return
@@ -77,16 +98,22 @@ def db_exec(action, data:'{email:dct}', dbname='sqlite') -> Dict[str, str]:
 
     cmd = SqlCmds.__[dbname][action].format(*data.values())
 
-    with open(file_paths.generallog, 'w+') as f:
-        print(f'{dbname} >> {cmd} \n', file=f)
-    db_to_file(file_paths.dblivetxt)
-
     if dbname == 'sqlite':
+
+        if out:
+            pass
+            # with open(file_paths.generallog, 'w+') as f:
+            #    print(f'{dbname} >> {cmd} \n', file=f)
+
+
         with SQLite() as cur:
             cur.execute(cmd)
             res = cur.fetchall()
             res = [json.loads(r['profile']) for r in res] #convert str to dct
             return res
+
+
+
 
 
 def dict_factory(cursor, row):
@@ -121,18 +148,18 @@ def create_profiles(master_seed):
     max_seed = 99999#min_seed + nb_users
 
     profiles = []  # to put into db list of dicts
-    seed_nbs = (random.randint(0,99999) for _ in range(nb_users))
-    emails = (Email.random_(seednb) for seednb in seed_nbs)
-    fields = inspect.getmembers(sys.modules['fields'], inspect.isclass)
+    seed_nbs = tuple(random.randint(0,9999) for _ in range(nb_users))
+    emails = tuple(Email.random_(seednb) for seednb in seed_nbs)
+    field_fns = get_field_fns('random_')
 
     for seed_nb, email in zip(seed_nbs, emails):
-        profile = dict()
-        for clsname, clsobj in fields.items():
+        profile = {'email' : email}
+        for clsname, randfn in field_fns.items():
             if clsname != 'Email':
-                if clsobj.random.__code__.co_argcount == 2:
-                    profile[clsobj.lowercase()] = clsobj.random_(emails, seed_nb)
+                if randfn.__code__.co_argcount == 2:
+                    profile[clsname.lower()] = randfn(emails, seed_nb)
                 else:
-                    profile[clsobj.lowercase()] = clsobj.random_(seed_nb)
+                    profile[clsname.lower()] = randfn(seed_nb)
         profiles.append(profile)
     return profiles
 
@@ -167,10 +194,14 @@ def print_profile(profile, file=None):
     print(bottom, file=file)
 
 
-def db_to_file(dbfile=None):
-    with open(dbfile, 'w+') as f:
+
+
+
+def db_to_file(file):
+    with open(file, 'w+') as f:
         for pro in db_exec('fetch_all', {}, 'sqlite'):
             print_profile(pro, f)
+
 
 
 

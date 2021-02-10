@@ -4,23 +4,26 @@ print(os.getcwd())
 
 sys.path.append('/home/user/Documents/coding/matcha')
 sys.path.append('/home/user/Documents/coding/matcha/matcha_app')
+sys.path.append('/home/user/Documents/coding/matcha/matcha_app/db_files')
+
+#jezuz christ
+#sys.path.append('/home/user/Documents/coding/matcha')
+#sys.path.append('/home/user/Documents/coding/matcha/matcha_app')
+#sys.path.append('/home/user/Documents/coding/matcha/matcha_app/db_files')
 
 
-import matcha_app
-
-#db already imported fields
+#db already imported fields,filepaths
 import matcha_app.db as D
 
 
 ###############MAIN##############################3
 
 if __name__ == '__main__':
-    #test   fields
-    print(F.get_field_fns('random_'))
-    F.get_field_fns('check')
-    F.get_field_fns('cmp_')
 
-    pass
+    #1. load random in db
+        D.init_db('sqlite')
+        D.load_db('sqlite', 'random')
+        #fakeps = json.load(file_paths.fakedb)
 
-    #randps = create_profiles(0)
-    #fakeps = json.load(file_paths.fakedb)
+
+
