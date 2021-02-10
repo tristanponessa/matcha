@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     #1. load random in db
         D.init_db('sqlite')
-        D.load_db('sqlite', 'random')
+        #D.load_db('sqlite', 'random')
         #fakeps = json.load(file_paths.fakedb)
 
 

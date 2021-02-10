@@ -1,2 +1,6 @@
+
+
 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+sqlite >> SELECT profile FROM users 
 

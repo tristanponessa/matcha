@@ -62,8 +62,8 @@ def init_db(dbname='sqlite'):
         file_paths.if_file_del(file_paths.sqlitefile)
         file_paths.create_file(file_paths.sqlitefile)
         db_exec('create_table', {'table': 'users'}, dbname)
-        db_exec('create_table', {'table': 'users', 'field': 'email', 'type': 'TEXT'}, dbname)
-        db_exec('create_table', {'table': 'users', 'field': 'profile', 'type': 'TEXT'}, dbname)
+        db_exec('add_col', {'table': 'users', 'field': 'email', 'type': 'TEXT'}, dbname)
+        db_exec('add_col', {'table': 'users', 'field': 'profile', 'type': 'TEXT'}, dbname)
 
 """
 def setup_db(dbfile, action):
@@ -80,15 +80,15 @@ def setup_db(dbfile, action):
 
 #BIG FN
 
-def spy_on(func):
+def spy_on(on):
     def inner(*args, **kwargs):
-        #func(*args, **kwargs)
-        #db_to_file(file_paths.sqlitefile)
-        return func(*args, **kwargs)
+        db_exec(*args, **kwargs)
+        if on:
+            db_to_file(file_paths.sqlitefile)
     return inner
 
-@spy_on
-def db_exec(action, data:'{email:dct}', out=False, dbname='sqlite') -> Dict[str, str]:
+@spy_on(on=True)
+def db_exec(action, data:'{email:dct}', out: list, dbname='sqlite') -> Dict[str, str]:
     """
         -writes in log
         -converts json to str for db ; reverse for return
@@ -100,10 +100,9 @@ def db_exec(action, data:'{email:dct}', out=False, dbname='sqlite') -> Dict[str,
 
     if dbname == 'sqlite':
 
-        if out:
-            pass
-            # with open(file_paths.generallog, 'w+') as f:
-            #    print(f'{dbname} >> {cmd} \n', file=f)
+        if 'log' in out:
+            with open(file_paths.generallog, 'a+') as f:
+                print(f'{dbname} >> {cmd} \n', file=f)
 
 
         with SQLite() as cur:
