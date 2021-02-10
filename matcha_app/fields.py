@@ -268,7 +268,7 @@ class Blocked:
 
 def get_field_fns(which):
     clss = inspect.getmembers(sys.modules[__name__], inspect.isclass)
-    return {clsname: clsobj.__dict__[which] for clsname, clsobj in clss}
+    return {clsname: clsobj.__dict__[which] for clsname, clsobj in clss if which in clsobj.__dict__}
 
     """
     if which == 'cmp':

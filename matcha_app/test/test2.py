@@ -9,17 +9,17 @@ sys.path.append('/home/user/Documents/coding/matcha/matcha_app')
 import matcha_app
 
 
-from matcha_app.fields import *
-from matcha_app.db import *
+import matcha_app.fields as F
+#import matcha_app.db as D
 
 
 ###############MAIN##############################3
 
 if __name__ == '__main__':
     #test   fields
-    get_field_fns('random_')
-    get_field_fns('checks')
-    get_field_fns('cmp_')
+    print(F.get_field_fns('random_'))
+    F.get_field_fns('check')
+    F.get_field_fns('cmp_')
 
     pass
 
