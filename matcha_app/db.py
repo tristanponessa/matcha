@@ -1,6 +1,9 @@
 
+
 import sqlite3
 import sys
+sys.path.append('/home/user/Documents/coding/matcha')
+sys.path.append('/home/user/Documents/coding/matcha/matcha_app')
 import os
 from typing import List, Dict
 
@@ -16,6 +19,8 @@ import json
 import inspect
 
 import matcha_app.file_paths
+
+
 
 class SqlCmds:
 
