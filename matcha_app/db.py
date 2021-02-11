@@ -94,20 +94,29 @@ def db_exec(cmd) -> 'lst[dct]':
         -writes in log
         -converts json to str for db ; reverse for return
         -call a new cursor each time for processsss
-        -possible empty returns
+        -returns
+        from : dct_factory() in class SQLite()
         RES []
         RES [{'profile': None}] SELECT profile FROM users WHERE email="email"
+        RES [{'profile': "{'birthdate': '', }", 'profile': None, ...]
     """
 
     # live db  display db in txt#########################################
     def db_live():
         icmd = SqlCmds.__['sqlite']['fetch_all']
-        with SQLite() as icur:
+        with SQLite() as icur:   #BEING EXECUTED TWICE, BEING INIT MAKES IT LAUNCH
             icur.execute(icmd)
             ps = icur.fetchall()
+            print(len(ps)) #PRINTED X2 + NONE VALS
             with open(file_paths.dblivetxt, 'w+') as f:
-                for p in ps:
-                        print_profile(p, f)
+                for dct in ps:
+                    # dct : colname:None/jsonstr
+                    jsonstr = dct['profile']
+                    if jsonstr:
+                        pjson = json.loads(dct['profile'])
+                    else:
+                        pjson = {'_' : None} #where the hell does this come from
+                    print_profile(pjson, f)
     ################################################
 
     print_log('sqlite', cmd)
@@ -157,7 +166,7 @@ def load_db(dbname, what):
         if what == 'random':
             ps = create_profiles(0)
         if what == 'fake':
-            ps = json.load(file_paths.fakedb)
+            ps = json.load(open(file_paths.fakedb, 'r'))
         stock_profiles(ps)
 
 
@@ -166,8 +175,9 @@ def load_db(dbname, what):
 def print_profile(profile, file=None):
     top = bottom = '-' * 50
     print(top, file=file)
+    n = 0
     for k, v in profile.items():
-        print(f'<{k}>'.center(15, '*'), file=file)
+        print(f'{n}<{k}>'.center(30, '*'), file=file)
         if isinstance(v, list):
             for i, e in enumerate(v):
                 print(f'    {i} > {e}', file=file)
@@ -176,6 +186,7 @@ def print_profile(profile, file=None):
                 print(f'    {a} > {b}', file=file)
         else:
             print(f'    {v}', file=file)
+        n += 1
     print(bottom, file=file)
 
 #can cause recurisitvy prolem if called inside db_exec, use decorator
