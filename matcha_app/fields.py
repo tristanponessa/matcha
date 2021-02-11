@@ -1,4 +1,5 @@
 import string
+import time
 from PIL import Image
 import datetime
 import inspect
@@ -19,9 +20,36 @@ def gen_rand_nosymbs(len) -> str:
 def gen_rand_chs(len, chs: str) -> str:
     return ''.join((random.choice(chs) for _ in range(len)))
 
+def create_profiles(master_seed):
+
+    nb_users = 10
+    min_seed = 0#(nb_users * master_seed)
+    max_seed = 99999#min_seed + nb_users
+
+    profiles = []  # to put into db list of dicts
+    seed_nbs = tuple(random.randint(0,9999) for _ in range(nb_users))
+    emails = tuple(Email.random_(seednb) for seednb in seed_nbs)
+    field_fns = get_field_fns('random_')
+
+    for seed_nb, email in zip(seed_nbs, emails):
+        profile = {'email' : email}
+        for clsname, randfn in field_fns.items():
+            if clsname != 'Email':
+                if randfn.__code__.co_argcount == 2:
+                    profile[clsname.lower()] = randfn(emails, seed_nb)
+                else:
+                    profile[clsname.lower()] = randfn(seed_nb)
+        profiles.append(profile)
+    return profiles
 
 class Timestamp:
     access = []
+
+    def get_now_time():
+        epoch_now = time.time()
+        structtime_now = time.localtime(epoch_now)
+        format_now = time.strftime("%d/%m/%Y %H:%M:%S", structtime_now)
+        return format_now
 
     def random_(seed_):  # do not assign to rand list
         # random.seed(seed_)
@@ -205,7 +233,7 @@ class Tags:
         # random.seed(seed_)
         tags = ('sports', 'dancing', 'art', 'movies', 'coding', 'law', 'animals', 'games', 'building', 'photograph')
         rnb = random.randint(0, len(tags))
-        return (random.choice(tags) for i in range(rnb))
+        return tuple(random.choice(tags) for i in range(rnb))
 
     def cmp_(v1, v2):
         return len(set(v1) & set(v2)) > 0  # intersection keep all eq

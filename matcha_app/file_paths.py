@@ -14,13 +14,13 @@ from pathlib import Path
 def if_file_del(file):
     if os.path.exists(file):
         os.remove(file)
-        time.sleep(2)
+        time.sleep(1)
 
 #pycharm debugger calls it an error
 def create_file(file):
     with open(file, 'w+'):
         pass
-    time.sleep(2)
+    time.sleep(1)
 
 def write_file(lines : list, file):
     with open(file, 'w+') as f:

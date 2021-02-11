@@ -21,7 +21,7 @@ class SqlCmds:
     __ = {
     'sqlite' : {
                     #'fetch' = "SELECT profile FROM users WHERE profile LIKE {}" #'%email={}%' || '%email={}%'
-                    'fetch_profile' : 'SELECT profile FROM users WHERE email="{}"',
+                    'fetch' : 'SELECT profile FROM users WHERE email="{}"',
                     'fetch_all': 'SELECT profile FROM users',
                     'insert' : "INSERT INTO users ('{}') VALUES ('{}')",
                     'add_col' : 'ALTER TABLE {} ADD {} {}',
@@ -61,9 +61,9 @@ def init_db(dbname='sqlite'):
     if dbname == 'sqlite':
         file_paths.if_file_del(file_paths.sqlitefile)
         file_paths.create_file(file_paths.sqlitefile)
-        db_exec('create_table', {'table': 'users'}, dbname)
-        db_exec('add_col', {'table': 'users', 'field': 'email', 'type': 'TEXT'}, dbname)
-        db_exec('add_col', {'table': 'users', 'field': 'profile', 'type': 'TEXT'}, dbname)
+        db_exec(SqlCmds.__['sqlite']['create_table'].format('users'))
+        db_exec(SqlCmds.__['sqlite']['add_col'].format('users', 'email', 'TEXT'))
+        db_exec(SqlCmds.__['sqlite']['add_col'].format('users', 'profile', 'TEXT'))
 
 """
 def setup_db(dbfile, action):
@@ -80,37 +80,45 @@ def setup_db(dbfile, action):
 
 #BIG FN
 
+"""
 def spy_on(on):
     def inner(*args, **kwargs):
         db_exec(*args, **kwargs)
         if on:
             db_to_file(file_paths.sqlitefile)
     return inner
+"""
 
-@spy_on(on=True)
-def db_exec(action, data:'{email:dct}', out: list, dbname='sqlite') -> Dict[str, str]:
+def db_exec(cmd) -> 'lst[dct]':
     """
         -writes in log
         -converts json to str for db ; reverse for return
+        -call a new cursor each time for processsss
+        -possible empty returns
+        RES []
+        RES [{'profile': None}] SELECT profile FROM users WHERE email="email"
     """
-    if 'profile' in data:
-        data['profile'] = json.dumps(data['profile']) #dct to str
 
-    cmd = SqlCmds.__[dbname][action].format(*data.values())
+    # live db  display db in txt#########################################
+    def db_live():
+        icmd = SqlCmds.__['sqlite']['fetch_all']
+        with SQLite() as icur:
+            icur.execute(icmd)
+            ps = icur.fetchall()
+            with open(file_paths.dblivetxt, 'w+') as f:
+                for p in ps:
+                        print_profile(p, f)
+    ################################################
 
-    if dbname == 'sqlite':
-
-        if 'log' in out:
-            with open(file_paths.generallog, 'a+') as f:
-                print(f'{dbname} >> {cmd} \n', file=f)
-
-
-        with SQLite() as cur:
-            cur.execute(cmd)
-            res = cur.fetchall()
-            res = [json.loads(r['profile']) for r in res] #convert str to dct
-            return res
-
+    print_log('sqlite', cmd)
+    with SQLite() as cur:
+        cur.execute(cmd)
+        res = cur.fetchall()
+        if len(res) == 1 and isinstance(res[0], dict) and None in res[0].values():
+            res = []
+        if 'ADD' not in cmd and 'CREATE' not in cmd:
+            db_live()
+        return res
 
 
 
@@ -125,43 +133,23 @@ def dict_factory(cursor, row):
 
 #{'birthdate':'03/05/95', 'first_name':'natsirt'}
 def get_profiles(data):
-    all_profiles = db_exec('fetch_all', {}, 'sqlite')
-    return (p for p in all_profiles if data <= p)
-
-def profile_exists(email):
-    return len(db_exec('fetch_profile', {'email': email}, 'sqlite')) == 1
+    if data == '*':
+        ps = db_exec(SqlCmds.__['sqlite']['fetch_all'])
+        return [json.loads(p) for p in ps]
+    elif 'email' in data.keys():
+        p = db_exec(SqlCmds.__['sqlite']['fetch'].format(data['email']))
+        return json.loads(p[0]) if len(p) == 1 else None
+    else:
+        all_profiles = db_exec(SqlCmds.__['sqlite']['fetch_all'])
+        return [json.loads(p) for p in all_profiles if data <= p]
 
 def stock_profiles(ps):
     for p in ps:
-        if len(db_exec('fetch_profile', {'email': p['email']}, 'sqlite')) == 0:
-            db_exec('insert', {'email': p['email']}, 'sqlite')
-            db_exec('insert', {'profile': p}, 'sqlite')
+        if not get_profiles({'email': p['email']}):
+            db_exec(SqlCmds.__['sqlite']['insert'].format('email', p['email']))
+            db_exec(SqlCmds.__['sqlite']['insert'].format('profile', json.dumps(p)))
         else:
-            db_exec('update', {'profile': p}, 'sqlite')
-
-
-def create_profiles(master_seed):
-
-    nb_users = 10
-    min_seed = 0#(nb_users * master_seed)
-    max_seed = 99999#min_seed + nb_users
-
-    profiles = []  # to put into db list of dicts
-    seed_nbs = tuple(random.randint(0,9999) for _ in range(nb_users))
-    emails = tuple(Email.random_(seednb) for seednb in seed_nbs)
-    field_fns = get_field_fns('random_')
-
-    for seed_nb, email in zip(seed_nbs, emails):
-        profile = {'email' : email}
-        for clsname, randfn in field_fns.items():
-            if clsname != 'Email':
-                if randfn.__code__.co_argcount == 2:
-                    profile[clsname.lower()] = randfn(emails, seed_nb)
-                else:
-                    profile[clsname.lower()] = randfn(seed_nb)
-        profiles.append(profile)
-    return profiles
-
+            db_exec(SqlCmds.__['sqlite']['update'].format('profile', json.dumps(p)))
 
 def load_db(dbname, what):
     if dbname == 'sqlite':
@@ -170,10 +158,8 @@ def load_db(dbname, what):
             ps = create_profiles(0)
         if what == 'fake':
             ps = json.load(file_paths.fakedb)
+        stock_profiles(ps)
 
-            for p in ps:
-                db_exec('insert', {'email': p['email']}, 'sqlite')
-                db_exec('insert', {'profile': p}, 'sqlite')
 
 
 # DISPLAY FUNS
@@ -192,16 +178,15 @@ def print_profile(profile, file=None):
             print(f'    {v}', file=file)
     print(bottom, file=file)
 
-
-
-
-
+#can cause recurisitvy prolem if called inside db_exec, use decorator
 def db_to_file(file):
     with open(file, 'w+') as f:
-        for pro in db_exec('fetch_all', {}, 'sqlite'):
+        for pro in get_profiles('*'):
             print_profile(pro, f)
 
-
+def print_log(dbname, cmd):
+    with open(file_paths.generallog, 'a+') as f:
+        print(f'{Timestamp.get_now_time()} {dbname} >> {cmd} \n', file=f)
 
 
 

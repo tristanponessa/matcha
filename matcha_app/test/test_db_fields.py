@@ -23,6 +23,12 @@ if __name__ == '__main__':
     #1. load random in db
         D.init_db('sqlite')
         #D.load_db('sqlite', 'random')
+        ps = D.create_profiles(0)
+        print(ps)
+        for p in ps:
+            D.print_profile(p)
+        D.stock_profiles(ps)
+
         #fakeps = json.load(file_paths.fakedb)
 
 
