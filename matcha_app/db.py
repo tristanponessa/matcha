@@ -101,23 +101,7 @@ def db_exec(cmd) -> 'lst[dct]':
         RES [{'profile': "{'birthdate': '', }", 'profile': None, ...]
     """
 
-    # live db  display db in txt#########################################
-    def db_live():
-        icmd = SqlCmds.__['sqlite']['fetch_all']
-        with SQLite() as icur:   #BEING EXECUTED TWICE, BEING INIT MAKES IT LAUNCH
-            icur.execute(icmd)
-            ps = icur.fetchall()
-            print(len(ps)) #PRINTED X2 + NONE VALS
-            with open(file_paths.dblivetxt, 'w+') as f:
-                for dct in ps:
-                    # dct : colname:None/jsonstr
-                    jsonstr = dct['profile']
-                    if jsonstr:
-                        pjson = json.loads(dct['profile'])
-                    else:
-                        pjson = {'_' : None} #where the hell does this come from
-                    print_profile(pjson, f)
-    ################################################
+
 
     print_log('sqlite', cmd)
     with SQLite() as cur:
@@ -125,8 +109,6 @@ def db_exec(cmd) -> 'lst[dct]':
         res = cur.fetchall()
         if len(res) == 1 and isinstance(res[0], dict) and None in res[0].values():
             res = []
-        if 'ADD' not in cmd and 'CREATE' not in cmd:
-            db_live()
         return res
 
 
