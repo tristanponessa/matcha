@@ -22,11 +22,11 @@ class SqlCmds:
     'sqlite' : {
                     #'fetch' = "SELECT profile FROM users WHERE profile LIKE {}" #'%email={}%' || '%email={}%'
                     'fetch' : 'SELECT profile FROM users WHERE email="{}"',
-                    'fetch_all': 'SELECT profile FROM users',
-                    'insert' : "INSERT INTO users ('{}') VALUES ('{}')",
+                    'fetch_all': 'SELECT * FROM users',
+                    'insert' : "INSERT INTO users ('{}', '{}') VALUES ('{}', '{}')",
                     'add_col' : 'ALTER TABLE {} ADD {} {}',
                     'create_table' : "CREATE TABLE {} ('id' INTEGER PRIMARY KEY AUTOINCREMENT)",
-                    'delete_row' : "DELETE FROM {} WHERE {}='{}'",
+                    #'delete_row' : "DELETE FROM {} WHERE {}='{}'",
                     'update' : 'UPDATE users SET profile="{}" WHERE email="{}"'
                 }
     }
@@ -97,8 +97,8 @@ def db_exec(cmd) -> 'lst[dct]':
         -returns
         from : dct_factory() in class SQLite()
         RES []
-        RES [{'profile': None}] SELECT profile FROM users WHERE email="email"
-        RES [{'profile': "{'birthdate': '', }", 'profile': None, ...]
+        RES [{'profile': }] SELECT profile FROM users WHERE email="email"
+        RES [{'id' : 8 , 'email' : '@' , 'profile': "{'birthdate': '', }" OR None, ...]
     """
 
 
@@ -107,8 +107,8 @@ def db_exec(cmd) -> 'lst[dct]':
     with SQLite() as cur:
         cur.execute(cmd)
         res = cur.fetchall()
-        if len(res) == 1 and isinstance(res[0], dict) and None in res[0].values():
-            res = []
+        #if len(res) == 1 and isinstance(res[0], dict) and None in res[0].values():
+        #    res = []
         return res
 
 
@@ -137,10 +137,9 @@ def get_profiles(data):
 def stock_profiles(ps):
     for p in ps:
         if not get_profiles({'email': p['email']}):
-            db_exec(SqlCmds.__['sqlite']['insert'].format('email', p['email']))
-            db_exec(SqlCmds.__['sqlite']['insert'].format('profile', json.dumps(p)))
+            db_exec(SqlCmds.__['sqlite']['insert'].format('email', 'profile', p['email'], json.dumps(p)))
         else:
-            db_exec(SqlCmds.__['sqlite']['update'].format('profile', json.dumps(p)))
+            db_exec(SqlCmds.__['sqlite']['update'].format(json.dumps(p), p['email']))
 
 def load_db(dbname, what):
     if dbname == 'sqlite':
