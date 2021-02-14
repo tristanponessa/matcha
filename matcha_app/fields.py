@@ -20,6 +20,15 @@ def gen_rand_nosymbs(len) -> str:
 def gen_rand_chs(len, chs: str) -> str:
     return ''.join((random.choice(chs) for _ in range(len)))
 
+
+def is_subdct(sub_dct, dct):
+    match = 0
+    for k, v in sub_dct.items():
+        if k in dct and dct[k] == v:
+            match += 1
+    if len(sub_dct) == match:
+        return True
+
 def create_profiles(master_seed):
 
     nb_users = 10

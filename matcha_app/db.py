@@ -1,8 +1,8 @@
 import sqlite3
 import sys
-sys.path.append('/home/user/Documents/coding/matcha')
-sys.path.append('/home/user/Documents/coding/matcha/matcha_app')
-sys.path.append('/home/user/Documents/coding/matcha/matcha_app/db_files')
+#sys.path.append('/home/user/Documents/coding/matcha')
+#sys.path.append('/home/user/Documents/coding/matcha/matcha_app')
+#sys.path.append('/home/user/Documents/coding/matcha/matcha_app/db_files')
 
 import os
 from typing import List, Dict
@@ -129,10 +129,20 @@ def get_profiles(data):
         return [json.loads(p) for p in ps]
     elif 'email' in data.keys():
         p = db_exec(SqlCmds.__['sqlite']['fetch'].format(data['email']))
-        return json.loads(p[0]) if len(p) == 1 else None
+        return json.loads(p[0]['profile']) if len(p) == 1 else None
     else:
         all_profiles = db_exec(SqlCmds.__['sqlite']['fetch_all'])
-        return [json.loads(p) for p in all_profiles if data <= p]
+
+        """
+        print(all_profiles[0])
+        x = json.loads(all_profiles[0]['profile'])
+        print(data)
+        print(list(x.keys()))
+        f = is_subdct(data , x)
+        print(f)
+        """
+
+        return [json.loads(p['profile']) for p in all_profiles if is_subdct(data, json.loads(p['profile']))]
 
 def stock_profiles(ps):
     for p in ps:

@@ -1,4 +1,4 @@
-[{"email": "trponess@hotmail.com", "profile": {
+[{"id" : 0, "email" : "trponess@hotmail.com"  , "profile": {
                                         "first_name": "tristan",
                                         "last_name": "superstar",
                                         "location": "Mars",
@@ -22,7 +22,7 @@
                                 }
             },
 
-            {"email": "mariafox@hotmail.com", "profile": {
+            {"id" : 1, "email" : "mariafox@hotmail.com" , "profile" : {
                                         "first_name": "Maria",
                                         "last_name": "Fox",
                                         "location": "Mars",
@@ -44,4 +44,5 @@
                                         "activated": true,
                                         "pwd": "0000"
                                 }
-}]
+            }
+]
