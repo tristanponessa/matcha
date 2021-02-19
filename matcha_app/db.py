@@ -133,15 +133,6 @@ def get_profiles(data):
     else:
         all_profiles = db_exec(SqlCmds.__['sqlite']['fetch_all'])
 
-        """
-        print(all_profiles[0])
-        x = json.loads(all_profiles[0]['profile'])
-        print(data)
-        print(list(x.keys()))
-        f = is_subdct(data , x)
-        print(f)
-        """
-
         return [json.loads(p['profile']) for p in all_profiles if is_subdct(data, json.loads(p['profile']))]
 
 def stock_profiles(ps):
