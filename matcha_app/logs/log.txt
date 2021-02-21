@@ -852,3 +852,497 @@
 
 19/02/2021 12:48:13 sqlite >> SELECT * FROM users 
 
+19/02/2021 12:52:21 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+19/02/2021 12:52:21 sqlite >> ALTER TABLE users ADD email TEXT 
+
+19/02/2021 12:52:21 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+19/02/2021 12:52:21 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+19/02/2021 12:52:21 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/95", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+19/02/2021 12:52:21 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+19/02/2021 12:52:21 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/96", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+19/02/2021 12:52:21 sqlite >> SELECT * FROM users 
+
+19/02/2021 12:52:21 sqlite >> SELECT * FROM users 
+
+19/02/2021 12:52:21 sqlite >> SELECT * FROM users 
+
+19/02/2021 12:52:21 sqlite >> SELECT * FROM users 
+
+20/02/2021 18:42:32 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+20/02/2021 18:42:32 sqlite >> ALTER TABLE users ADD email TEXT 
+
+20/02/2021 18:42:32 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+20/02/2021 18:42:32 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+20/02/2021 18:42:32 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/95", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+20/02/2021 18:42:32 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+20/02/2021 18:42:32 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/96", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 18:42:32 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+20/02/2021 18:42:32 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/96", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 18:42:32 sqlite >> SELECT * FROM users 
+
+20/02/2021 18:42:32 sqlite >> SELECT * FROM users 
+
+20/02/2021 18:42:32 sqlite >> SELECT * FROM users 
+
+20/02/2021 18:42:32 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:26:00 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+20/02/2021 19:26:01 sqlite >> ALTER TABLE users ADD email TEXT 
+
+20/02/2021 19:26:01 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+20/02/2021 19:26:01 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+20/02/2021 19:26:01 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/95", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+20/02/2021 19:26:01 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+20/02/2021 19:26:01 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/96", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:26:01 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+20/02/2021 19:26:01 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/96", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:26:01 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:26:01 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:26:01 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:26:01 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:27:50 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+20/02/2021 19:27:51 sqlite >> ALTER TABLE users ADD email TEXT 
+
+20/02/2021 19:27:51 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+20/02/2021 19:27:51 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+20/02/2021 19:27:51 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/95", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+20/02/2021 19:27:51 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+20/02/2021 19:27:51 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/96", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:27:51 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+20/02/2021 19:27:51 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/96", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:27:51 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:28:11 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+20/02/2021 19:28:11 sqlite >> ALTER TABLE users ADD email TEXT 
+
+20/02/2021 19:28:11 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+20/02/2021 19:28:11 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+20/02/2021 19:28:11 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/95", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+20/02/2021 19:28:11 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+20/02/2021 19:28:11 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/96", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:28:11 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+20/02/2021 19:28:11 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/96", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:28:25 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:28:50 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+20/02/2021 19:28:50 sqlite >> ALTER TABLE users ADD email TEXT 
+
+20/02/2021 19:28:50 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+20/02/2021 19:28:50 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+20/02/2021 19:28:50 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/95", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+20/02/2021 19:28:50 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+20/02/2021 19:28:50 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/96", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:28:50 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+20/02/2021 19:28:50 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/96", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:28:50 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:28:50 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:28:50 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:28:50 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:29:17 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+20/02/2021 19:29:18 sqlite >> ALTER TABLE users ADD email TEXT 
+
+20/02/2021 19:29:18 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+20/02/2021 19:29:18 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+20/02/2021 19:29:18 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/95", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+20/02/2021 19:29:18 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+20/02/2021 19:29:18 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/96", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:29:18 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+20/02/2021 19:29:18 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/96", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:29:18 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:29:18 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:29:18 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:29:18 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:30:31 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+20/02/2021 19:30:31 sqlite >> ALTER TABLE users ADD email TEXT 
+
+20/02/2021 19:30:31 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+20/02/2021 19:30:31 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+20/02/2021 19:30:31 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/95", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+20/02/2021 19:30:32 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+20/02/2021 19:30:32 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/96", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:30:32 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+20/02/2021 19:30:32 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "24/12/96", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:30:32 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:30:32 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:30:32 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:30:32 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:31:36 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+20/02/2021 19:31:36 sqlite >> ALTER TABLE users ADD email TEXT 
+
+20/02/2021 19:31:37 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+20/02/2021 19:31:37 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+20/02/2021 19:31:37 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/1995", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+20/02/2021 19:31:37 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+20/02/2021 19:31:37 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/1996", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:31:37 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+20/02/2021 19:31:37 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "24/12/1996", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:31:37 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:31:37 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:31:37 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:31:37 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:47:38 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+20/02/2021 19:47:39 sqlite >> ALTER TABLE users ADD email TEXT 
+
+20/02/2021 19:47:39 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+20/02/2021 19:47:39 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+20/02/2021 19:47:39 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/1995", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+20/02/2021 19:47:39 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+20/02/2021 19:47:39 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/1996", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:47:39 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+20/02/2021 19:47:39 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "24/12/1996", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:49:23 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:49:54 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:49:54 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:49:55 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:52:42 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+20/02/2021 19:52:42 sqlite >> ALTER TABLE users ADD email TEXT 
+
+20/02/2021 19:52:43 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+20/02/2021 19:52:43 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+20/02/2021 19:52:43 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/1995", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+20/02/2021 19:52:43 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+20/02/2021 19:52:43 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/1996", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:52:43 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+20/02/2021 19:52:43 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "24/12/1996", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:52:43 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:52:55 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+20/02/2021 19:52:55 sqlite >> ALTER TABLE users ADD email TEXT 
+
+20/02/2021 19:52:55 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+20/02/2021 19:52:55 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+20/02/2021 19:52:55 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/1995", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+20/02/2021 19:52:55 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+20/02/2021 19:52:55 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/1996", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:52:55 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+20/02/2021 19:52:55 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "24/12/1996", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:52:55 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:54:45 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+20/02/2021 19:54:45 sqlite >> ALTER TABLE users ADD email TEXT 
+
+20/02/2021 19:54:45 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+20/02/2021 19:54:45 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+20/02/2021 19:54:45 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/1995", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+20/02/2021 19:54:45 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+20/02/2021 19:54:45 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/1996", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:54:45 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+20/02/2021 19:54:45 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "24/12/1996", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:54:45 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:56:32 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+20/02/2021 19:56:32 sqlite >> ALTER TABLE users ADD email TEXT 
+
+20/02/2021 19:56:32 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+20/02/2021 19:56:32 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+20/02/2021 19:56:32 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/1995", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+20/02/2021 19:56:32 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+20/02/2021 19:56:32 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/1996", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:56:32 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+20/02/2021 19:56:32 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "24/12/1996", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:56:32 sqlite >> SELECT * FROM users 
+
+20/02/2021 19:58:33 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+20/02/2021 19:58:33 sqlite >> ALTER TABLE users ADD email TEXT 
+
+20/02/2021 19:58:33 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+20/02/2021 19:58:33 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+20/02/2021 19:58:33 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/1995", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+20/02/2021 19:58:33 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+20/02/2021 19:58:33 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/1996", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:58:33 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+20/02/2021 19:58:33 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "24/12/1996", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 19:58:33 sqlite >> SELECT * FROM users 
+
+20/02/2021 20:39:44 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+20/02/2021 20:39:44 sqlite >> ALTER TABLE users ADD email TEXT 
+
+20/02/2021 20:39:44 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+20/02/2021 20:39:44 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+20/02/2021 20:39:44 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/1995", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+20/02/2021 20:39:45 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+20/02/2021 20:39:45 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/1996", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 20:39:45 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+20/02/2021 20:39:45 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "24/12/1996", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+20/02/2021 20:39:45 sqlite >> SELECT * FROM users 
+
+21/02/2021 09:46:17 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+21/02/2021 09:46:17 sqlite >> ALTER TABLE users ADD email TEXT 
+
+21/02/2021 09:46:17 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+21/02/2021 09:46:17 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+21/02/2021 09:46:17 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/1995", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+21/02/2021 09:46:17 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+21/02/2021 09:46:17 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/1996", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+21/02/2021 09:46:17 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+21/02/2021 09:46:17 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "24/12/1996", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+21/02/2021 09:46:17 sqlite >> SELECT * FROM users 
+
+21/02/2021 09:46:17 sqlite >> SELECT * FROM users 
+
+21/02/2021 09:46:17 sqlite >> SELECT * FROM users 
+
+21/02/2021 09:46:17 sqlite >> SELECT * FROM users 
+
+21/02/2021 09:46:43 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+21/02/2021 09:46:43 sqlite >> ALTER TABLE users ADD email TEXT 
+
+21/02/2021 09:46:43 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+21/02/2021 09:46:43 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+21/02/2021 09:46:43 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/1995", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+21/02/2021 09:46:43 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+21/02/2021 09:46:43 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/1996", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+21/02/2021 09:46:43 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+21/02/2021 09:46:43 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "24/12/1996", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+21/02/2021 09:46:43 sqlite >> SELECT * FROM users 
+
+21/02/2021 09:46:43 sqlite >> SELECT * FROM users 
+
+21/02/2021 09:46:43 sqlite >> SELECT * FROM users 
+
+21/02/2021 09:46:43 sqlite >> SELECT * FROM users 
+
+21/02/2021 12:02:13 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+21/02/2021 12:02:13 sqlite >> ALTER TABLE users ADD email TEXT 
+
+21/02/2021 12:02:13 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+21/02/2021 12:02:13 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+21/02/2021 12:02:13 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/1995", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+21/02/2021 12:02:13 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+21/02/2021 12:02:13 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/1996", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+21/02/2021 12:02:13 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+21/02/2021 12:02:13 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "24/12/1996", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+21/02/2021 12:02:13 sqlite >> SELECT * FROM users 
+
+21/02/2021 12:02:13 sqlite >> SELECT * FROM users 
+
+21/02/2021 12:02:13 sqlite >> SELECT * FROM users 
+
+21/02/2021 12:02:13 sqlite >> SELECT * FROM users 
+
+21/02/2021 12:03:32 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+21/02/2021 12:03:32 sqlite >> ALTER TABLE users ADD email TEXT 
+
+21/02/2021 12:03:32 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+21/02/2021 12:03:32 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+21/02/2021 12:03:32 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/1995", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+21/02/2021 12:03:32 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+21/02/2021 12:03:32 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/1996", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+21/02/2021 12:03:32 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+21/02/2021 12:03:32 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "24/12/1996", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+21/02/2021 12:03:32 sqlite >> SELECT * FROM users 
+
+21/02/2021 12:03:32 sqlite >> SELECT * FROM users 
+
+21/02/2021 12:03:32 sqlite >> SELECT * FROM users 
+
+21/02/2021 12:03:32 sqlite >> SELECT * FROM users 
+
+21/02/2021 15:07:13 sqlite >> CREATE TABLE users ('id' INTEGER PRIMARY KEY AUTOINCREMENT) 
+
+21/02/2021 15:07:13 sqlite >> ALTER TABLE users ADD email TEXT 
+
+21/02/2021 15:07:13 sqlite >> ALTER TABLE users ADD profile TEXT 
+
+21/02/2021 15:07:13 sqlite >> SELECT profile FROM users WHERE email="trponess@hotmail.com" 
+
+21/02/2021 15:07:13 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('trponess@hotmail.com', '{"first_name": "tristan", "last_name": "superstar", "location": "Mars", "msgs": [{"date": "14/08/2014 10:45:06", "to_email": "mariafox@hotmail.com", "msg": "hi your my friend bye"}, {"date": "22/01/2002 19:23:06", "to_email": "mariafox@hotmail.com", "msg": "hi hi hi"}, {"date": "19/08/2009 02:45:06", "to_email": "unknown@hotmail.com", "msg": "whats up"}], "email": "trponess@hotmail.com", "likes": ["mariafox@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/1.jpg", "other": []}, "birthdate": "17/03/1995", "gender": "male", "sex_ori": "straight", "tags": ["C++", "power"], "intro": "im a GOD", "signed_in": false, "blocked": false, "activated": true, "pwd": "1234"}') 
+
+21/02/2021 15:07:13 sqlite >> SELECT profile FROM users WHERE email="mariafox@hotmail.com" 
+
+21/02/2021 15:07:13 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('mariafox@hotmail.com', '{"first_name": "Maria", "last_name": "Fox", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "mariafox@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "01/06/1996", "gender": "female", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+21/02/2021 15:07:13 sqlite >> SELECT profile FROM users WHERE email="obliderate@hotmail.com" 
+
+21/02/2021 15:07:13 sqlite >> INSERT INTO users ('email', 'profile') VALUES ('obliderate@hotmail.com', '{"first_name": "Obliderate", "last_name": "Asssan", "location": "Mars", "msgs": [{"date": "14/08/2014 11:00:00", "to_email": "mariafox@hotmail.com", "msg": "hiiiiiiiiiii"}, {"date": "22/01/2002 04:18:56", "to_email": "trponess@hotmail.com", "msg": "dig it"}, {"date": "19/08/2009 00:00:05", "to_email": "unknown@hotmail.com", "msg": "i dont know"}], "email": "obliderate@hotmail.com", "likes": ["trponess@hotmail.com", "unknown@hotmail.com"], "pics": {"profile": "./matcha_app/static/pics/c.png", "other": ["./matcha_app/static/pics/2.png"]}, "birthdate": "24/12/1996", "gender": "male", "sex_ori": "straight", "tags": ["Java", "AVGN"], "intro": "im a GODDESS", "signed_in": false, "blocked": false, "activated": true, "pwd": "0000"}') 
+
+21/02/2021 15:07:13 sqlite >> SELECT * FROM users 
+
+21/02/2021 15:07:13 sqlite >> SELECT * FROM users 
+
+21/02/2021 15:07:13 sqlite >> SELECT * FROM users 
+
+21/02/2021 15:07:13 sqlite >> SELECT * FROM users 
+

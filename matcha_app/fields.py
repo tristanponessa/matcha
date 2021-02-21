@@ -7,7 +7,13 @@ import sys
 import string
 import os
 import random
+from datetime import datetime
 
+"""
+    profile is a dct {id INT email str profile dct in str form}
+    all source code uses profile dct in dct form
+    database uses the entire
+"""
 
 symbs = '+_-!#$&*'
 sets_ = (string.ascii_lowercase, string.ascii_uppercase, symbs, string.digits)
@@ -21,10 +27,11 @@ def gen_rand_chs(len, chs: str) -> str:
     return ''.join((random.choice(chs) for _ in range(len)))
 
 
-def is_subdct(sub_dct, dct):
+def is_subdct(sub_dct, dct, exact_value=True):
     match = 0
     for k, v in sub_dct.items():
-        if k in dct and dct[k] == v:
+        if  (exact_value and k in dct and dct[k] == v) or \
+            (k in dct and v in dct[k]):
             match += 1
     if len(sub_dct) == match:
         return True
@@ -50,6 +57,59 @@ def create_profiles(master_seed):
                     profile[clsname.lower()] = randfn(seed_nb)
         profiles.append(profile)
     return profiles
+
+
+#cur_page_profiles = [] #when you execute sort or filter , it stored here
+
+def sort_profiles(which, reverse_, profiles):
+    """sort by which 'birthdate' order 'ascending' """
+    #return sorted(profiles, key=lambda p: p[which], reverse=reverse_)
+    return sorted(profiles, key=cls_for_field(which).sort_, reverse=reverse_)
+    #cls_ = cls_for_field(which)
+    #cls_.sort_()
+
+
+def filter_profiles(data: dict, profiles):
+    """filter by {'birthdate': '1985', 'email': '@gmail' ....} """
+    #auto eleminate blocked not activated
+    return [p for p in profiles if is_subdct(data, p, False)]
+    """
+    for p in profiles:
+        if is_subdct(data, p, False):
+            filtered_ps.append(p)     
+    return filtered_ps
+    """
+
+def ft_matcha(my_profile, profiles):
+    """filter until data is 75% equal which is 3 equivalent keys outta 4"""
+    matchas = []
+    cmp_fns = get_field_fns('cmp_', 'matcha_cmp').values()
+    for p in profiles:
+        res = [f(my_profile, p) for f in cmp_fns if f(my_profile, p)]
+        if len(res) in [3,4]:
+            matchas.append(p)
+    return matchas
+
+
+def cls_for_field(field):
+    clss = inspect.getmembers(sys.modules[__name__], inspect.isclass)
+    for clsname, clsobj in clss:
+        if clsname.lower() == field:
+            return clsobj
+
+def get_field_fns(which, access=None) -> '{clsname:fn}':
+    clss = inspect.getmembers(sys.modules[__name__], inspect.isclass)
+    x = dict()
+    for clsname, clsobj in clss:
+        if which in clsobj.__dict__:
+            if access:
+                if access in clsobj.__dict__['access']:
+                    x[clsname] = clsobj.__dict__[which]
+            else:
+                x[clsname] = clsobj.__dict__[which]
+    return x
+#    return {clsname: clsobj.__dict__[which] for clsname, clsobj in clss if which in clsobj.__dict__ and access in }
+
 
 class Timestamp:
     access = []
@@ -91,7 +151,7 @@ class LastName:
         y = ''.join((random.choice(string.ascii_lowercase) for _ in range(random.randint(8, 12))))
         return x + y
 
-class Birthday:
+class Birthdate:
 
     access = ['user_modify', 'matcha_cmp']
     age_nb = range(18, 100)
@@ -111,7 +171,9 @@ class Birthday:
             return False
         # check with age
 
-    def cmp_(b1, b2):
+    def cmp_(p1, p2):
+        b1 = p1['birthdate']
+        b2 = p2['birthdate']
         year1 = b1.split('/')[-1]
         year2 = b2.split('/')[-1]
         return abs(year1 - year2) <= 5
@@ -122,6 +184,12 @@ class Birthday:
         month = random.randint(1, 12)
         year = random.randint(1955, 2000)
         return f'{day}/{month}/{year}'
+
+    def sort_(profile):
+        return datetime.strptime(profile['birthdate'], '%d/%m/%Y')
+
+
+
 
 
 class Pics:
@@ -204,7 +272,7 @@ class Pwd:
     def check(ipwd):
         l = (string.ascii_lowercase, string.ascii_uppercase, string.punctuation, string.digits)
         for il in l:
-            if len((ch for ch in ipwd if il)) == 0:  # at least one of set
+            if len([ch for ch in ipwd if il]) == 0:  # at least one of set
                 return False
         if len(ipwd) not in range(8, 64):
             return False
@@ -218,7 +286,12 @@ class SexOrientation:
         x = ('male', 'female', 'male female')
         return random.choice(x)
 
-    def cmp(pref1, gender1, pref2, gender2):
+    def cmp(p1, p2):
+        #profile
+        pref1 = p1['sex_ori']
+        gender1 = p1['gender']
+        pref2 = p2['sex_ori']
+        gender2 = p2['gender']
         return gender1 in pref2 and gender2 in pref1
 
 class Location:
@@ -231,8 +304,8 @@ class Location:
         return random.choice(locs)
         # pip install flask-simple-geoip
 
-    def cmp_(v1, v2):
-        return v1 == v2
+    def cmp_(p1, p2):
+        return p1['location'] == p2['location']
 
 class Tags:
 
@@ -244,7 +317,9 @@ class Tags:
         rnb = random.randint(0, len(tags))
         return tuple(random.choice(tags) for i in range(rnb))
 
-    def cmp_(v1, v2):
+    def cmp_(p1, p2):
+        v1 = p1['tags']
+        v2 = p2['tags']
         return len(set(v1) & set(v2)) > 0  # intersection keep all eq
 
 
@@ -311,9 +386,7 @@ class Blocked:
         return random.choice([True, False])
 
 
-def get_field_fns(which):
-    clss = inspect.getmembers(sys.modules[__name__], inspect.isclass)
-    return {clsname: clsobj.__dict__[which] for clsname, clsobj in clss if which in clsobj.__dict__}
+
 
     """
     if which == 'cmp':

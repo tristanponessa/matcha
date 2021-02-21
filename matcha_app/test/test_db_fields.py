@@ -9,7 +9,6 @@ sys.path.append('/home/user/Documents/coding/matcha') #top level, this path repr
 #db already imported fields,filepaths
 import matcha_app.db as D
 
-
 ###############MAIN##############################3
 
 if __name__ == '__main__':
@@ -22,42 +21,58 @@ if __name__ == '__main__':
         D.load_db('sqlite', 'fake')
 
         #GET ALL TEST
-        ps = D.db_exec('SELECT * FROM users')
-
-
-
+        #ps = D.db_exec('SELECT * FROM users')
+        ps = D.get_profiles('*')
         #print(ps['profile'][''])
         #print(ps)
 
-        # SUBDCT TEST
+        print(D.get_field_fns('random_'))
+        print(D.get_field_fns('check'))
+        print(D.get_field_fns('cmp_'))
+
+        print(D.cls_for_field('birthdate'))
+        print(D.cls_for_field('location'))
+        print(D.cls_for_field('pwd'))
+
+
+        ###################### SUBDCT TEST
+        #with fakedb
         non_exist_subdct = {"location": "space"}
         found_subdct = {"tags": ["C++", "power"], "intro": "im a GOD"}
 
         ps1 = D.get_profiles(found_subdct)
         ps2 = D.get_profiles(non_exist_subdct)
+        ps3 = D.get_profiles({'blocked' : False})
 
-        print(ps1)
-        print(ps2)
+        print(len(ps1)) #1
+        print(len(ps2)) #must be 0
+        print(len(ps3)) #must be 2
+        ##################################
+
+        ################ MATCHA TEST
+        #with fake db
+        all_ps = ps
+        type_ = 'birthdate'
+        ps = D.sort_profiles(type_, False, ps)
+        print(f'ordered by {type_}')
+        for i,p in enumerate(ps):
+            print(f"{i} {p[type_]} ({p['email']})")
+
+        ps = D.sort_profiles(type_, True, ps)
+        print(f'ordered by {type_}')
+        for i, p in enumerate(ps):
+            print(f"{i} {p[type_]} ({p['email']})")
 
 
 
-        """
-        D.init_db('sqlite')
-        D.load_db('sqlite', 'random')
-        ps = D.db_exec('SELECT * FROM users')
-        D.db_exec('SELECT * FROM users')
-        """
 
-        #import json
-        #x = json.load(open('./matcha_app/db_files/fake_db.json', 'r'))
-        #print(len(ps))
-        #ps = D.create_profiles(0)
-        #print(ps)
-        #for p in ps:
-        #print(*x, sep='\n')
-        #D.print_profile(p['profile'])
-        #D.stock_profiles(ps)
-        #fakeps = json.load(file_paths.fakedb)
+
+        ###############################
+
+
+
+
+
 
 
 

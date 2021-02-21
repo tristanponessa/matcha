@@ -126,7 +126,7 @@ def dict_factory(cursor, row):
 def get_profiles(data):
     if data == '*':
         ps = db_exec(SqlCmds.__['sqlite']['fetch_all'])
-        return [json.loads(p) for p in ps]
+        return [json.loads(p['profile']) for p in ps]
     elif 'email' in data.keys():
         p = db_exec(SqlCmds.__['sqlite']['fetch'].format(data['email']))
         return json.loads(p[0]['profile']) if len(p) == 1 else None
