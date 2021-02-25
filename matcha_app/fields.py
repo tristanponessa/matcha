@@ -85,6 +85,8 @@ def ft_matcha(my_profile, profiles):
     matchas = []
     cmp_fns = get_field_fns('cmp_', 'matcha_cmp').values()
     for p in profiles:
+        if p['email'] == my_profile['email']:
+            continue
         res = [f(my_profile, p) for f in cmp_fns if f(my_profile, p)]
         if len(res) in [3,4]:
             matchas.append(p)
@@ -176,7 +178,7 @@ class Birthdate:
         b2 = p2['birthdate']
         year1 = b1.split('/')[-1]
         year2 = b2.split('/')[-1]
-        return abs(year1 - year2) <= 5
+        return abs(int(year1) - int(year2)) <= 5
 
     def random_(seed_):
         # random.seed(seed_)
