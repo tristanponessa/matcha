@@ -31,6 +31,7 @@ class Notifications:
                      'msg' :  '{nickname} sent you a new message',
                      'visit': '{nickname} checked out your profile',
                      'loged_in': 'welcome back {nickname}!'}
+                     'age' : {'': 'errors': ''}
 
 
     def print_errs(errs: list):

@@ -1,3 +1,23 @@
+"""
+
+
+CREATE TABLE if not exists themes (
+         id INT NOT NULL PRIMARY KEY,
+  		 name varchar(100) not NULL        
+        )
+        
+CREATE TABLE themes (
+    themeID int NOT NULL,
+    demo_id int,
+    PRIMARY KEY (themeID),
+    FOREIGN KEY (demo_id) REFERENCES demo(demo_id)); 
+
+ALTER TABLE themes
+ADD name VARCHAR(50); 
+
+
+"""
+
 import sqlite3
 import psycopg2 as postgresql_mod
 
@@ -33,7 +53,9 @@ class SqlCmds:
                     'add_col' : 'ALTER TABLE {} ADD {} {}',
                     'create_table' : "CREATE TABLE {} ('id' INTEGER PRIMARY KEY AUTOINCREMENT)",
                     #'delete_row' : "DELETE FROM {} WHERE {}='{}'",
-                    'update' : 'UPDATE users SET profile="{}" WHERE email="{}"'
+                    'update' : 'UPDATE users SET profile="{}" WHERE email="{}"',
+                    'foreign_key' : lambda ptr_name,dst_table,dst_field: f"FOREIGN KEY ('{ptr_name}') REFERENCES '{dst_table}'('{dst_field}')"
+
              }
 
     postgresql = sqlite #shallow copy, ref to sqlite
@@ -148,7 +170,7 @@ def db_exec(db, action, args):
         RES [{'profile': }] SELECT profile FROM users WHERE email="email"
         RES [{'id' : 8 , 'email' : '@' , 'profile': "{'birthdate': '', }" OR None, ...]
     """
-    
+
     cmd = SqlCmds.__dict__[db][action].format(*args)
 
     if db == 'fakedb':
