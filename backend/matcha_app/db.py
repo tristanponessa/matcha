@@ -1,270 +1,249 @@
-"""
-
-
-CREATE TABLE if not exists themes (
-         id INT NOT NULL PRIMARY KEY,
-  		 name varchar(100) not NULL        
-        )
-        
-CREATE TABLE themes (
-    themeID int NOT NULL,
-    demo_id int,
-    PRIMARY KEY (themeID),
-    FOREIGN KEY (demo_id) REFERENCES demo(demo_id)); 
-
-ALTER TABLE themes
-ADD name VARCHAR(50); 
-
-
-"""
-
-import sqlite3
-import psycopg2 as postgresql_mod
-
 import sys
+import time
 #sys.path.append('/home/user/Documents/coding/matcha')
 #sys.path.append('/home/user/Documents/coding/matcha/matcha_app')
 #sys.path.append('/home/user/Documents/coding/matcha/matcha_app/db_files')
 
-import os
-from typing import List, Dict
-import random
-import string
-import json
-import inspect
+from neo4j import GraphDatabase as neo4j_db
 
-from matcha_app.fields import *
-from matcha_app import file_paths
+
+#------------------------------------#------------------------------------#------------------------------------#------------------------------------#------------------------------------
 
 
 
-MAIN_DB = 'sqlite'
+#users must choose fomr this list
+tags = ('drawing','coding','politics','chess','sports','workout','sleeping','skydiving','movies','reading','creating','cooking','dancing','driving','travel')
 
-class SqlCmds:
+
+class Db:
+
     """
-        extendable for other dbs
+        *__var means private access modifier, dont call outside class
+        *1.string format prints brackets for {v} -> {key:val,...} when v is a dict, 
+            otherwise {{v}} -> {v}  {{}} -> {}
+         2.i do '{a,b}'.format(a,b), if i were to inverse b would be assigned to a, i do this to avoid format(a=a, b=b)
+        *all data checked before being used threw db
+        *cql: 
+            merge updates existing (if exists,updates,else creates)
+            create will duplicate if exists
+            WITH allows you to chain MERGE in the middle of an espr
+
     """
 
-    sqlite = {
-                    #'fetch' = "SELECT profile FROM users WHERE profile LIKE {}" #'%email={}%' || '%email={}%'
-                    'fetch' : 'SELECT profile FROM users WHERE email="{}"',
-                    'fetch_all': 'SELECT * FROM users',
-                    'insert' : "INSERT INTO users ('{}', '{}') VALUES ('{}', '{}')",
-                    'add_col' : 'ALTER TABLE {} ADD {} {}',
-                    'create_table' : "CREATE TABLE {} ('id' INTEGER PRIMARY KEY AUTOINCREMENT)",
-                    #'delete_row' : "DELETE FROM {} WHERE {}='{}'",
-                    'update' : 'UPDATE users SET profile="{}" WHERE email="{}"',
-                    'foreign_key' : lambda ptr_name,dst_table,dst_field: f"FOREIGN KEY ('{ptr_name}') REFERENCES '{dst_table}'('{dst_field}')"
-
-             }
-
-    postgresql = sqlite #shallow copy, ref to sqlite
+    def __init__(self, uri, userName, password):
+        self.__driver = neo4j_db.driver(uri, auth=(userName, password))
     
-    fake_db = {
-                    #'fetch' = "SELECT profile FROM users WHERE profile LIKE {}" #'%email={}%' || '%email={}%'
-                    'fetch' : "",
-                    'fetch_all': "",
-                    'insert' : "",
-                    'add_col' : "",
-                    'create_table' : "",
-                    #'delete_row' : "DELETE FROM {} WHERE {}='{}'",
-                    'update' : ""
-             }
+    def __close_db(self):
+        self.__driver.close()
+
+    def __run_cmd(self, cmd):
+        with self.__driver.session() as session:
+            return session.run(cmd)
     
-
+    def __timestamp(self):
+        epoch_now = time.time()
+        structtime_now = time.localtime(epoch_now)
+        format_now = time.strftime("%d/%m/%Y %H:%M:%S", structtime_now)
+        return format_now
     
-
-
-class SQLite:
-    """
-        auto creates file if dont exist
-        there must be a connexion for every thread, use cont.manag.
-    """
-    def __init__(self, file=file_paths.sqlitefile):
-        self.file = file
-        self.conn = None
-        self.cur = None
-
-    def __enter__(self):
-        self.conn = sqlite3.connect(self.file)
-        self.conn.row_factory = self.dict_factory
-        self.cur = self.conn.cursor()
-        return self.cur
-
-    def __exit__(self, type, value, traceback):
-        if self.cur:
-            self.cur.close()
-        if self.conn:
-            self.conn.commit()
-            self.conn.close()
-        #print(f'closed instance db connection!')
     
-    def dict_factory(self, cursor, row):
-        d = {}
-        for idx, col in enumerate(cursor.description):
-            d[col[0]] = row[idx]
-        return d
-
-class Postgresql:
-    """
-        auto creates file if dont exist
-        there must be a connexion for every thread, use cont.manag.
-    """
-    def __init__(self, file=None):
-        self.file = file
-        self.conn = None
-        self.cur = None
-
-    def __enter__(self):
-        self.conn = postgresql_mod.connect(host="localhost", 
-                                            user="trponess", 
-                                            password="0000", 
-                                            dbname="main_db", 
-                                            charset='utf8mb4',
-                                            host='',
-                                            port='',
-                                            cursor_factory=postgresql_mod.extras.RealDictCursor) 
-        #print(f'db connection : open ? {self.conn.open}') 
-        #self.conn.row_factory = self.dict_factory
-        self.cur = self.conn.cursor()
-        return self.cur
-
-    def __exit__(self, type, value, traceback):
-        if self.cur:
-            self.cur.close()
-        if self.conn:
-            self.conn.commit()
-            self.conn.close()
-        #print(f'closed instance db connection!')
+    def ban_user(self, email, state):
+        cql_cmd = '''
+                    MATCH (p:Person) WHERE p.email="{email}"
+                    SET p.ban="{state}"
+                    RETURN *
+                  '''.format(email, state)
+        return self.__run_cmd(cql_cmd)
     
 
-class FakeDb:
-    pass
+    def write_msg(self, from_email, to_email, msg):
+        cql_cmd = '''
+                    MATCH(src:Person) WHERE src.email="{from}"
+                    MATCH(dst:Person) WHERE dst.email="{to}"
+                    CREATE (new_msg:Msg{input:"{msg}", created_on:"{timestamp}"})
+                    CREATE (src)-[r1:WROTE]->(new_msg)-[r2:DESTINED_TO]->(dst)
+                    RETURN src,type(r1),new_msg,type(r2),dst
+                  '''.format(from_email, to_email, msg, self.__timestamp())
+        return self.__run_cmd(cql_cmd)
+    
+    def create_user(self, data: dict):
+        cql_cmd = '''
+                    CREATE (new_user:Person{data})
+                    RETURN new_user
+                  '''.format(data)
+        return self.__run_cmd(cql_cmd)
+    
+    def like_user(self, from_email, to_email):
+        cql_cmd = '''
+                    MATCH (src:Person) WHERE src.email="{me}"
+                    MATCH (dst:Person) WHERE dst.email="{to_email}"
+                    MERGE (src)-[r:LIKES{date:"{timestamp}"}]->(dst)
+                    RETURN src,type(r),dst
+                  '''.format(from_email, to_email, self.__timestamp())
+        return self.__run_cmd(cql_cmd)
+    
+    def unlike_user(self, from_email, to_email):
+        cql_cmd = '''
+                    MATCH (src:Person) WHERE src.email="{me}"
+                    MATCH (dst:Person) WHERE dst.email="{to_email}"
+                    MATCH (src)-[r:LIKES]->(dst)
+                    DELETE r
+                  '''.format(from_email, to_email)
+        self.__run_cmd(cql_cmd)
+    
+    def hobbies_tag(self, email, tag):
+        cql_cmd = '''
+                    MATCH (src:Person) WHERE src.email="{email}"
+                    MATCH (tag:Tag) WHERE tag.name="{tag}"
+                    MERGE (src)-[r:HAS_HOBBY{date:"{timestamp}"}]->(tag)
+                    RETURN *
+                  '''.format(email, tag, self.__timestamp())
+        return self.__run_cmd(cql_cmd)
+    
+    def unhobbies_tag(self, email, tag):
+        cql_cmd = '''
+                    MATCH (src:Person) WHERE src.email="{email}"
+                    MATCH (tag:Tag) WHERE tag.name="{tag}"
+                    MATCH (src)-[r:HAS_HOBBY]->(tag)
+                    DELETE r
+                  '''.format(email, tag)
+        self.__run_cmd(cql_cmd)
 
 
-def init_db(dbname):
-    if dbname == 'sqlite':
-        file_paths.if_file_del(file_paths.sqlitefile)
-        file_paths.create_file(file_paths.sqlitefile)
-    if dbname == 'postgresql':
-        #check exsitance of db, check connect...
-        pass
-    if dbname == 'fakedb':
-        #file_paths.if_file_del(file_paths.fakedbfile)
-        #file_paths.create_file(file_paths.fakedbfile)
-        pass
-
-    db_exec(dbname, 'create_table', ['users'])
-    db_exec(dbname, 'add_col', ['users', 'email', 'TEXT'])
-    db_exec(dbname, 'add_col', ['users', 'profile', 'TEXT'])
 
 
-def db_exec(db, action, args):
-    """
-        -writes in log
-        -converts json to str for db ; reverse for return
-        -call a new cursor each time for processsss
-        -returns
-        from : dct_factory() in class SQLite()
-        RES []
-        RES [{'profile': }] SELECT profile FROM users WHERE email="email"
-        RES [{'id' : 8 , 'email' : '@' , 'profile': "{'birthdate': '', }" OR None, ...]
-    """
 
-    cmd = SqlCmds.__dict__[db][action].format(*args)
 
-    if db == 'fakedb':
-        pass
-    if db == 'sqlite':
+if __name__ == '__main__':
+    db_inst = Db()
+
+
+    
+
+    
+
+    
+    
+    
+
         
-        with SQLite() as cur:
-            cur.execute(cmd)
-            res = cur.fetchall()
-            return res
-    
-    if db == 'postgresql':
-        with Postgresql() as cur:
-            cur.execute(cmd)
-            res = cur.fetchall()
-            return res
-
-    
 
 
 
 
-#########################
-
-#{'birthdate':'03/05/95', 'first_name':'natsirt'}
-def get_profiles(data):
-    if data == '*':
-        ps = db_exec(SqlCmds.__['sqlite']['fetch_all'])
-        return [json.loads(p['profile']) for p in ps]
-    elif 'email' in data.keys():
-        p = db_exec(SqlCmds.__['sqlite']['fetch'].format(data['email']))
-        return json.loads(p[0]['profile']) if len(p) == 1 else None
-    else:
-        all_profiles = db_exec(SqlCmds.__['sqlite']['fetch_all'])
-
-        return [json.loads(p['profile']) for p in all_profiles if is_subdct(data, json.loads(p['profile']))] 
-
-def stock_profiles(ps):
-    for p in ps:
-        if not get_profiles({'email': p['email']}):
-            db_exec(SqlCmds.__['sqlite']['insert'].format('email', 'profile', p['email'], json.dumps(p)))
-        else:
-            db_exec(SqlCmds.__['sqlite']['update'].format(json.dumps(p), p['email']))
-
-def load_db(dbname, what):
-    if dbname == 'sqlite':
-        ps = []
-        if what == 'random':
-            ps = create_profiles(0)
-        if what == 'fake':
-            ps = json.load(open(file_paths.fakedb, 'r'))
-        stock_profiles(ps)
+"""
 
 
+# Execute the CQL query
+with graphDB_Driver.session() as graphDB_Session:
+    # Create nodes
+    graphDB_Session.run(cqlCreate)
+   
+    # Query the graph    
+    nodes = graphDB_Session.run(cqlNodeQuery)
+   
+    print("List of Ivy League universities present in the graph:")
+    for node in nodes:
+        print(node)
+ 
+    # Query the relationships present in the graph
+    nodes = graphDB_Session.run(cqlEdgeQuery)
+   
+    print("Distance from Yale University to the other Ivy League universities present in the graph:")
+    for node in nodes:
+        print(node)
 
-# DISPLAY FUNS
-def print_profile(profile, file=None):
-    top = bottom = '-' * 50
-    print(top, file=file)
-    n = 0
-    for k, v in profile.items():
-        print(f'{n}<{k}>'.center(30, '*'), file=file)
-        if isinstance(v, list):
-            for i, e in enumerate(v):
-                print(f'    {i} > {e}', file=file)
-        elif isinstance(v, dict):
-            for a, b in v.items():
-                print(f'    {a} > {b}', file=file)
-        else:
-            print(f'    {v}', file=file)
-        n += 1
-    print(bottom, file=file)
+from neo4j import GraphDatabase as neo4j_db
 
-#can cause recurisitvy prolem if called inside db_exec, use decorator
-def db_to_file(file):
-    with open(file, 'w+') as f:
-        for pro in get_profiles('*'):
-            print_profile(pro, f)
+class HelloWorldExample:
 
-def print_log(dbname, cmd):
-    with open(file_paths.generallog, 'a+') as f:
-        print(f'{Timestamp.get_now_time()} {dbname} >> {cmd} \n', file=f)
+    def __init__(self, uri, user, password):
+        self.driver = neo4j_db.driver(uri, auth=(user, password))
+
+    def close(self):
+        self.driver.close()
+
+    def print_greeting(self, message):
+        with self.driver.session() as session:
+            greeting = session.write_transaction(self._create_and_return_greeting, message)
+            print(greeting)
+
+    @staticmethod
+    def _create_and_return_greeting(tx, message):
+        result = tx.run("CREATE (a:Greeting) "
+                        "SET a.message = $message "
+                        "RETURN a.message + ', from node ' + id(a)", message=message)
+        return result.single()[0]
+
+
+if __name__ == "__main__":
+    greeter = HelloWorldExample("bolt://localhost:7687", "neo4j", "password")
+    greeter.print_greeting("hello, world")
+    greeter.close()
 
 
 
+from neo4j import GraphDatabase
+
+driver = GraphDatabase.driver("neo4j://localhost:7687", auth=("neo4j", "password"))
+
+def add_friend(tx, name, friend_name):
+    tx.run("MERGE (a:Person {name: $name}) "
+           "MERGE (a)-[:KNOWS]->(friend:Person {name: $friend_name})",
+           name=name, friend_name=friend_name)
+
+def print_friends(tx, name):
+    for record in tx.run("MATCH (a:Person)-[:KNOWS]->(friend) WHERE a.name = $name "
+                         "RETURN friend.name ORDER BY friend.name", name=name):
+        print(record["friend.name"])
+
+with driver.session() as session:
+    session.write_transaction(add_friend, "Arthur", "Guinevere")
+    session.write_transaction(add_friend, "Arthur", "Lancelot")
+    session.write_transaction(add_friend, "Arthur", "Merlin")
+    session.read_transaction(print_friends, "Arthur")
+
+driver.close()
 
 
+# import the neo4j driver for Python
 
-
-
-
-
-
-
-
-
-
+from neo4j.v1 import GraphDatabase
+ 
+# Database Credentials
+uri             = "bolt://localhost:7687"
+userName        = "neo4j"
+password        = "test"
+ 
+# Connect to the neo4j database server
+graphDB_Driver  = GraphDatabase.driver(uri, auth=(userName, password))
+ 
+# CQL to query all the universities present in the graph
+cqlNodeQuery          = "MATCH (x:university) RETURN x"
+ 
+# CQL to query the distances from Yale to some of the other Ivy League universities
+cqlEdgeQuery          = "MATCH (x:university {name:'Yale University'})-[r]->(y:university) RETURN y.name,r.miles"
+ 
+# CQL to create a graph containing some of the Ivy League universities
+cqlCreate = '''CREATE (cornell:university { name: "Cornell University"}),
+(yale:university { name: "Yale University"}),
+(princeton:university { name: "Princeton University"}),
+(harvard:university { name: "Harvard University"}),
+ 
+(cornell)-[:connects_in {miles: 259}]->(yale),
+(cornell)-[:connects_in {miles: 210}]->(princeton),
+(cornell)-[:connects_in {miles: 327}]->(harvard),
+ 
+(yale)-[:connects_in {miles: 259}]->(cornell),
+(yale)-[:connects_in {miles: 133}]->(princeton),
+(yale)-[:connects_in {miles: 133}]->(harvard),
+ 
+(harvard)-[:connects_in {miles: 327}]->(cornell),
+(harvard)-[:connects_in {miles: 133}]->(yale),
+(harvard)-[:connects_in {miles: 260}]->(princeton),
+ 
+(princeton)-[:connects_in {miles: 210}]->(cornell),
+(princeton)-[:connects_in {miles: 133}]->(yale),
+(princeton)-[:connects_in {miles: 260}]->(harvard)'''
+ 
+"""

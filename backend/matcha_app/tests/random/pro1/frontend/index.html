@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Holygraph</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">  <!-- ??? -->
+    
+
+    <style></style> <!-- dynamic -->
+    
+  </head>
+  <body>
+
+    <script>
+        const backend_url = 'http://127.0.0.1:5000/'
+
+        function makeRequest1() {       
+            fetch(backend_url)
+                .then(response => response.json()).then( json => setData(json))
+                .catch(error => console.error(error))
+                .finally(() => {
+                    console.log("Data received 1 --> ", data);
+                    data = null;
+            });
+        }
+
+        makeRequest1();
+    </script>
+
+    
+
+
+  </body>
+</html>
