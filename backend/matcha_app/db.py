@@ -1,5 +1,6 @@
 import sys
 import time
+import json
 #sys.path.append('/home/user/Documents/coding/matcha')
 #sys.path.append('/home/user/Documents/coding/matcha/matcha_app')
 #sys.path.append('/home/user/Documents/coding/matcha/matcha_app/db_files')
@@ -7,11 +8,12 @@ import time
 from neo4j import GraphDatabase as neo4j_db
 
 
+
 #------------------------------------#------------------------------------#------------------------------------#------------------------------------#------------------------------------
 
 
 
-#users must choose fomr this list
+#users must choose fomr this list  the subject demands they're "reusable". I interpret this as an object you use and not just a plain data
 tags = ('drawing','coding','politics','chess','sports','workout','sleeping','skydiving','movies','reading','creating','cooking','dancing','driving','travel')
 
 
@@ -21,23 +23,43 @@ class Db:
         *__var means private access modifier, dont call outside class
         *1.string format prints brackets for {v} -> {key:val,...} when v is a dict, 
             otherwise {{v}} -> {v}  {{}} -> {}
-         2.i do '{a,b}'.format(a,b), if i were to inverse b would be assigned to a, i do this to avoid format(a=a, b=b)
+         2.
         *all data checked before being used threw db
         *cql: 
+            ' is a syntax error use "
             merge updates existing (if exists,updates,else creates)
             create will duplicate if exists
             WITH allows you to chain MERGE in the middle of an espr
-
+        *driver.session.read/write_transaction are the best fns, they auto-commit and roll-back when necessary
+         tx represents with begin_transaction() as tx: in the doc, i dont know where its called 
+        *neo4j.work.result.Result contains multiple neo4j.Record
+         be careful, record in result moves all outside, reaccessing result gives you an empty lst, i think it calls consume()
     """
 
     def __init__(self, uri, userName, password):
-        self.__driver = neo4j_db.driver(uri, auth=(userName, password))
+        try:
+            self.__driver = neo4j_db.driver(uri, auth=(userName, password))
+        except Exception:
+            print('ERROR: Could not connect to the Neo4j Database. See console for details.')
+            sys.exit(0)
     
-    def __close_db(self):
-        self.__driver.close()
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        self.close_db()
+        if exc_type:
+            print(f'__exit__ says: exc_type: {exc_type}')
+            print(f'__exit__ says: exc_value: {exc_value}')
+            print(f'__exit__ says: exc_traceback: {exc_traceback}')
 
-    def __run_cmd(self, cmd):
+    def close_db(self):
+        print('closing db')
+        self.__driver.close()
+    
+    def __run_cmd(self, fn, cmd):
         with self.__driver.session() as session:
+            #session.write_transaction(create_friend_of, "Alice", "Carl")
             return session.run(cmd)
     
     def __timestamp(self):
@@ -46,11 +68,26 @@ class Db:
         format_now = time.strftime("%d/%m/%Y %H:%M:%S", structtime_now)
         return format_now
     
+    def __cql_dict(self, d: dict):
+        #{'name':'val'} converts to -> {name:'val'}
+        dstr = json.dumps(d) #json transforms ' to "
+        for k in d.keys():
+            dstr = dstr.replace(f'"{k}"', k)
+        return dstr
+
+    #dont use 
+    def fetch_all(self):
+        cql_cmd = '''
+                    MATCH (all)
+                    RETURN all
+                  '''
+        return self.__run_cmd(cql_cmd)
+    
     
     def ban_user(self, email, state):
         cql_cmd = '''
-                    MATCH (p:Person) WHERE p.email="{email}"
-                    SET p.ban="{state}"
+                    MATCH (p:Person) WHERE p.email="{}"
+                    SET p.ban="{}"
                     RETURN *
                   '''.format(email, state)
         return self.__run_cmd(cql_cmd)
@@ -58,34 +95,35 @@ class Db:
 
     def write_msg(self, from_email, to_email, msg):
         cql_cmd = '''
-                    MATCH(src:Person) WHERE src.email="{from}"
-                    MATCH(dst:Person) WHERE dst.email="{to}"
-                    CREATE (new_msg:Msg{input:"{msg}", created_on:"{timestamp}"})
+                    MATCH(src:Person) WHERE src.email="{}"
+                    MATCH(dst:Person) WHERE dst.email="{}"
+                    CREATE (new_msg:Msg{input:"{}", created_on:"{}"})
                     CREATE (src)-[r1:WROTE]->(new_msg)-[r2:DESTINED_TO]->(dst)
                     RETURN src,type(r1),new_msg,type(r2),dst
                   '''.format(from_email, to_email, msg, self.__timestamp())
         return self.__run_cmd(cql_cmd)
     
     def create_user(self, data: dict):
+        cql_dct_str = self.__cql_dict(data)
         cql_cmd = '''
-                    CREATE (new_user:Person{data})
+                    CREATE (new_user:Person{})
                     RETURN new_user
-                  '''.format(data)
+                  '''.format(cql_dct_str)
         return self.__run_cmd(cql_cmd)
     
     def like_user(self, from_email, to_email):
         cql_cmd = '''
-                    MATCH (src:Person) WHERE src.email="{me}"
-                    MATCH (dst:Person) WHERE dst.email="{to_email}"
-                    MERGE (src)-[r:LIKES{date:"{timestamp}"}]->(dst)
+                    MATCH (src:Person) WHERE src.email="{}"
+                    MATCH (dst:Person) WHERE dst.email="{}"
+                    MERGE (src)-[r:LIKES{date:"{}"}]->(dst)
                     RETURN src,type(r),dst
                   '''.format(from_email, to_email, self.__timestamp())
         return self.__run_cmd(cql_cmd)
     
     def unlike_user(self, from_email, to_email):
         cql_cmd = '''
-                    MATCH (src:Person) WHERE src.email="{me}"
-                    MATCH (dst:Person) WHERE dst.email="{to_email}"
+                    MATCH (src:Person) WHERE src.email="{}"
+                    MATCH (dst:Person) WHERE dst.email="{}"
                     MATCH (src)-[r:LIKES]->(dst)
                     DELETE r
                   '''.format(from_email, to_email)
@@ -93,17 +131,17 @@ class Db:
     
     def hobbies_tag(self, email, tag):
         cql_cmd = '''
-                    MATCH (src:Person) WHERE src.email="{email}"
-                    MATCH (tag:Tag) WHERE tag.name="{tag}"
-                    MERGE (src)-[r:HAS_HOBBY{date:"{timestamp}"}]->(tag)
+                    MATCH (src:Person) WHERE src.email="{}"
+                    MATCH (tag:Tag) WHERE tag.name="{}"
+                    MERGE (src)-[r:HAS_HOBBY{date:"{}"}]->(tag)
                     RETURN *
                   '''.format(email, tag, self.__timestamp())
         return self.__run_cmd(cql_cmd)
     
     def unhobbies_tag(self, email, tag):
         cql_cmd = '''
-                    MATCH (src:Person) WHERE src.email="{email}"
-                    MATCH (tag:Tag) WHERE tag.name="{tag}"
+                    MATCH (src:Person) WHERE src.email="{}"
+                    MATCH (tag:Tag) WHERE tag.name="{}"
                     MATCH (src)-[r:HAS_HOBBY]->(tag)
                     DELETE r
                   '''.format(email, tag)
@@ -113,9 +151,27 @@ class Db:
 
 
 
-
 if __name__ == '__main__':
-    db_inst = Db()
+    #get args
+    with Db("bolt://localhost:7687", "neo4j", "0000") as db_inst:
+        print('welcome')
+        """
+        x = db_inst.create_user({'name':'jejis', 'id':7879})
+        all_data = db_inst.fetch_all()
+        
+        print(all_data)
+        print(x.keys())
+        print(x.values())
+        print(x['new_user'])
+
+        print(all_data.values())
+        print(type(all_data.keys()))
+
+        for data in all_data:
+            print(data)
+        """
+
+    
 
 
     
