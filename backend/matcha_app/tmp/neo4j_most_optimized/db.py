@@ -93,30 +93,20 @@ class Db:
         #left to right
         cql_cmd = '''
                     MATCH (p:Person) WHERE p.email="{}"
-                    MATCH (to:Person) WHERE to.email="{}"
-                    MATCH (p)-[r:LIKES]->(to)
-                    RETURN p,type(r) as relation,to
+                    MATCH (l:Person) WHERE l.email="{}"
+                    MERGE (p)-[r:LIKES]->(l)
+                    RETURN p,type(r),l
                   '''.format(email1, email2)
         return self.__run_cmd(cql_cmd) 
 
-    def fetch_all(self, prop='name', order='+', filter_args=None):
-        #can sort and filter
-        filter = []
-        filter_str = ''
-        if filter_args:
-            for prop,val in filter_args.items():
-                filter.append(f'WHERE all.{prop}="{val}"')
-            filter_str = " AND ".join(filter)
-
-        order = 'ASC' if '+' else 'DESC'
+    #dont use 
+    def fetch_all(self):
         cql_cmd = '''
                     MATCH (all)
-                    {filter_str_}
                     RETURN all
-                    ORDER BY all.{prop_} {order_}'
-                  '''.format(filter_str_=filter_str, prop_=prop, order_=order)
+                  '''
         return self.__run_cmd(cql_cmd)
-
+    
     def user_exists(self, email):
         cql_cmd = '''
                     MATCH (p:Person)
@@ -131,7 +121,7 @@ class Db:
         cql_cmd = '''
                     MATCH (p:Person) WHERE p.email="{}"
                     SET p.ban="{}"
-                    RETURN p
+                    RETURN *
                   '''.format(email, state)
         return self.__run_cmd(cql_cmd)
     
@@ -156,13 +146,12 @@ class Db:
         return self.__run_cmd(cql_cmd)
     
     def like_user(self, from_email, to_email):
-        #MERGE (src)-[r:LIKES{date:"{}"}]->(dst)   driver causing problem about merge the security to prevent duplication 
         cql_cmd = '''
                     MATCH (src:Person) WHERE src.email="{}"
                     MATCH (dst:Person) WHERE dst.email="{}"
-                    MATCH (src)-[r:LIKES]->(dst)
+                    MERGE (src)-[r:LIKES{date:"{}"}]->(dst)
                     RETURN src,type(r),dst
-                  '''.format(from_email, to_email)
+                  '''.format(from_email, to_email, self.__timestamp())
         return self.__run_cmd(cql_cmd)
     
     def unlike_user(self, from_email, to_email):
@@ -198,7 +187,7 @@ class Db:
                     DELETE src
                   '''.format(email)
         self.__run_cmd(cql_cmd)
-
+    
     def __print_obj_res(self, result):
         
         print('db res'.center(100, '-'))
@@ -229,6 +218,7 @@ class Db:
                         print(node.items())
         print('end'.center(100, '-'))
 
+        
 
 
 
@@ -244,42 +234,41 @@ if __name__ == '__main__':
         user1 = db_inst.create_user({'name':'crash', 'email':'crash@crapmail.com'})
         user2 = db_inst.create_user({'name':'maria', 'email':'maria@crapmail.com'})
 
-        try:
-            #test1
-            print(db_inst.user_exists('crash@crapmail.com'))
+        #test1
+        print(db_inst.user_exists('crash@crapmail.com'))
 
-            #test2 create ban check_if_banned delte search
-            db_inst.create_user({'name':'Bad', 'email':'bad@crapmail.com'})
-            print(db_inst.user_exists('bad@crapmail.com'))
-            db_inst.ban_user('bad@crapmail.com', 'true')
-            print(db_inst.user_exists('bad@crapmail.com'))
-            db_inst.delete_user('bad@crapmail.com')
-            print(db_inst.user_exists('bad@crapmail.com'))
+        #test2 create ban check_if_banned delte search
+        db_inst.create_user({'name':'Bad', 'email':'bad@crapmail.com'})
+        print(db_inst.user_exists('bad@crapmail.com'))
+        db_inst.ban_user('bad@crapmail.com', 'true')
+        print(db_inst.user_exists('bad@crapmail.com'))
+        db_inst.delete_user('bad@crapmail.com')
+        print(db_inst.user_exists('bad@crapmail.com'))
 
-            #test3 
-            user_exists1 = db_inst.user_exists('bad@crapmail.com')
-            new_user = db_inst.create_user({'name':'Bad', 'email':'bad@crapmail.com'})
-            db_inst.ban_user('bad@crapmail.com', True)
-            db_inst.ban_user('bad@crapmail.com', 'true')
-            db_inst.ban_user('bad@crapmail.com', False)
-            db_inst.ban_user('bad@crapmail.com', 'false')
-            user_exists2 = db_inst.user_exists('bad@crapmail.com')
-            print('user exists? : ', user_exists1)
-            print('create user ? : ', new_user)
-            print('user exists? : ', user_exists2)
+        #test3 
+        user_exists1 = db_inst.user_exists('bad@crapmail.com')
+        new_user = db_inst.create_user({'name':'Bad', 'email':'bad@crapmail.com'})
+        db_inst.ban_user('bad@crapmail.com', True)
+        db_inst.ban_user('bad@crapmail.com', 'true')
+        db_inst.ban_user('bad@crapmail.com', False)
+        db_inst.ban_user('bad@crapmail.com', 'false')
+        user_exists2 = db_inst.user_exists('bad@crapmail.com')
+        print('user exists? : ', user_exists1)
+        print('create user ? : ', new_user)
+        print('user exists? : ', user_exists2)
 
-            #test4 like 
-            db_inst.like_user('crash@crapmail.com', 'maria@crapmail.com')
-            r1 = db_inst.get_relationship('crash@crapmail.com', 'maria@crapmail.com')
-            r2 = db_inst.get_relationship('maria@crapmail.com', 'crash@crapmail.com')
-            print('a relationship? ', r1)
-            print('a relationship? ', r2)
+        #test4 like 
+        db_inst.like_user('crash@crapmail.com', 'maria@crapmail.com')
+        r1 = db_inst.get_relationship('crash@crapmail.com', 'crash@crapmail.com')
+        r2 = db_inst.get_relationship('maria@crapmail.com', 'crash@crapmail.com')
+        print('a relationship? ', r1)
+        print('a relationship? ', r2)
         
 
-        finally:
-            #clean up test env
-            db_inst.delete_user('crash@crapmail.com')
-            db_inst.delete_user('maria@crapmail.com')
+
+        #clean up test env
+        db_inst.delete_user('crash@crapmail.com')
+        db_inst.delete_user('maria@crapmail.com')
 
 
 
