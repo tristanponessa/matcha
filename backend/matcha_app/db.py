@@ -21,6 +21,8 @@ tags = ('drawing','coding','politics','chess','sports','workout','sleeping','sky
 class Db:
 
     """
+        *session.runs returns a list of dicts of key:str value:dict [{'cql return name': {}},
+                                                                     {'cql return name': {}} ...]
         *__var means private access modifier, dont call outside class
         *1.string format prints brackets for {v} -> {key:val,...} when v is a dict, 
             otherwise {{v}} -> {v}  {{}} -> {}
@@ -61,17 +63,12 @@ class Db:
     
     def __run_cmd(self, cmd):
         with self.__driver.session() as session:
+            self.__log_msg(cmd)
             result_obj =  session.run(cmd)
             result = result_obj.data() #lst of dcts
-            self.__log_msg(cmd)
             self.__print_obj_res(result) #cant return data empty
             return result
-            
-    
-    def __log_msg(self, msg):
-        print(f'CQL >>> {msg}'.ljust(50))
 
-    
     def __timestamp(self):
         epoch_now = time.time()
         structtime_now = time.localtime(epoch_now)
@@ -79,8 +76,18 @@ class Db:
         return format_now
     
     def __cql_dict(self, d: dict):
+        #1.converts str to cql types for correct sorting/filtering
         #neo4j proposes a format string with $var instead of {}
-        #{'name':'val'} converts to -> {name:'val'}
+        #2.{'name':'val'} converts to -> {name:'val'}
+
+        for v in d.values():
+            if '-' in v:
+
+        
+            if type == 'date'
+                #must be year-month-day
+                return f"date('{str}')"
+
         dstr = json.dumps(d) #json transforms ' to "
         for k in d.keys():
             dstr = dstr.replace(f'"{k}"', k)
@@ -88,6 +95,16 @@ class Db:
     
     def run_cmd(self, cql_cmd):
         return self.__run_cmd(cql_cmd)
+    
+    def db_result_format(self, res):
+        #session.runs returns a list of dicts [{'cql return name': {'key1','val1'}, ...]
+        #we trasform into      list of dicts  [{'key1','val1'}]
+        print('->', res)
+        r = [list(dct.values())[0] for dct in res]
+        print('+>', r)
+        return r if len(r) > 0 else None
+
+
     
     def get_relationship(self, email1, email2):
         #left to right
@@ -108,13 +125,14 @@ class Db:
                 filter.append(f'WHERE all.{prop}="{val}"')
             filter_str = " AND ".join(filter)
 
-        order = 'ASC' if '+' else 'DESC'
+        order = 'ASC' if order == '+' else 'DESC'
         cql_cmd = '''
                     MATCH (all)
                     {filter_str_}
                     RETURN all
-                    ORDER BY all.{prop_} {order_}'
+                    ORDER BY all.{prop_} {order_}
                   '''.format(filter_str_=filter_str, prop_=prop, order_=order)
+        
         return self.__run_cmd(cql_cmd)
 
     def user_exists(self, email):
@@ -153,6 +171,7 @@ class Db:
                     MERGE (new_user:Person{})
                     RETURN new_user
                   '''.format(cql_dct_str)
+        
         return self.__run_cmd(cql_cmd)
     
     def like_user(self, from_email, to_email):
@@ -199,6 +218,11 @@ class Db:
                   '''.format(email)
         self.__run_cmd(cql_cmd)
 
+    def __log_msg(self, msg):
+        print(self.__timestamp().center(100, '*'))
+        print(f'CQL >>> {msg}'.ljust(50))
+        #print('*' * 100)
+
     def __print_obj_res(self, result):
         
         print('db res'.center(100, '-'))
@@ -208,9 +232,11 @@ class Db:
         #neo4j.Result.data -> lst of dicts 
         elif isinstance(result,list):
             for lst_elem in result:
+                
                 for k,v in lst_elem.items():
                     print(f'cql return var:{k}', end=' -> ')
                     print(v)
+                    
         else:
             #neo4j.Result gets moved out the iter causing res to be empty
             #i didnt find a way to do a copy of this obj
@@ -228,7 +254,7 @@ class Db:
                         print(node.labels, end=' ')
                         print(node.items())
         print('end'.center(100, '-'))
-
+        print('*' * 100)  #to stock inside log text box 
 
 
 
@@ -240,11 +266,36 @@ if __name__ == '__main__':
         #db_inst.fetch_all()
         
 
-        #test0 for futur tests create users delete them at end 
-        user1 = db_inst.create_user({'name':'crash', 'email':'crash@crapmail.com'})
-        user2 = db_inst.create_user({'name':'maria', 'email':'maria@crapmail.com'})
+        #SETUP for futur tests create users delete them at end 
+        test_users = []
+        test_users.append({'name':'crash', 'email':'crash@crapmail.com', 'born':'27/02/1996', 'sex_ori':'female','ban':'false'})
+        test_users.append({'name':'maria', 'email':'maria@crapmail.com', 'born':'10/04/1994', 'sex_ori':'male','ban':'false'})
+        test_users.append({'name':'exodia', 'email':'exodia@dumpmail.com', 'born':'01/01/1996', 'sex_ori':'female','ban':'false'})
+        test_users.append({'name':'iswear', 'email':'iswear@dumpmail.com', 'born':'02/07/1999', 'sex_ori':'male female','ban':'false'})
+        test_users.append({'name':'crash', 'email':'bad@crapmail.com' , 'born':'02/07/1999', 'sex_ori':'female male', 'ban':'true'})
+        
 
         try:
+
+            #test0 for futur tests create users delete them at end 
+            for t in test_users:
+                db_inst.create_user(t)
+            
+            '''
+            #test anti duplicate create 
+            for t in test_users:
+                db_inst.create_user(t)
+            for t in test_users:
+                db_inst.create_user(t)
+            all = db_inst.fetch_all() 
+            print(len(all))
+            #assertequals(len(test_users) == len(all))
+            '''
+            
+            
+
+
+            '''
             #test1
             print(db_inst.user_exists('crash@crapmail.com'))
 
@@ -274,12 +325,30 @@ if __name__ == '__main__':
             r2 = db_inst.get_relationship('maria@crapmail.com', 'crash@crapmail.com')
             print('a relationship? ', r1)
             print('a relationship? ', r2)
+            '''
+
+
+            
+
+            #test5 sort filter
+            all = db_inst.fetch_all() 
+            print(len(all))
+            all = db_inst.fetch_all('email', '-') 
+            print(len(all))
+            all = db_inst.fetch_all('born', '-') 
+            print(len(all))
+            all = db_inst.fetch_all('email', '+', {'name':'crash'}) #filter
+            print(len(all))
+            #assertequals(len(all) == 2)
+
+            all = db_inst.fetch_all('email', '+', {'slddls':'07ii'}) #non existed filter
+            print(len(all))
         
 
         finally:
             #clean up test env
-            db_inst.delete_user('crash@crapmail.com')
-            db_inst.delete_user('maria@crapmail.com')
+            for t in test_users:
+                db_inst.delete_user(t['email'])
 
 
 
