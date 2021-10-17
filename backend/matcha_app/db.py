@@ -23,7 +23,7 @@ class Db:
     """
         *session.runs returns a list of dicts of key:str value:dict [{'cql return name': {}},
                                                                      {'cql return name': {}} ...]
-        *__var means private access modifier, dont call outside class
+        *__var activates pythons name mangling, means private, dont call outside class
         *1.string format prints brackets for {v} -> {key:val,...} when v is a dict, 
             otherwise {{v}} -> {v}  {{}} -> {}
          2.
@@ -57,6 +57,10 @@ class Db:
             print(f'__exit__ says: exc_value: {exc_value}')
             print(f'__exit__ says: exc_traceback: {exc_traceback}')
 
+    def get_driver(self):
+        #for tests only
+        return self.__driver
+
     def close_db(self):
         self.__driver.close()
         print('closing db')
@@ -75,24 +79,30 @@ class Db:
         format_now = time.strftime("%d/%m/%Y %H:%M:%S", structtime_now)
         return format_now
     
-    def __cql_dict(self, d: dict):
+    def __cql_formater(self, d: dict):
         #1.converts str to cql types for correct sorting/filtering
         #neo4j proposes a format string with $var instead of {}
         #2.{'name':'val'} converts to -> {name:'val'}
 
         for v in d.values():
-            if '-' in v:
-
-        
-            if type == 'date'
-                #must be year-month-day
-                return f"date('{str}')"
+            if '/' in v:
+                v = self.__cql_type('date', v)
 
         dstr = json.dumps(d) #json transforms ' to "
         for k in d.keys():
             dstr = dstr.replace(f'"{k}"', k)
         return dstr
     
+    def __cql_type(self, type, data):
+        if type == 'date':
+            #must be /day/month/year-> year-month-day
+            v = data
+            v = v.split('/')
+            v.reverse()
+            v = "-".join(v)
+            return f"date('{v}')"
+
+
     def run_cmd(self, cql_cmd):
         return self.__run_cmd(cql_cmd)
     
@@ -106,24 +116,27 @@ class Db:
 
 
     
-    def get_relationship(self, email1, email2):
+    def has_relationship(self, email1, email2):
         #left to right
         cql_cmd = '''
                     MATCH (p:Person) WHERE p.email="{}"
                     MATCH (to:Person) WHERE to.email="{}"
                     MATCH (p)-[r:LIKES]->(to)
-                    RETURN p,type(r) as relation,to
+                    RETURN r
                   '''.format(email1, email2)
-        return self.__run_cmd(cql_cmd) 
+        r = self.__run_cmd(cql_cmd) 
+        return len(r) > 0
 
     def fetch_all(self, prop='name', order='+', filter_args=None):
+
         #can sort and filter
         filter = []
         filter_str = ''
         if filter_args:
             for prop,val in filter_args.items():
-                filter.append(f'WHERE all.{prop}="{val}"')
+                filter.append(f'all.{prop}="{val}"')
             filter_str = " AND ".join(filter)
+            filter_str = f'WHERE {filter_str}'
 
         order = 'ASC' if order == '+' else 'DESC'
         cql_cmd = '''
@@ -154,35 +167,56 @@ class Db:
         return self.__run_cmd(cql_cmd)
     
 
-    def write_msg(self, from_email, to_email, msg):
+    def write_msg(self, from_email, to_email, msg, testid=''):
+
+        if testid == 'test':
+            testid = '''SET new_msg.sig='for_test_db'
+            SET r1.sig='for_test_db'
+            SET r2.sig='for_test_db'''
+
+        testid = "SET new_msg.sig='for_test_db'" if testid == 'test' else ''
+        cql_date = self.__cql_type('type', self.__timestamp())
         cql_cmd = '''
                     MATCH(src:Person) WHERE src.email="{}"
                     MATCH(dst:Person) WHERE dst.email="{}"
-                    CREATE (new_msg:Msg{input:"{}", created_on:"{}"})
-                    CREATE (src)-[r1:WROTE]->(new_msg)-[r2:DESTINED_TO]->(dst)
+                    CREATE (src)-[r1:WROTE]->(new_msg:Msg)-[r2:DESTINED_TO]->(dst)
+                    SET new_msg.input = "{}" 
+                    SET new_msg.created_on="{}"
+                    {}
                     RETURN src,type(r1),new_msg,type(r2),dst
-                  '''.format(from_email, to_email, msg, self.__timestamp())
+                  '''.format(from_email, to_email, msg, cql_date, testid)
         return self.__run_cmd(cql_cmd)
+    
+    def get_discussion(self, from_email, to_email):
+        cql_cmd = '''
+                    MATCH(src:Person) WHERE src.email="{}"
+                    MATCH(dst:Person) WHERE dst.email="{}"
+                    MATCH (src)-[:WROTE]->(msg:Msg)-[:DESTINED_TO]->(dst)
+                    RETURN src,msg,dst
+                  '''.format(from_email, to_email)
+        return self.__run_cmd(cql_cmd)
+
     
     def create_user(self, data: dict):
         #merge prevents duplicate creation
-        cql_dct_str = self.__cql_dict(data)
+        cql_dct_str = self.__cql_formater(data)
         cql_cmd = '''
                     MERGE (new_user:Person{})
                     RETURN new_user
                   '''.format(cql_dct_str)
-        
         return self.__run_cmd(cql_cmd)
     
-    def like_user(self, from_email, to_email):
+    def like_user(self, from_email, to_email, testid=''):
         #MERGE (src)-[r:LIKES{date:"{}"}]->(dst)   driver causing problem about merge the security to prevent duplication 
+        testid = "SET r.sig='for_test_db'" if testid == 'test' else ''
         cql_cmd = '''
                     MATCH (src:Person) WHERE src.email="{}"
                     MATCH (dst:Person) WHERE dst.email="{}"
-                    MATCH (src)-[r:LIKES]->(dst)
-                    RETURN src,type(r),dst
-                  '''.format(from_email, to_email)
-        return self.__run_cmd(cql_cmd)
+                    MERGE (src)-[r:LIKES]->(dst)
+                    SET r.date="{}"
+                    {}
+                  '''.format(from_email, to_email, self.__timestamp(), testid)
+        self.__run_cmd(cql_cmd)
     
     def unlike_user(self, from_email, to_email):
         cql_cmd = '''
@@ -261,231 +295,164 @@ class Db:
 
 
 if __name__ == '__main__':
-    #get args
-    with Db("bolt://localhost:7687", "neo4j", "0000") as db_inst:
+    
+    #***************************************************************************************
+    #  TEST  mock OR load test_db
+    #  be careful how you clean up a test env, do not trigger an active db
+    #  SETUP for futur tests create users delete them at end 
+    #  add 'sig':'for_test_db' property to everything in order to clean up env easily
+    #  prevent using fns from your app to turn on db or delete, make sure to work fns jsut for test
+    #***************************************************************************************
+    
+        test_users = []
+        test_users.append({'sig':'for_test_db', 'name':'crash', 'email':'crash@crapmail.com', 'born':'27/02/1996', 'sex_ori':'female','ban':'false'})
+        test_users.append({'sig':'for_test_db', 'name':'crash', 'email':'crash_2@crapmail.com' , 'born':'27/02/1996', 'sex_ori':'female', 'ban':'false'})
+        test_users.append({'sig':'for_test_db', 'name':'crash', 'email':'bad@crapmail.com' , 'born':'27/02/1996', 'sex_ori':'female', 'ban':'true'})
+        test_users.append({'sig':'for_test_db', 'name':'maria', 'email':'maria@crapmail.com', 'born':'10/04/1994', 'sex_ori':'male','ban':'false'})
+        test_users.append({'sig':'for_test_db', 'name':'exodia', 'email':'exodia@dumpmail.com', 'born':'01/01/1996', 'sex_ori':'female','ban':'false'})
+        test_users.append({'sig':'for_test_db', 'name':'iswear', 'email':'iswear@dumpmail.com', 'born':'02/07/1999', 'sex_ori':'male female','ban':'false'})
+
+        with Db("bolt://localhost:7687", "neo4j", "0000") as db_inst:
         #db_inst.fetch_all()
         
+            def clean_test_data(db_inst):
+                print('cleaning test env :')
+                cql = '''
+                        MATCH (all:Person) WHERE all.sig='for_test_db'
+                        MATCH ()-[all_r]-() WHERE all_r.sig='for_test_db'
+                        RETURN all,all_r
+                '''
+                with db_inst.get_driver().session() as session:
+                    r = session.run(cql)
+                    print('before clean: wonrg>', len(r.data()))
 
-        #SETUP for futur tests create users delete them at end 
-        test_users = []
-        test_users.append({'name':'crash', 'email':'crash@crapmail.com', 'born':'27/02/1996', 'sex_ori':'female','ban':'false'})
-        test_users.append({'name':'maria', 'email':'maria@crapmail.com', 'born':'10/04/1994', 'sex_ori':'male','ban':'false'})
-        test_users.append({'name':'exodia', 'email':'exodia@dumpmail.com', 'born':'01/01/1996', 'sex_ori':'female','ban':'false'})
-        test_users.append({'name':'iswear', 'email':'iswear@dumpmail.com', 'born':'02/07/1999', 'sex_ori':'male female','ban':'false'})
-        test_users.append({'name':'crash', 'email':'bad@crapmail.com' , 'born':'02/07/1999', 'sex_ori':'female male', 'ban':'true'})
-        
-
-        try:
-
-            #test0 for futur tests create users delete them at end 
-            for t in test_users:
-                db_inst.create_user(t)
-            
-            '''
-            #test anti duplicate create 
-            for t in test_users:
-                db_inst.create_user(t)
-            for t in test_users:
-                db_inst.create_user(t)
-            all = db_inst.fetch_all() 
-            print(len(all))
-            #assertequals(len(test_users) == len(all))
-            '''
-            
-            
-
-
-            '''
-            #test1
-            print(db_inst.user_exists('crash@crapmail.com'))
-
-            #test2 create ban check_if_banned delte search
-            db_inst.create_user({'name':'Bad', 'email':'bad@crapmail.com'})
-            print(db_inst.user_exists('bad@crapmail.com'))
-            db_inst.ban_user('bad@crapmail.com', 'true')
-            print(db_inst.user_exists('bad@crapmail.com'))
-            db_inst.delete_user('bad@crapmail.com')
-            print(db_inst.user_exists('bad@crapmail.com'))
-
-            #test3 
-            user_exists1 = db_inst.user_exists('bad@crapmail.com')
-            new_user = db_inst.create_user({'name':'Bad', 'email':'bad@crapmail.com'})
-            db_inst.ban_user('bad@crapmail.com', True)
-            db_inst.ban_user('bad@crapmail.com', 'true')
-            db_inst.ban_user('bad@crapmail.com', False)
-            db_inst.ban_user('bad@crapmail.com', 'false')
-            user_exists2 = db_inst.user_exists('bad@crapmail.com')
-            print('user exists? : ', user_exists1)
-            print('create user ? : ', new_user)
-            print('user exists? : ', user_exists2)
-
-            #test4 like 
-            db_inst.like_user('crash@crapmail.com', 'maria@crapmail.com')
-            r1 = db_inst.get_relationship('crash@crapmail.com', 'maria@crapmail.com')
-            r2 = db_inst.get_relationship('maria@crapmail.com', 'crash@crapmail.com')
-            print('a relationship? ', r1)
-            print('a relationship? ', r2)
-            '''
+                cql = '''
+                        MATCH (all:Person) WHERE all.sig='for_test_db'
+                        MATCH ()-[all_r]-() WHERE all_r.sig='for_test_db'
+                        DELETE all_r,all
+                '''
+                
+                with db_inst.get_driver().session() as session:
+                    session.run(cql)
+                cql = '''
+                        MATCH (all:Person) WHERE all.sig='for_test_db'
+                        MATCH ()-[all_r]-() WHERE all_r.sig='for_test_db'
+                        RETURN all_r,all
+                '''
+                with db_inst.get_driver().session() as session:
+                    r = session.run(cql)
+                    print('after clean: ', len(r.data()))
 
 
-            
+            try:
 
-            #test5 sort filter
-            all = db_inst.fetch_all() 
-            print(len(all))
-            all = db_inst.fetch_all('email', '-') 
-            print(len(all))
-            all = db_inst.fetch_all('born', '-') 
-            print(len(all))
-            all = db_inst.fetch_all('email', '+', {'name':'crash'}) #filter
-            print(len(all))
-            #assertequals(len(all) == 2)
-
-            all = db_inst.fetch_all('email', '+', {'slddls':'07ii'}) #non existed filter
-            print(len(all))
-        
-
-        finally:
-            #clean up test env
-            for t in test_users:
-                db_inst.delete_user(t['email'])
+                #test0 for futur tests create users delete them at end 
+                for t in test_users:
+                    db_inst.create_user(t)
+                
+                '''
+                #test anti duplicate create 
+                for t in test_users:
+                    db_inst.create_user(t)
+                for t in test_users:
+                    db_inst.create_user(t)
+                all = db_inst.fetch_all() 
+                print(len(all))
+                #assertequals(len(test_users) == len(all))
+                '''
+                
+                
 
 
+                '''
+                #test1
+                print(db_inst.user_exists('crash@crapmail.com'))
+
+                #test2 create ban check_if_banned delte search
+                db_inst.create_user({'name':'Bad', 'email':'bad@crapmail.com'})
+                print(db_inst.user_exists('bad@crapmail.com'))
+                db_inst.ban_user('bad@crapmail.com', 'true')
+                print(db_inst.user_exists('bad@crapmail.com'))
+                db_inst.delete_user('bad@crapmail.com')
+                print(db_inst.user_exists('bad@crapmail.com'))
+
+                #test3 
+                user_exists1 = db_inst.user_exists('bad@crapmail.com')
+                new_user = db_inst.create_user({'name':'Bad', 'email':'bad@crapmail.com'})
+                db_inst.ban_user('bad@crapmail.com', True)
+                db_inst.ban_user('bad@crapmail.com', 'true')
+                db_inst.ban_user('bad@crapmail.com', False)
+                db_inst.ban_user('bad@crapmail.com', 'false')
+                user_exists2 = db_inst.user_exists('bad@crapmail.com')
+                print('user exists? : ', user_exists1)
+                print('create user ? : ', new_user)
+                print('user exists? : ', user_exists2)
+
+            s
+                '''
+
+                #test4 like 
+                '''
+                db_inst.like_user('crash@crapmail.com', 'maria@crapmail.com', 'test')
+                r1 = db_inst.has_relationship('crash@crapmail.com', 'maria@crapmail.com')
+                r2 = db_inst.has_relationship('maria@crapmail.com', 'crash@crapmail.com')
+                print('a relationship? crash maria ', r1)
+                print('a relationship? maria crash', r2)
+                db_inst.unlike_user('crash@crapmail.com', 'maria@crapmail.com') 
+                r1 = db_inst.has_relationship('crash@crapmail.com', 'maria@crapmail.com')
+                r2 = db_inst.has_relationship('maria@crapmail.com', 'crash@crapmail.com')
+                print('a relationship? crash maria', r1)
+                print('a relationship? maria crash', r2)
+                '''
+                
 
 
+                #test5 sort filter
+                
+                '''
+                all = db_inst.fetch_all() 
+                print(len(all))
+                all = db_inst.fetch_all('email', '-') 
+                print(len(all))
+                all = db_inst.fetch_all('born', '-') 
+                print(len(all))
+                all = db_inst.fetch_all('email', '+', {'name':'crash'}) #filter
+                print(len(all))
+                #assertequals(len(all) == 3)
+                all = db_inst.fetch_all('email', '+', {'name':'crash','ban':'true'}) #filter
+                print(len(all))
+                #assertequals(len(all) == 2)
+                all = db_inst.fetch_all('email', '+', {'name':'crash','ban':'false'}) #filter
+                print(len(all))
+                #assertequals(len(all) == 1)
+                all = db_inst.fetch_all('email', '+', {'name':'crash','born':'27/02/1996'}) #filter
+                print(len(all))
+                #assertequals(len(all) == 3)
+                all = db_inst.fetch_all('email', '+', {'slddls':'07ii'}) #non existed filter
+                print(len(all))
+                '''
+
+                #test write msg 
+                
+                db_inst.write_msg('crash@crapmail.com', 'maria@crapmail.com', 'maria! give me the business')
+                db_inst.write_msg('crash@crapmail.com', 'maria@crapmail.com', 'second thought, give me the good news')
+                db_inst.write_msg('maria@crapmail.com', 'crash@crapmail.com', 'youre officialy 30 years old young and its a beautiful day outside, think about that!')
+                db_inst.write_msg('crash@crapmail.com', 'maria@crapmail.com', 'hmmmm, positive vibes but my animal nature pushes me to crave more')
+                db_inst.write_msg('maria@crapmail.com', 'crash@crapmail.com', 'the ps5 came out and theres free food at burgerking')
+                db_inst.write_msg('crash@crapmail.com', 'maria@crapmail.com', 'sweet precious life, come to me')
+                db_inst.write_msg('exodia@dumpmail.com', 'crash@crapmail.com', 'you greedy basterd')
+
+                r = db_inst.get_discussion('crash@crapmail.com', 'maria@crapmail.com')
+                print(r)
+                
+
+            finally:
+                #clean up test env
+                #before deleting users destroy any relations  theyre are done in the tests
+                
+                #for t in test_users:
+                #    db_inst.delete_user(t['email'])
+
+                clean_test_data(db_inst)
 
 
-        
-
-    
-
-
-    
-
-    
-
-    
-    
-    
-
-        
-
-
-
-
-"""
-
-
-# Execute the CQL query
-with graphDB_Driver.session() as graphDB_Session:
-    # Create nodes
-    graphDB_Session.run(cqlCreate)
-   
-    # Query the graph    
-    nodes = graphDB_Session.run(cqlNodeQuery)
-   
-    print("List of Ivy League universities present in the graph:")
-    for node in nodes:
-        print(node)
- 
-    # Query the relationships present in the graph
-    nodes = graphDB_Session.run(cqlEdgeQuery)
-   
-    print("Distance from Yale University to the other Ivy League universities present in the graph:")
-    for node in nodes:
-        print(node)
-
-from neo4j import GraphDatabase as neo4j_db
-
-class HelloWorldExample:
-
-    def __init__(self, uri, user, password):
-        self.driver = neo4j_db.driver(uri, auth=(user, password))
-
-    def close(self):
-        self.driver.close()
-
-    def print_greeting(self, message):
-        with self.driver.session() as session:
-            greeting = session.write_transaction(self._create_and_return_greeting, message)
-            print(greeting)
-
-    @staticmethod
-    def _create_and_return_greeting(tx, message):
-        result = tx.run("CREATE (a:Greeting) "
-                        "SET a.message = $message "
-                        "RETURN a.message + ', from node ' + id(a)", message=message)
-        return result.single()[0]
-
-
-if __name__ == "__main__":
-    greeter = HelloWorldExample("bolt://localhost:7687", "neo4j", "password")
-    greeter.print_greeting("hello, world")
-    greeter.close()
-
-
-
-from neo4j import GraphDatabase
-
-driver = GraphDatabase.driver("neo4j://localhost:7687", auth=("neo4j", "password"))
-
-def add_friend(tx, name, friend_name):
-    tx.run("MERGE (a:Person {name: $name}) "
-           "MERGE (a)-[:KNOWS]->(friend:Person {name: $friend_name})",
-           name=name, friend_name=friend_name)
-
-def print_friends(tx, name):
-    for record in tx.run("MATCH (a:Person)-[:KNOWS]->(friend) WHERE a.name = $name "
-                         "RETURN friend.name ORDER BY friend.name", name=name):
-        print(record["friend.name"])
-
-with driver.session() as session:
-    session.write_transaction(add_friend, "Arthur", "Guinevere")
-    session.write_transaction(add_friend, "Arthur", "Lancelot")
-    session.write_transaction(add_friend, "Arthur", "Merlin")
-    session.read_transaction(print_friends, "Arthur")
-
-driver.close()
-
-
-# import the neo4j driver for Python
-
-from neo4j.v1 import GraphDatabase
- 
-# Database Credentials
-uri             = "bolt://localhost:7687"
-userName        = "neo4j"
-password        = "test"
- 
-# Connect to the neo4j database server
-graphDB_Driver  = GraphDatabase.driver(uri, auth=(userName, password))
- 
-# CQL to query all the universities present in the graph
-cqlNodeQuery          = "MATCH (x:university) RETURN x"
- 
-# CQL to query the distances from Yale to some of the other Ivy League universities
-cqlEdgeQuery          = "MATCH (x:university {name:'Yale University'})-[r]->(y:university) RETURN y.name,r.miles"
- 
-# CQL to create a graph containing some of the Ivy League universities
-cqlCreate = '''CREATE (cornell:university { name: "Cornell University"}),
-(yale:university { name: "Yale University"}),
-(princeton:university { name: "Princeton University"}),
-(harvard:university { name: "Harvard University"}),
- 
-(cornell)-[:connects_in {miles: 259}]->(yale),
-(cornell)-[:connects_in {miles: 210}]->(princeton),
-(cornell)-[:connects_in {miles: 327}]->(harvard),
- 
-(yale)-[:connects_in {miles: 259}]->(cornell),
-(yale)-[:connects_in {miles: 133}]->(princeton),
-(yale)-[:connects_in {miles: 133}]->(harvard),
- 
-(harvard)-[:connects_in {miles: 327}]->(cornell),
-(harvard)-[:connects_in {miles: 133}]->(yale),
-(harvard)-[:connects_in {miles: 260}]->(princeton),
- 
-(princeton)-[:connects_in {miles: 210}]->(cornell),
-(princeton)-[:connects_in {miles: 133}]->(yale),
-(princeton)-[:connects_in {miles: 260}]->(harvard)'''
- 
-"""

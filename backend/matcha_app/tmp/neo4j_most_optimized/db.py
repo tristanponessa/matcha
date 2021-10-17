@@ -78,7 +78,7 @@ class Db:
         format_now = time.strftime("%d/%m/%Y %H:%M:%S", structtime_now)
         return format_now
     
-    def __cql_dict(self, d: dict):
+    def __cql_formatter(self, d: dict):
         #neo4j proposes a format string with $var instead of {}
         #{'name':'val'} converts to -> {name:'val'}
         dstr = json.dumps(d) #json transforms ' to "
@@ -138,7 +138,7 @@ class Db:
     
     def create_user(self, data: dict):
         #merge prevents duplicate creation
-        cql_dct_str = self.__cql_dict(data)
+        cql_dct_str = self.__cql_formatter(data)
         cql_cmd = '''
                     MERGE (new_user:Person{})
                     RETURN new_user
