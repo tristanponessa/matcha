@@ -76,7 +76,7 @@ class Db:
     def __timestamp(self):
         epoch_now = time.time()
         structtime_now = time.localtime(epoch_now)
-        format_now = time.strftime("%d/%m/%Y %H:%M:%S", structtime_now)
+        format_now = time.strftime("%Y-%m-%d %H:%M:%S", structtime_now)
         return format_now
     
     def __cql_formater(self, d: dict):
@@ -94,6 +94,8 @@ class Db:
         return dstr
     
     def __cql_type(self, type, data):
+        if type == 'timestamp':
+            return f"date('{data}')"
         if type == 'date':
             #must be /day/month/year-> year-month-day
             v = data
@@ -170,12 +172,13 @@ class Db:
     def write_msg(self, from_email, to_email, msg, testid=''):
 
         if testid == 'test':
-            testid = '''SET new_msg.sig='for_test_db'
-            SET r1.sig='for_test_db'
-            SET r2.sig='for_test_db'''
+            testid = '''
+                        SET new_msg.sig="for_test_db"
+                        SET r1.sig="for_test_db"
+                        SET r2.sig="for_test_db"
+            '''
 
-        testid = "SET new_msg.sig='for_test_db'" if testid == 'test' else ''
-        cql_date = self.__cql_type('type', self.__timestamp())
+        cql_date = self.__cql_type('timestamp', self.__timestamp())
         cql_cmd = '''
                     MATCH(src:Person) WHERE src.email="{}"
                     MATCH(dst:Person) WHERE dst.email="{}"
@@ -209,13 +212,14 @@ class Db:
     def like_user(self, from_email, to_email, testid=''):
         #MERGE (src)-[r:LIKES{date:"{}"}]->(dst)   driver causing problem about merge the security to prevent duplication 
         testid = "SET r.sig='for_test_db'" if testid == 'test' else ''
+        cql_date = self.__cql_type('timestamp', self.__timestamp())
         cql_cmd = '''
                     MATCH (src:Person) WHERE src.email="{}"
                     MATCH (dst:Person) WHERE dst.email="{}"
                     MERGE (src)-[r:LIKES]->(dst)
                     SET r.date="{}"
                     {}
-                  '''.format(from_email, to_email, self.__timestamp(), testid)
+                  '''.format(from_email, to_email, cql_date, testid)
         self.__run_cmd(cql_cmd)
     
     def unlike_user(self, from_email, to_email):
@@ -314,34 +318,76 @@ if __name__ == '__main__':
 
         with Db("bolt://localhost:7687", "neo4j", "0000") as db_inst:
         #db_inst.fetch_all()
+
+            def print_obj_res(self, result):        
+                print('db res'.center(100, '-'))
+
+                if isinstance(result,str): #relationships are strings
+                                print(result)
+                #neo4j.Result.data -> lst of dicts 
+                elif isinstance(result,list):
+                    for lst_elem in result:
+                        
+                        for k,v in lst_elem.items():
+                            print(f'cql return var:{k}', end=' -> ')
+                            print(v)
+                            
+                else:
+                    #neo4j.Result gets moved out the iter causing res to be empty
+                    #i didnt find a way to do a copy of this obj
+                    for record in result:
+                        print(record.keys())
+                        for cql_return_tag in record.keys():
+                            
+                            print('cql return var: ', cql_return_tag)
+                            node = record[cql_return_tag]
+                            #print(record.keys())
+                            #print(type(record['n']))
+                            if isinstance(node,str): #relationships are strings
+                                print(node)
+                            else:
+                                print(node.labels, end=' ')
+                                print(node.items())
+                print('end'.center(100, '-'))
+                print('*' * 100)  #to stock inside log text box
         
             def clean_test_data(db_inst):
+                #driver does not work taken outside class
                 print('cleaning test env :')
-                cql = '''
-                        MATCH (all:Person) WHERE all.sig='for_test_db'
-                        MATCH ()-[all_r]-() WHERE all_r.sig='for_test_db'
-                        RETURN all,all_r
-                '''
-                with db_inst.get_driver().session() as session:
-                    r = session.run(cql)
-                    print('before clean: wonrg>', len(r.data()))
+
+                def count_nb_elems():
+                    cql = '''
+                            MATCH (all) WHERE all.sig='for_test_db'
+                            RETURN all
+                    '''
+
+                    cql2 = '''                       
+                            MATCH ()-[all_r]-() WHERE all_r.sig='for_test_db'
+                            RETURN all_r
+                    '''
+
+                    with db_inst.get_driver().session() as session:
+                        r = session.run(cql)
+                        r2 = session.run(cql2)
+                        print('nb_relations:>', len(r.data()))
+                        print('nb_nodes:>', len(r2.data()))
+
+                print('before clean:')
+                count_nb_elems()
 
                 cql = '''
-                        MATCH (all:Person) WHERE all.sig='for_test_db'
-                        MATCH ()-[all_r]-() WHERE all_r.sig='for_test_db'
-                        DELETE all_r,all
+                        MATCH (all) WHERE all.sig='for_test_db'
+                        MATCH ()-[all_r]-() WHERE all_r.sig='for_test_db'                        
+                        DELETE all_r
+                        DELETE all
                 '''
                 
                 with db_inst.get_driver().session() as session:
                     session.run(cql)
-                cql = '''
-                        MATCH (all:Person) WHERE all.sig='for_test_db'
-                        MATCH ()-[all_r]-() WHERE all_r.sig='for_test_db'
-                        RETURN all_r,all
-                '''
-                with db_inst.get_driver().session() as session:
-                    r = session.run(cql)
-                    print('after clean: ', len(r.data()))
+
+                print('after clean:')
+                count_nb_elems()
+
 
 
             try:
@@ -432,18 +478,26 @@ if __name__ == '__main__':
                 print(len(all))
                 '''
 
-                #test write msg 
+                #test6 write msg 
                 
-                db_inst.write_msg('crash@crapmail.com', 'maria@crapmail.com', 'maria! give me the business')
-                db_inst.write_msg('crash@crapmail.com', 'maria@crapmail.com', 'second thought, give me the good news')
-                db_inst.write_msg('maria@crapmail.com', 'crash@crapmail.com', 'youre officialy 30 years old young and its a beautiful day outside, think about that!')
-                db_inst.write_msg('crash@crapmail.com', 'maria@crapmail.com', 'hmmmm, positive vibes but my animal nature pushes me to crave more')
-                db_inst.write_msg('maria@crapmail.com', 'crash@crapmail.com', 'the ps5 came out and theres free food at burgerking')
-                db_inst.write_msg('crash@crapmail.com', 'maria@crapmail.com', 'sweet precious life, come to me')
-                db_inst.write_msg('exodia@dumpmail.com', 'crash@crapmail.com', 'you greedy basterd')
+                '''
+                db_inst.write_msg('crash@crapmail.com', 'maria@crapmail.com', 'maria! give me the business', 'test')
+                db_inst.write_msg('crash@crapmail.com', 'maria@crapmail.com', 'second thought, give me the good news', 'test')
+                db_inst.write_msg('maria@crapmail.com', 'crash@crapmail.com', 'youre officialy 30 years old young and its a beautiful day outside, think about that!', 'test')
+                db_inst.write_msg('crash@crapmail.com', 'maria@crapmail.com', 'hmmmm, positive vibes but my animal nature pushes me to crave more', 'test')
+                db_inst.write_msg('maria@crapmail.com', 'crash@crapmail.com', 'the ps5 came out and theres free food at burgerking', 'test')
+                db_inst.write_msg('crash@crapmail.com', 'maria@crapmail.com', 'sweet precious life, come to me', 'test')
+                db_inst.write_msg('exodia@dumpmail.com', 'crash@crapmail.com', 'you greedy basterd', 'test')
 
                 r = db_inst.get_discussion('crash@crapmail.com', 'maria@crapmail.com')
-                print(r)
+                #print(r)
+            
+                r = db_inst.fetch_all('created_on','-')
+                r = db_inst.fetch_all('created_on','+')
+                '''
+                
+                
+
                 
 
             finally:
