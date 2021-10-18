@@ -1,7 +1,9 @@
 import unittest
+import sys
+import time
 from neo4j import GraphDatabase as neo4j_db
 
-import time
+
 
 #def print_cql:
 #def print_res:
@@ -12,19 +14,26 @@ import time
 class TestDb(unittest.TestCase):
 
     #***************************************************************************************
-    #  TEST  mock OR load test_db
+    #  TEST  (no mock for neo4j)
     #  be careful how you clean up a test env, do not trigger an active db
     #  SETUP for futur tests create users delete them at end 
     #  add 'sig':'for_test_db' property to everything in order to clean up env easily
     #  prevent using fns from your app to turn on db or delete, make sure to work fns jsut for test
     #***************************************************************************************
 
-    def setUp(self, uri, userName, password):
-        self.uri = uri
-        self.userName = userName
-        self.password = password
+    def setUp(self):
+        #! very bad news: neo4j lets you connect despite the auth being wrong, there's no auth checking and its not mentioned in the doc
+
+        self.uri = "bolt://localhost:7687"
+        self.userName = 'test'
+        self.password = '0000'
         self.sig = 'for_test_db' #signature for db elem
-        self.driver = neo4j_db.driver(uri, auth=(userName, password))
+
+        try:
+            self.driver = neo4j_db.driver(self.uri, auth=(self.userName, self.password))
+        except Exception as e:
+            assert False, f'UNITEST SETUP: {e}'
+        
         self.cql_get_test_nodes = f'''MATCH (all) WHERE all.sig='{self.sig}'
                                          RETURN count(all)
                                       '''
@@ -38,6 +47,9 @@ class TestDb(unittest.TestCase):
         self.test_users.append({'sig':self.sig, 'name':'maria', 'email':'maria@crapmail.com', 'born':'10/04/1994', 'sex_ori':'male','ban':'false'})
         self.test_users.append({'sig':self.sig, 'name':'exodia', 'email':'exodia@dumpmail.com', 'born':'01/01/1996', 'sex_ori':'female','ban':'false'})
         self.test_users.append({'sig':self.sig, 'name':'iswear', 'email':'iswear@dumpmail.com', 'born':'02/07/1999', 'sex_ori':'male female','ban':'false'})
+
+        
+
 
     def timestamp(self):
         epoch_now = time.time()
@@ -113,12 +125,16 @@ class TestDb(unittest.TestCase):
             r = session.run(cmd)
             return self.db_result_format(r)
 
+    
     '''
-    def test_db(self):
+    def test_api_db(self):
+
         with Db(self.uri, self.userName, self.password) as db_inst:
             #asserttrue()
     '''
+    
 
+    '''
     def test_create(self):
         #check for dups
         #only check names
@@ -130,7 +146,9 @@ class TestDb(unittest.TestCase):
         
         r = self.run_cmd(self.cmds('match_props', self.test_users))
         self.assertEquals(len(r), len(self.test_users))
+    '''
 
+    """
     #test_create must suceed ot run this test
     def test_ban(self):
         email = 'bad@crapmail.com'
@@ -166,7 +184,7 @@ class TestDb(unittest.TestCase):
         r = self.driver.has_relationship('maria@crapmail.com', 'crash@crapmail.com')
         self.assertEqual(r, False)
        
-    '''
+    
     def test_write(self):
 
         self.driver.write_msg('crash@crapmail.com', 'maria@crapmail.com', 'maria! give me the business', 'test')
@@ -180,11 +198,12 @@ class TestDb(unittest.TestCase):
         r = self.driver.get_discussion('crash@crapmail.com', 'maria@crapmail.com')
         #print(r)
     
+    
         r = self.driver.fetch_all('created_on','-')
         r = self.driver.fetch_all('created_on','+')
-    '''
+    """
     
-    '''
+    """
     def test_sort_filter():
 
         all = self.driver.fetch_all() 
@@ -207,18 +226,21 @@ class TestDb(unittest.TestCase):
         #assertequals(len(all) == 3)
         all = self.driver.fetch_all('email', '+', {'slddls':'07ii'}) #non existed filter
         print(len(all))
-    '''
+    """
 
     
     def tearDown(self):
-        self.driver.close()
+        if self.driver:
+            self.driver.close()
 
+        """
         cmd_clean = '''
                         MATCH (all) WHERE all.sig='for_test_db'
                         MATCH ()-[all_r]-() WHERE all_r.sig='for_test_db'                        
                         DELETE all_r
                         DELETE all
                     '''
+        
 
         print('BEFORE CLEAN')
         print('nb_nodes:>' )
@@ -226,7 +248,16 @@ class TestDb(unittest.TestCase):
         print('AFTER CLEAN')
         print('nb_nodes:>' )
         print('nb_relations:>' )
-
+        """
 
 if __name__ == '__main__':
+
+    #unitest uses argv, mack sure to remove your own, use -- on yours
+    '''
+    if len(sys.argv) > 1:
+        TestDb.URI = sys.argv.pop()
+        TestDb.PASSWORD = sys.argv.pop()
+        TestDb.PASSWORD = sys.argv.pop()
+    '''
+    
     unittest.main()

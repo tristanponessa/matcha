@@ -62,7 +62,8 @@ class Db:
         return self.__driver
 
     def close_db(self):
-        self.__driver.close()
+        if self.__driver():
+            self.__driver.close()
         print('closing db')
     
     def __run_cmd(self, cmd):
@@ -299,214 +300,14 @@ class Db:
 
 
 if __name__ == '__main__':
-    
-    #***************************************************************************************
-    #  TEST  mock OR load test_db
-    #  be careful how you clean up a test env, do not trigger an active db
-    #  SETUP for futur tests create users delete them at end 
-    #  add 'sig':'for_test_db' property to everything in order to clean up env easily
-    #  prevent using fns from your app to turn on db or delete, make sure to work fns jsut for test
-    #***************************************************************************************
-    
-        test_users = []
-        test_users.append({'sig':'for_test_db', 'name':'crash', 'email':'crash@crapmail.com', 'born':'27/02/1996', 'sex_ori':'female','ban':'false'})
-        test_users.append({'sig':'for_test_db', 'name':'crash', 'email':'crash_2@crapmail.com' , 'born':'27/02/1996', 'sex_ori':'female', 'ban':'false'})
-        test_users.append({'sig':'for_test_db', 'name':'crash', 'email':'bad@crapmail.com' , 'born':'27/02/1996', 'sex_ori':'female', 'ban':'true'})
-        test_users.append({'sig':'for_test_db', 'name':'maria', 'email':'maria@crapmail.com', 'born':'10/04/1994', 'sex_ori':'male','ban':'false'})
-        test_users.append({'sig':'for_test_db', 'name':'exodia', 'email':'exodia@dumpmail.com', 'born':'01/01/1996', 'sex_ori':'female','ban':'false'})
-        test_users.append({'sig':'for_test_db', 'name':'iswear', 'email':'iswear@dumpmail.com', 'born':'02/07/1999', 'sex_ori':'male female','ban':'false'})
+    #try:
+        auth = neo4j.Auth(scheme="basic", principal="xcvxcvxcneo4j", credentials="xcvxcvpassword")
+        driver = neo4j_db.driver('bolt://localhost:7687', auth=auth)
+        print(driver)
+        with driver.session() as s:
+            pass
 
-        with Db("bolt://localhost:7687", "neo4j", "0000") as db_inst:
-        #db_inst.fetch_all()
+        #except Exception as e:
 
-            def print_obj_res(self, result):        
-                print('db res'.center(100, '-'))
-
-                if isinstance(result,str): #relationships are strings
-                                print(result)
-                #neo4j.Result.data -> lst of dicts 
-                elif isinstance(result,list):
-                    for lst_elem in result:
-                        
-                        for k,v in lst_elem.items():
-                            print(f'cql return var:{k}', end=' -> ')
-                            print(v)
-                            
-                else:
-                    #neo4j.Result gets moved out the iter causing res to be empty
-                    #i didnt find a way to do a copy of this obj
-                    for record in result:
-                        print(record.keys())
-                        for cql_return_tag in record.keys():
-                            
-                            print('cql return var: ', cql_return_tag)
-                            node = record[cql_return_tag]
-                            #print(record.keys())
-                            #print(type(record['n']))
-                            if isinstance(node,str): #relationships are strings
-                                print(node)
-                            else:
-                                print(node.labels, end=' ')
-                                print(node.items())
-                print('end'.center(100, '-'))
-                print('*' * 100)  #to stock inside log text box
-        
-            def clean_test_data(db_inst):
-                #driver does not work taken outside class
-                print('cleaning test env :')
-
-                def count_nb_elems():
-                    cql = '''
-                            MATCH (all) WHERE all.sig='for_test_db'
-                            RETURN all
-                    '''
-
-                    cql2 = '''                       
-                            MATCH ()-[all_r]-() WHERE all_r.sig='for_test_db'
-                            RETURN all_r
-                    '''
-
-                    with db_inst.get_driver().session() as session:
-                        r = session.run(cql)
-                        r2 = session.run(cql2)
-                        print('nb_relations:>', len(r.data()))
-                        print('nb_nodes:>', len(r2.data()))
-
-                print('before clean:')
-                count_nb_elems()
-
-                cql = '''
-                        MATCH (all) WHERE all.sig='for_test_db'
-                        MATCH ()-[all_r]-() WHERE all_r.sig='for_test_db'                        
-                        DELETE all_r
-                        DELETE all
-                '''
-                
-                with db_inst.get_driver().session() as session:
-                    session.run(cql)
-
-                print('after clean:')
-                count_nb_elems()
-
-
-
-            try:
-
-                #test0 for futur tests create users delete them at end 
-                for t in test_users:
-                    db_inst.create_user(t)
-                
-                '''
-                #test anti duplicate create 
-                for t in test_users:
-                    db_inst.create_user(t)
-                for t in test_users:
-                    db_inst.create_user(t)
-                all = db_inst.fetch_all() 
-                print(len(all))
-                #assertequals(len(test_users) == len(all))
-                '''
-                
-                
-
-
-                '''
-                #test1
-                print(db_inst.user_exists('crash@crapmail.com'))
-
-                #test2 create ban check_if_banned delte search
-                db_inst.create_user({'name':'Bad', 'email':'bad@crapmail.com'})
-                print(db_inst.user_exists('bad@crapmail.com'))
-                db_inst.ban_user('bad@crapmail.com', 'true')
-                print(db_inst.user_exists('bad@crapmail.com'))
-                db_inst.delete_user('bad@crapmail.com')
-                print(db_inst.user_exists('bad@crapmail.com'))
-
-                #test3 
-                user_exists1 = db_inst.user_exists('bad@crapmail.com')
-                new_user = db_inst.create_user({'name':'Bad', 'email':'bad@crapmail.com'})
-                db_inst.ban_user('bad@crapmail.com', True)
-                db_inst.ban_user('bad@crapmail.com', 'true')
-                db_inst.ban_user('bad@crapmail.com', False)
-                db_inst.ban_user('bad@crapmail.com', 'false')
-                user_exists2 = db_inst.user_exists('bad@crapmail.com')
-                print('user exists? : ', user_exists1)
-                print('create user ? : ', new_user)
-                print('user exists? : ', user_exists2)
-
-            s
-                '''
-
-                #test4 like 
-                '''
-                db_inst.like_user('crash@crapmail.com', 'maria@crapmail.com', 'test')
-                r1 = db_inst.has_relationship('crash@crapmail.com', 'maria@crapmail.com')
-                r2 = db_inst.has_relationship('maria@crapmail.com', 'crash@crapmail.com')
-                print('a relationship? crash maria ', r1)
-                print('a relationship? maria crash', r2)
-                db_inst.unlike_user('crash@crapmail.com', 'maria@crapmail.com') 
-                r1 = db_inst.has_relationship('crash@crapmail.com', 'maria@crapmail.com')
-                r2 = db_inst.has_relationship('maria@crapmail.com', 'crash@crapmail.com')
-                print('a relationship? crash maria', r1)
-                print('a relationship? maria crash', r2)
-                '''
-                
-
-
-                #test5 sort filter
-                
-                '''
-                all = db_inst.fetch_all() 
-                print(len(all))
-                all = db_inst.fetch_all('email', '-') 
-                print(len(all))
-                all = db_inst.fetch_all('born', '-') 
-                print(len(all))
-                all = db_inst.fetch_all('email', '+', {'name':'crash'}) #filter
-                print(len(all))
-                #assertequals(len(all) == 3)
-                all = db_inst.fetch_all('email', '+', {'name':'crash','ban':'true'}) #filter
-                print(len(all))
-                #assertequals(len(all) == 2)
-                all = db_inst.fetch_all('email', '+', {'name':'crash','ban':'false'}) #filter
-                print(len(all))
-                #assertequals(len(all) == 1)
-                all = db_inst.fetch_all('email', '+', {'name':'crash','born':'27/02/1996'}) #filter
-                print(len(all))
-                #assertequals(len(all) == 3)
-                all = db_inst.fetch_all('email', '+', {'slddls':'07ii'}) #non existed filter
-                print(len(all))
-                '''
-
-                #test6 write msg 
-                
-                '''
-                db_inst.write_msg('crash@crapmail.com', 'maria@crapmail.com', 'maria! give me the business', 'test')
-                db_inst.write_msg('crash@crapmail.com', 'maria@crapmail.com', 'second thought, give me the good news', 'test')
-                db_inst.write_msg('maria@crapmail.com', 'crash@crapmail.com', 'youre officialy 30 years old young and its a beautiful day outside, think about that!', 'test')
-                db_inst.write_msg('crash@crapmail.com', 'maria@crapmail.com', 'hmmmm, positive vibes but my animal nature pushes me to crave more', 'test')
-                db_inst.write_msg('maria@crapmail.com', 'crash@crapmail.com', 'the ps5 came out and theres free food at burgerking', 'test')
-                db_inst.write_msg('crash@crapmail.com', 'maria@crapmail.com', 'sweet precious life, come to me', 'test')
-                db_inst.write_msg('exodia@dumpmail.com', 'crash@crapmail.com', 'you greedy basterd', 'test')
-
-                r = db_inst.get_discussion('crash@crapmail.com', 'maria@crapmail.com')
-                #print(r)
             
-                r = db_inst.fetch_all('created_on','-')
-                r = db_inst.fetch_all('created_on','+')
-                '''
-                
-                
-
-                
-
-            finally:
-                #clean up test env
-                #before deleting users destroy any relations  theyre are done in the tests
-                
-                #for t in test_users:
-                #    db_inst.delete_user(t['email'])
-
-                clean_test_data(db_inst)
-
-
+    
