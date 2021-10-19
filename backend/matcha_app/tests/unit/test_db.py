@@ -1,9 +1,11 @@
 import unittest
 import sys
 import time
+import logging #to print in unittest
+import neo4j
 from neo4j import GraphDatabase as neo4j_db
 
-
+import matcha.backend.matcha_app as proj
 
 #def print_cql:
 #def print_res:
@@ -15,25 +17,38 @@ class TestDb(unittest.TestCase):
 
     #***************************************************************************************
     #  TEST  (no mock for neo4j)
+    #  
     #  be careful how you clean up a test env, do not trigger an active db
     #  SETUP for futur tests create users delete them at end 
     #  add 'sig':'for_test_db' property to everything in order to clean up env easily
     #  prevent using fns from your app to turn on db or delete, make sure to work fns jsut for test
+    # db close is not tested, its guaranteed to suceed, its a simple as pulling out the plug
+    # the driver is always avalailable, even if wrong auth or closed, dont test the driver
     #***************************************************************************************
 
     def setUp(self):
-        #! very bad news: neo4j lets you connect despite the auth being wrong, there's no auth checking and its not mentioned in the doc
-
+        
         self.uri = "bolt://localhost:7687"
-        self.userName = 'test'
+        self.userName = 'neo4j'
         self.password = '0000'
         self.sig = 'for_test_db' #signature for db elem
+        self.exc_raised = False
 
         try:
             self.driver = neo4j_db.driver(self.uri, auth=(self.userName, self.password))
-        except Exception as e:
-            assert False, f'UNITEST SETUP: {e}'
+            self.driver.verify_connectivity() #check auth
+        except neo4j.exceptions.ServiceUnavailable:
+            #normally except ConnectionRefusedError: is raised but is jumpred now i catch this for some reason
+            print(self.get_exc_msg("DATABASE NOT ACTIVE"))
+        except neo4j.exceptions.AuthError:
+            print(self.get_exc_msg("WRONG CREDENTIALS"))
+        except Exception:
+            print(self.get_exc_msg())
+        finally: #is always called exc raised or not, its why i add a flag
+            if self.exc_raised:
+                self.fail('unittest setup failed')
         
+
         self.cql_get_test_nodes = f'''MATCH (all) WHERE all.sig='{self.sig}'
                                          RETURN count(all)
                                       '''
@@ -48,8 +63,14 @@ class TestDb(unittest.TestCase):
         self.test_users.append({'sig':self.sig, 'name':'exodia', 'email':'exodia@dumpmail.com', 'born':'01/01/1996', 'sex_ori':'female','ban':'false'})
         self.test_users.append({'sig':self.sig, 'name':'iswear', 'email':'iswear@dumpmail.com', 'born':'02/07/1999', 'sex_ori':'male female','ban':'false'})
 
-        
-
+    def get_exc_msg(self, extra_info=''):
+        self.exc_raised = True
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        #unix uses \r while windows \r
+        msg = str(exc_value).replace('\n', '').replace('\r', '')
+        msg = msg[0:100]
+        err_name = exc_type.__name__
+        return f'exception: {err_name} -> {extra_info} : {msg} ...'
 
     def timestamp(self):
         epoch_now = time.time()
@@ -125,13 +146,31 @@ class TestDb(unittest.TestCase):
             r = session.run(cmd)
             return self.db_result_format(r)
 
-    
-    '''
-    def test_api_db(self):
+    def uni_print(self, msg):
+        #to print in unittest
+        logging.basicConfig(stream=sys.stderr)
+        log = logging.getLogger("TestDb")
+        log.setLevel(logging.DEBUG)
+        log.debug(msg)
 
-        with Db(self.uri, self.userName, self.password) as db_inst:
-            #asserttrue()
-    '''
+    def test_init_unittest(self):
+        #everything is init in self.Setup only if a test is called
+        self.uni_print('setup test env...')
+        pass
+    
+
+    def test_project_db(self):
+
+        try:
+            with proj.Db(self.uri, self.userName, self.password) as db_inst:
+                db_inst.driver = neo4j_db.driver(self.uri, auth=(self.userName, self.password))
+                db_inst.driver.verify_connectivity() #check auth
+                #auto closed at __exit__
+        except Exception as e:
+            self.fail('project DB class failed to connect')
+        
+        
+    
     
 
     '''
@@ -228,10 +267,8 @@ class TestDb(unittest.TestCase):
         print(len(all))
     """
 
-    
     def tearDown(self):
-        if self.driver:
-            self.driver.close()
+        self.driver.close()
 
         """
         cmd_clean = '''
@@ -259,5 +296,5 @@ if __name__ == '__main__':
         TestDb.PASSWORD = sys.argv.pop()
         TestDb.PASSWORD = sys.argv.pop()
     '''
-    
-    unittest.main()
+  
+    unittest.main(failfast=True) #stops at first fail, prevents chaining fails. a test is dependant of its last

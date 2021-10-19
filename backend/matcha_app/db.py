@@ -62,8 +62,7 @@ class Db:
         return self.__driver
 
     def close_db(self):
-        if self.__driver():
-            self.__driver.close()
+        self.__driver.close()
         print('closing db')
     
     def __run_cmd(self, cmd):
