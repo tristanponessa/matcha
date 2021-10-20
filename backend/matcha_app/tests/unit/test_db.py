@@ -5,7 +5,8 @@ import logging #to print in unittest
 import neo4j
 from neo4j import GraphDatabase as neo4j_db
 
-import matcha.backend.matcha_app as proj
+sys.path.append('C:/Users/trps/Documents/my_stuff/coding/matcha/backend/matcha_app/')
+import db as proj
 
 #def print_cql:
 #def print_res:
@@ -21,7 +22,6 @@ class TestDb(unittest.TestCase):
     #  be careful how you clean up a test env, do not trigger an active db
     #  SETUP for futur tests create users delete them at end 
     #  add 'sig':'for_test_db' property to everything in order to clean up env easily
-    #  prevent using fns from your app to turn on db or delete, make sure to work fns jsut for test
     # db close is not tested, its guaranteed to suceed, its a simple as pulling out the plug
     # the driver is always avalailable, even if wrong auth or closed, dont test the driver
     #***************************************************************************************
@@ -33,21 +33,7 @@ class TestDb(unittest.TestCase):
         self.password = '0000'
         self.sig = 'for_test_db' #signature for db elem
         self.exc_raised = False
-
-        try:
-            self.driver = neo4j_db.driver(self.uri, auth=(self.userName, self.password))
-            self.driver.verify_connectivity() #check auth
-        except neo4j.exceptions.ServiceUnavailable:
-            #normally except ConnectionRefusedError: is raised but is jumpred now i catch this for some reason
-            print(self.get_exc_msg("DATABASE NOT ACTIVE"))
-        except neo4j.exceptions.AuthError:
-            print(self.get_exc_msg("WRONG CREDENTIALS"))
-        except Exception:
-            print(self.get_exc_msg())
-        finally: #is always called exc raised or not, its why i add a flag
-            if self.exc_raised:
-                self.fail('unittest setup failed')
-        
+        self.db_inst = None #init in test
 
         self.cql_get_test_nodes = f'''MATCH (all) WHERE all.sig='{self.sig}'
                                          RETURN count(all)
@@ -141,10 +127,10 @@ class TestDb(unittest.TestCase):
             '''
             return j
 
-    def run_cmd(self, cmd):
-        with self.driver.session() as session:
-            r = session.run(cmd)
-            return self.db_result_format(r)
+    #def run_cmd(self, cmd):
+    #    with self.driver.session() as session:
+    #        r = session.run(cmd)
+    #        return self.db_result_format(r)
 
     def uni_print(self, msg):
         #to print in unittest
@@ -157,35 +143,43 @@ class TestDb(unittest.TestCase):
         #everything is init in self.Setup only if a test is called
         self.uni_print('setup test env...')
         pass
-    
 
     def test_project_db(self):
 
         try:
             with proj.Db(self.uri, self.userName, self.password) as db_inst:
-                db_inst.driver = neo4j_db.driver(self.uri, auth=(self.userName, self.password))
-                db_inst.driver.verify_connectivity() #check auth
-                #auto closed at __exit__
-        except Exception as e:
-            self.fail('project DB class failed to connect')
-        
-        
-    
-    
+                db_inst._run_cmd('MATCH (n) RETURN n')
+        except neo4j.exceptions.ServiceUnavailable:
+            #normally except ConnectionRefusedError: is raised but is jumpred now i catch this for some reason
+            assert False, self.get_exc_msg("DATABASE NOT ACTIVE")
+        except neo4j.exceptions.AuthError:
+            assert False, self.get_exc_msg("WRONG CREDENTIALS")
+        except Exception:
+            assert False, self.get_exc_msg()
+        #finally: #is always called exc raised or not, its why i add a flag
+        #    if self.exc_raised:
+        #        self.fail('db test failed')
 
-    '''
+        self.db_inst = proj.Db(self.uri, self.userName, self.password)
+        self.uni_print(self.db_inst)
+        
+        
+
+    
     def test_create(self):
         #check for dups
         #only check names
+        self.uni_print(self.db_inst)
+        self.uni_print('-----')
 
         for t in self.test_users:
-            self.driver.create_user(t)
+            self.db_inst.create_user(t)
         for t in self.test_users:
-            self.driver.create_user(t)
+            self.db_inst.create_user(t)
         
-        r = self.run_cmd(self.cmds('match_props', self.test_users))
+        r = self.db_inst._run_cmd(self.cmds('match_props', self.test_users))
         self.assertEquals(len(r), len(self.test_users))
-    '''
+    
 
     """
     #test_create must suceed ot run this test
@@ -268,7 +262,8 @@ class TestDb(unittest.TestCase):
     """
 
     def tearDown(self):
-        self.driver.close()
+        if self.db_inst:
+            self.db_inst.close_db()
 
         """
         cmd_clean = '''
@@ -296,5 +291,5 @@ if __name__ == '__main__':
         TestDb.PASSWORD = sys.argv.pop()
         TestDb.PASSWORD = sys.argv.pop()
     '''
-  
+
     unittest.main(failfast=True) #stops at first fail, prevents chaining fails. a test is dependant of its last

@@ -39,12 +39,15 @@ class Db:
          be careful, record in result moves all outside, reaccessing result gives you an empty lst, i think it calls consume()
     """
 
-    def __init__(self, uri, userName, password):
+    def __init__(self, uri, userName, password, output=False):
+        self.output = output
         try:
-            self.__driver = neo4j_db.driver(uri, auth=(userName, password))
-            print('starting db')
+            self._driver = neo4j_db.driver(uri, auth=(userName, password))
+            if self.output:
+                print('starting db')
         except Exception:
-            print('ERROR: Could not connect to the Neo4j Database. See console for details.')
+            if self.output:
+                print('ERROR: Could not connect to the Neo4j Database. See console for details.')
             sys.exit(0)
     
     def __enter__(self):
@@ -53,47 +56,47 @@ class Db:
     def __exit__(self, exc_type, exc_value, exc_traceback):
         self.close_db()
         if exc_type:
-            print(f'__exit__ says: exc_type: {exc_type}')
-            print(f'__exit__ says: exc_value: {exc_value}')
-            print(f'__exit__ says: exc_traceback: {exc_traceback}')
-
-    def get_driver(self):
-        #for tests only
-        return self.__driver
+            if self.output:
+                print(f'__exit__ says: exc_type: {exc_type}')
+                print(f'__exit__ says: exc_value: {exc_value}')
+                print(f'__exit__ says: exc_traceback: {exc_traceback}')
 
     def close_db(self):
-        self.__driver.close()
-        print('closing db')
+        self._driver.close()
+        if self.output:
+            print('closing db')
     
-    def __run_cmd(self, cmd):
-        with self.__driver.session() as session:
-            self.__log_msg(cmd)
+    def _run_cmd(self, cmd):
+        with self._driver.session() as session:
+            if self.output:
+                self._log_msg(cmd)
             result_obj =  session.run(cmd)
             result = result_obj.data() #lst of dcts
-            self.__print_obj_res(result) #cant return data empty
+            if self.output:
+                self._print_obj_res(result) #cant return data empty
             return result
 
-    def __timestamp(self):
+    def _timestamp(self):
         epoch_now = time.time()
         structtime_now = time.localtime(epoch_now)
         format_now = time.strftime("%Y-%m-%d %H:%M:%S", structtime_now)
         return format_now
     
-    def __cql_formater(self, d: dict):
+    def _cql_formater(self, d: dict):
         #1.converts str to cql types for correct sorting/filtering
         #neo4j proposes a format string with $var instead of {}
         #2.{'name':'val'} converts to -> {name:'val'}
 
         for v in d.values():
             if '/' in v:
-                v = self.__cql_type('date', v)
+                v = self._cql_type('date', v)
 
         dstr = json.dumps(d) #json transforms ' to "
         for k in d.keys():
             dstr = dstr.replace(f'"{k}"', k)
         return dstr
     
-    def __cql_type(self, type, data):
+    def _cql_type(self, type, data):
         if type == 'timestamp':
             return f"date('{data}')"
         if type == 'date':
@@ -103,17 +106,11 @@ class Db:
             v.reverse()
             v = "-".join(v)
             return f"date('{v}')"
-
-
-    def run_cmd(self, cql_cmd):
-        return self.__run_cmd(cql_cmd)
     
     def db_result_format(self, res):
         #session.runs returns a list of dicts [{'cql return name': {'key1','val1'}, ...]
         #we trasform into      list of dicts  [{'key1','val1'}]
-        print('->', res)
         r = [list(dct.values())[0] for dct in res]
-        print('+>', r)
         return r if len(r) > 0 else None
 
 
@@ -126,7 +123,7 @@ class Db:
                     MATCH (p)-[r:LIKES]->(to)
                     RETURN r
                   '''.format(email1, email2)
-        r = self.__run_cmd(cql_cmd) 
+        r = self._run_cmd(cql_cmd) 
         return len(r) > 0
 
     def fetch_all(self, prop='name', order='+', filter_args=None):
@@ -148,7 +145,7 @@ class Db:
                     ORDER BY all.{prop_} {order_}
                   '''.format(filter_str_=filter_str, prop_=prop, order_=order)
         
-        return self.__run_cmd(cql_cmd)
+        return self._run_cmd(cql_cmd)
 
     def user_exists(self, email):
         cql_cmd = '''
@@ -156,7 +153,7 @@ class Db:
                     WHERE p.email="{}"
                     RETURN p
                   '''.format(email)
-        res = self.__run_cmd(cql_cmd)
+        res = self._run_cmd(cql_cmd)
         return res
 
     
@@ -166,7 +163,7 @@ class Db:
                     SET p.ban="{}"
                     RETURN p
                   '''.format(email, state)
-        return self.__run_cmd(cql_cmd)
+        return self._run_cmd(cql_cmd)
     
 
     def write_msg(self, from_email, to_email, msg, testid=''):
@@ -178,7 +175,7 @@ class Db:
                         SET r2.sig="for_test_db"
             '''
 
-        cql_date = self.__cql_type('timestamp', self.__timestamp())
+        cql_date = self._cql_type('timestamp', self._timestamp())
         cql_cmd = '''
                     MATCH(src:Person) WHERE src.email="{}"
                     MATCH(dst:Person) WHERE dst.email="{}"
@@ -188,7 +185,7 @@ class Db:
                     {}
                     RETURN src,type(r1),new_msg,type(r2),dst
                   '''.format(from_email, to_email, msg, cql_date, testid)
-        return self.__run_cmd(cql_cmd)
+        return self._run_cmd(cql_cmd)
     
     def get_discussion(self, from_email, to_email):
         cql_cmd = '''
@@ -197,22 +194,22 @@ class Db:
                     MATCH (src)-[:WROTE]->(msg:Msg)-[:DESTINED_TO]->(dst)
                     RETURN src,msg,dst
                   '''.format(from_email, to_email)
-        return self.__run_cmd(cql_cmd)
+        return self._run_cmd(cql_cmd)
 
     
     def create_user(self, data: dict):
         #merge prevents duplicate creation
-        cql_dct_str = self.__cql_formater(data)
+        cql_dct_str = self._cql_formater(data)
         cql_cmd = '''
                     MERGE (new_user:Person{})
                     RETURN new_user
                   '''.format(cql_dct_str)
-        return self.__run_cmd(cql_cmd)
+        return self._run_cmd(cql_cmd)
     
     def like_user(self, from_email, to_email, testid=''):
         #MERGE (src)-[r:LIKES{date:"{}"}]->(dst)   driver causing problem about merge the security to prevent duplication 
         testid = "SET r.sig='for_test_db'" if testid == 'test' else ''
-        cql_date = self.__cql_type('timestamp', self.__timestamp())
+        cql_date = self._cql_type('timestamp', self._timestamp())
         cql_cmd = '''
                     MATCH (src:Person) WHERE src.email="{}"
                     MATCH (dst:Person) WHERE dst.email="{}"
@@ -220,7 +217,7 @@ class Db:
                     SET r.date="{}"
                     {}
                   '''.format(from_email, to_email, cql_date, testid)
-        self.__run_cmd(cql_cmd)
+        self._run_cmd(cql_cmd)
     
     def unlike_user(self, from_email, to_email):
         cql_cmd = '''
@@ -229,7 +226,7 @@ class Db:
                     MATCH (src)-[r:LIKES]->(dst)
                     DELETE r
                   '''.format(from_email, to_email)
-        self.__run_cmd(cql_cmd)
+        self._run_cmd(cql_cmd)
     
     def hobbies_tag(self, email, tag):
         cql_cmd = '''
@@ -237,8 +234,8 @@ class Db:
                     MATCH (tag:Tag) WHERE tag.name="{}"
                     MERGE (src)-[r:HAS_HOBBY{date:"{}"}]->(tag)
                     RETURN *
-                  '''.format(email, tag, self.__timestamp())
-        return self.__run_cmd(cql_cmd)
+                  '''.format(email, tag, self._timestamp())
+        return self._run_cmd(cql_cmd)
     
     def unhobbies_tag(self, email, tag):
         cql_cmd = '''
@@ -247,21 +244,21 @@ class Db:
                     MATCH (src)-[r:HAS_HOBBY]->(tag)
                     DELETE r
                   '''.format(email, tag)
-        self.__run_cmd(cql_cmd)
+        self._run_cmd(cql_cmd)
     
     def delete_user(self, email):
         cql_cmd = '''
                     MATCH (src:Person) WHERE src.email="{}"
                     DELETE src
                   '''.format(email)
-        self.__run_cmd(cql_cmd)
+        self._run_cmd(cql_cmd)
 
-    def __log_msg(self, msg):
-        print(self.__timestamp().center(100, '*'))
+    def _log_msg(self, msg):
+        print(self._timestamp().center(100, '*'))
         print(f'CQL >>> {msg}'.ljust(50))
         #print('*' * 100)
 
-    def __print_obj_res(self, result):
+    def _print_obj_res(self, result):
         
         print('db res'.center(100, '-'))
 
@@ -299,14 +296,15 @@ class Db:
 
 
 if __name__ == '__main__':
+    pass
     #try:
-        auth = neo4j.Auth(scheme="basic", principal="xcvxcvxcneo4j", credentials="xcvxcvpassword")
-        driver = neo4j_db.driver('bolt://localhost:7687', auth=auth)
-        print(driver)
-        with driver.session() as s:
-            pass
-
-        #except Exception as e:
+    '''
+    driver = neo4j_db.driver('bolt://localhost:7687', auth=auth)
+    print(driver)
+    with driver.session() as s:
+        pass
+    '''
+    #except Exception as e:
 
             
     
