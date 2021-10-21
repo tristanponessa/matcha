@@ -1,6 +1,5 @@
 import string
 import time
-from PIL import Image
 import datetime
 import inspect
 import sys
@@ -8,59 +7,44 @@ import string
 import os
 import random #seed gens specific nbs, scope changing resets and repeats the pattern, we must design a project seed and for every rand call we add a new seed
 from datetime import datetime
+
 from dateutil.relativedelta import relativedelta 
+from PIL import Image
 
 
 str_symbs = '+_-!#$&*'
 punctuation = '!#$%&()*+,-./:;<=>?@[\]^_{|}~'
 
-def gen_rand_profiles(n, seed_=0):
+def gen_rand_profiles(n):
     #for seed x: x -> x + n
     
     users = []
     for i in range(n):
         user = {
-        'email' : Email.random_(n),
-        'pwd' : Pwd.random_(n + 1),
-        'name' : FirstName.random_(n + 2),
-        'last_name' : LastName.random_(n + 3),
-        'birthdate' : Birthdate.random_(n + 4),
-        'location' : Location.random_(n + 5),
-        'tags' : Tags.random_(n + 6),
-        'intro' : Intro.random_(n + 7),
-        'pics' : Pics.random_(n + 8),
-        'gender' : Gender.random_(n + 9),
-        'sex_ori' : SexOrientation.random_(n + 10),
-        'banned' : Blocked.random_(n + 11),
-        'account_activated' : Activated.random_(n + 12)
+        'email' : Email.random_(),
+        'pwd' : Pwd.random_(),
+        'name' : FirstName.random_(),
+        'last_name' : LastName.random_(),
+        'birthdate' : Birthdate.random_(),
+        'location' : Location.random_(),
+        'tags' : Tags.random_(),
+        'intro' : Intro.random_(),
+        'pics' : Pics.random_(),
+        'gender' : Gender.random_(),
+        'sex_ori' : SexOrientation.random_(),
+        'banned' : Blocked.random_(),
+        'account_activated' : Activated.random_()
         }
         users.append(user)
 
-    n = 12
     all_emails = [d['email'] for d in users]
     for user in users:
-        user['msgs'] = Msgs.random_(all_emails, n)
-        user['likes'] = Likes.random_(all_emails, n)
-        n += 1
+        user['msgs'] = MsgManager.random_(all_emails)
+        user['likes'] = Likes.random_(all_emails)
     
     return users
 
 
-def rand_seed():
-    return random.randint(0,999999)
-
-def gen_rand_string(start, end, chs, seed_=rand_seed()):
-    random.seed(seed_)
-    return ''.join((random.choice(chs) for _ in range(start, end)))
-
-def is_subdct(sub_dct, dct, exact_value=True):
-    match = 0
-    for k, v in sub_dct.items():
-        if  (exact_value and k in dct and dct[k] == v) or \
-            (k in dct and v in dct[k]):
-            match += 1
-    if len(sub_dct) == match:
-        return True
 
 
 class Random:
@@ -72,35 +56,44 @@ class Random:
         Random._seed_nb += 1
         return Random._seed_nb
 
-    def rand(lst=None):
+    def rand(lst):
         random.seed(Random.get_seed())
         return random.choice(lst)
 
-        
-        
+    def rand_str(lst, start, end):
+        rlen = Random.rand(range(start, end))
+        rlst = random.sample(lst, rlen)
+        return ''.join(rlst)
+        #return ''.join([Random.rand(lst) for _ in range(0, rlen)])
+    
+    def rand_lst(lst, start, end):
+        rlen = Random.rand(range(start, end))
+        return random.sample(lst, rlen)
+        #return [Random.rand(lst) for _ in range(0, rlen)]
 
 
-class FirstName(Random):
+
+class FirstName:
     access = ['user_modify']
 
-    def random_(seed_=rand_seed()):
-        random.seed(seed_)
-        first = random.choice(string.ascii_uppercase)
-        rest = gen_rand_string(3, 8, string.ascii_lowercase, seed_)
+    def random_():
+        first = Random.rand(string.ascii_uppercase)
+        rest = Random.rand_str(string.ascii_lowercase, 3, 8)
         return first + rest
 
-class LastName(Random):
+
+
+class LastName:
 
     access = ['user_modify']
 
-    def random_(seed_=rand_seed()):
-        random.seed(seed_)
-        first = random.choice(string.ascii_uppercase)
-        rest = gen_rand_string(8, 12, string.ascii_lowercase, seed_)
+    def random_():
+        first = Random.rand(string.ascii_uppercase)
+        rest = Random.rand_str(string.ascii_lowercase, 8, 12)
         return first + rest
 
 
-class Time(Random):
+class Time:
 
     def time_diff(t1, t2, type):
         if type == 'timestamp':
@@ -111,9 +104,13 @@ class Time(Random):
         d2 = datetime.strptime(t2, fmt)
         time_difference = relativedelta(d2, d1)
         return time_difference.years
+    
+    def timestr_to_epoch(s1):
+        fmt = '%Y-%m-%d %H:%M:%S'
+        return datetime.strptime(s1, fmt).timestamp()
 
 
-class Timestamp(Time, Random):
+class Timestamp:
     access = []
 
     def get_now_time():
@@ -122,17 +119,17 @@ class Timestamp(Time, Random):
         format_now = time.strftime("%d/%m/%Y %H:%M:%S", structtime_now)
         return format_now
 
-    def random_(seed_=rand_seed()):  # do not assign to rand list
-        random.seed(seed_)
-        day = random.randint(1, 28)
-        month = random.randint(1, 12)
-        year = random.randint(2001, 2020)
-        hour = random.randint(0, 23)
-        min_ = random.randint(0, 59)
-        sec = random.randint(0, 59)
+    def random_():  # do not assign to rand list
+        
+        day = Random.rand(range(1, 28))
+        month = Random.rand(range(1, 12))
+        year = Random.rand(range(2001, 2020))
+        hour = Random.rand(range(0, 23))
+        min_ = Random.rand(range(0, 59))
+        sec = Random.rand(range(0, 59))
         return f'{year}-{month:02d}-{day:02d} {hour:02d}:{min_:02d}:{sec:02d}'
 
-class Birthdate(Time, Random):
+class Birthdate:
     #2039-07-14
     access = ['user_modify', 'matcha_cmp']
 
@@ -143,11 +140,12 @@ class Birthdate(Time, Random):
         x = x.split('-')
         if len(x) != 3:
             return False
-        day, month, year = x
+        year, month, day = x
         try:
             datetime.datetime(int(year), int(month), int(day))
         except ValueError:
             return False
+        return True
         # check with age
 
     def same_age_range(b1, b2):
@@ -159,15 +157,10 @@ class Birthdate(Time, Random):
         b1 = b1.split('-')
         b2 = b2.split('-')
 
-
-
-
-
-    def random_(seed_=rand_seed()):
-        random.seed(seed_)
-        day = random.randint(1, 28)
-        month = random.randint(1, 12)
-        year = random.randint(1955, 2000)
+    def random_():
+        day = Random.rand(range(1, 28))
+        month = Random.rand(range(1, 12))
+        year = Random.rand(range(1955, 2000))
         return f'{year}-{month}-{day}'
 
     def sort_(profile):
@@ -177,7 +170,7 @@ class Birthdate(Time, Random):
 
 
 
-class Pics(Random):
+class Pics:
 
     access = ['user_modify']
     pic_ext = ('png', 'jpg', 'jpeg')
@@ -191,16 +184,17 @@ class Pics(Random):
                 return False
         except OSError:
             return False
+        return True
 
     
-    def random_(seed_=rand_seed()):
-        random.seed(seed_)
+    def random_():
+        
         url = './matcha_app/static/pics'
         pics = os.listdir(url)
-        nb = random.randint(1, 4)
+        nb = Random.rand(range(1, 4))
         p = {'others': []}
         for i in range(nb):
-            r = random.randint(0, len(pics) - 1)
+            r = Random.rand(range(0, len(pics) - 1))
             if i == 0:
                 p['profile_pic'] = f'{url}/{pics[r]}'
             else:
@@ -208,24 +202,23 @@ class Pics(Random):
         return p
 
 
-class Email(Random):
+class Email:
     access = ['user_modify']
 
     smtp = ('@hotmail', '@outlook', '@gmail')
     smpt_ext = ('.com', '.fr')
     email_tags = (f'{_smtp}{_ext}' for _smtp in smtp for _ext in smpt_ext)
 
-    def random_(seed_=rand_seed()):
-        random.seed(seed_)
-        r = random.choice
-
+    def random_():
+        
         user_set = string.ascii_letters + '_'
-        smtp = ('@hotmail', '@outlook', '@gmail')
-        ext = ('.com', '.fr')
+        smtp = ('hotmail', 'outlook', 'gmail')
+        ext = ('com', 'fr')
 
-        rid = ''.join((r(user_set) for _ in range(random.randint(1, 25))))
-        rand_email = rf'{rid}{r(smtp)}{r(ext)}'
-
+        rname = Random.rand_str(user_set, 1, 25)
+        rsmtp = Random.rand(smtp)
+        rext =  Random.rand(ext)
+        rand_email = f'{rname}@{rsmtp}.{rext}'
         return rand_email
 
 
@@ -241,17 +234,17 @@ class Email(Random):
 
 
 
-class Pwd(Random):
+class Pwd:
 
     access = ['user_modify']
     pwd_len = range(8, 64)
     pwd_str = (string.ascii_lowercase, string.ascii_uppercase, string.punctuation, string.digits)
 
-    def random_(seed_=rand_seed()):
-        random.seed(seed_)
+    def random_():
+        
         punctuation = '!#$%&()*+,-./:;<=>?@[\]^_{|}~'
         all_ = string.ascii_letters + punctuation + string.digits
-        rpwd = ''.join((random.choice(all_) for _ in range(random.randint(8, 64))))
+        rpwd = Random.rand_str(all_, 12, 32)
         return rpwd
 
     def check(ipwd):
@@ -262,14 +255,14 @@ class Pwd(Random):
         if len(ipwd) not in range(8, 64):
             return False
 
-class SexOrientation(Random):
+class SexOrientation:
 
     access = ['user_modify', 'matcha_cmp']
 
-    def random_(seed_=rand_seed()):
-        random.seed(seed_)
+    def random_():
+        
         x = ('male', 'female', 'male female')
-        return random.choice(x)
+        return Random.rand(x)
 
     def cmp(p1, p2):
         #profile
@@ -279,30 +272,27 @@ class SexOrientation(Random):
         gender2 = p2['gender']
         return gender1 in pref2 and gender2 in pref1
 
-class Location(Random):
+class Location:
 
     access = ['user_modify', 'matcha_cmp']
 
-    def random_(seed_=rand_seed()):
-        random.seed(seed_)
-        locs = ('USA', 'France', 'Moon', 'Spain', 'Canada', 'Turkey', 'Mexico')
-        return random.choice(locs)
+    def random_():
+        
+        locs = ('USA', 'France', 'Moon', 'Spain', 'Canada', 'Turkey', 'Mexico', 'Atlantis')
+        return Random.rand(locs)
         # pip install flask-simple-geoip
 
     def cmp_(p1, p2):
         return p1['location'] == p2['location']
 
-class Tags(Random):
+class Tags:
 
     access = ['user_modify', 'matcha_cmp']
     tags = ('drawing','coding','politics','chess','sports','workout','sleeping',
             'skydiving','movies','reading','creating','cooking','dancing','driving','travel')
 
-    def random_(seed_=rand_seed()):
-        random.seed(seed_)
-        
-        rnb = random.randint(0, len(Tags.tags))
-        rtags = [random.choice(Tags.tags) for i in range(rnb)]
+    def random_():
+        rtags = Random.rand_lst(Tags.tags, 0, len(Tags.tags))
         return list(set(rtags)) #remove duplicates
 
     def cmp_(p1, p2):
@@ -311,68 +301,126 @@ class Tags(Random):
         return len(set(v1) & set(v2)) > 0  # intersection keep all eq
 
 
-class Gender(Random):
+class Gender:
 
     access = ['user_modify']
 
-    def random_(seed_=rand_seed()):
-        random.seed(seed_)
+    def random_():
+        
         x = ('male', 'female')
-        return random.choice(x)
+        return Random.rand(x)
 
-class Intro(Random):
+class Intro:
 
-    def random_(seed_=rand_seed()):
-        random.seed(seed_)
-        nb_words = random.randint(0, 20)
+    def random_():
+        
+        nb_words = Random.rand(range(0, 20))
         intro = ''
         for i in range(nb_words):
-            len_word = random.randint(1, 10)
-            word = ''.join((random.choice(string.ascii_lowercase) for _ in range(len_word)))
+            word = Random.rand_str(string.ascii_lowercase, 1, 8)
             intro += f' {word} '
         return intro
 
-class Msgs(Random):
+
+class Msg:
+
+    def __init__(self, a, b:str, c, d):
+        self.to_email = a
+        self.date = b
+        self.input = c
+        self.new = d
+    
+    def __gt__(self, other):
+        #for built in list.sort
+        a = Time.timestr_to_epoch(self.date)
+        b = Time.timestr_to_epoch(other.date)
+        return b < a
+    
+    def __repr__(self):
+        to_email = self.to_email.ljust(50)
+        date = self.date.ljust(20)
+        input_ = self.input
+        return f'msg> TO_EMAIL: {to_email} DATE: {date} INPUT: {input_}'
+
+    @staticmethod
+    def random_(emails):
+        remail = Random.rand(emails)
+        rdate = Timestamp.random_()
+        rinput = Intro.random_()
+        rnew = Random.rand([True, False])
+        return Msg(remail, rdate, rinput, rnew)
+
+
+class MsgManager:
 
     access = ['user_modify']
 
-    def random_(emails, seed_=rand_seed()):
-        random.seed(seed_)
-        rnb = random.randint(0, len(emails))
+    def random_(emails):
+        rnb = Random.rand(range(0, 10)) #talked to up to 10 diff poeple
         msgs = []
         for _ in range(rnb):
-            msg = dict()
-            msg['date'] = Timestamp.random_(seed_ + 5)
-            msg['to_email'] = random.choice(emails)  # can send to himself
-            msg['msg'] = Intro.random_(seed_ + 10)
-            seed_ += 1
-            msgs.append(msg)
-        return msgs
+            remail = Random.rand(emails)
+            rnmsgs = Random.rand(range(1,50)) #wrote n msgs
+            msgs.append(Msg.random_(emails))
+        print(msgs)
+        msgs.sort()
+        return msgs # sorts by Msg.__gt__
+    
+    '''
+    def sort_(lst, key='date'):
+        if key == 'date':
+            lst = lst.sort()
+        if key == 'to_email':
+            lst = lst.sort(key=lambda msg: msg.to_email)
+        return lst
 
-class Likes(Random):
+    def filter_(lst, key):
+    '''
+
+
+
+class Likes:
 
     access = ['user_modify']
 
-    def random_(emails, seed_):
-        random.seed(seed_)
-        rnb = random.randint(0, len(emails))
-        return [random.choice(emails) for i in range(rnb)]
+    def __init__(self, to_email, date):
+        self.date = date
+        self.to_email = to_email
+    
+    def __gt__(self, other):
+        #for built in list.sort
+        a = Time.timestr_to_epoch(self.date)
+        b = Time.timestr_to_epoch(other.date)
+        return b < a
 
-class Activated(Random):
+    def __repr__(self):
+        to_email = self.to_email.ljust(50)
+        date = self.date.ljust(20)
+        return f'like> EMAIL: {to_email} LIKED_THE:{date}'
+
+    @staticmethod
+    def random_(emails):
+        emails = Random.rand_lst(emails, 0, 10)
+        lst = []
+        for e in emails:
+            lst.append(Likes(e, Timestamp.random_()))
+        lst.sort()
+        return lst
+
+class Activated:
 
     access = ''
 
-    def random_(seed_=rand_seed()):
-        random.seed(seed_)
-        return random.choice([True, False])
+    def random_():
+        return Random.rand([True, False])
 
-class Blocked(Random):
+class Blocked:
 
     access = ''
 
-    def random_(seed_=rand_seed()):
-        random.seed(seed_)
-        return random.choice([True, False])
+    def random_():
+        
+        return Random.rand([True, False])
 
 
 
@@ -389,22 +437,27 @@ class Blocked(Random):
 
 
 if __name__ == '__main__':
+
+    
     pros = gen_rand_profiles(10)
     for i,p in enumerate(pros):
         print(f'profile {i}')
         for k,v in p.items():
             if k == 'msgs':
-                print('    msgs :')
+                print(f'    msgs sent: {len(v)}')
                 for msg in v:
-                    for k,v in msg.items():
-                        print(f'        {k} {v}')
+                        print(f'        {msg}')
+                print()
             elif k == 'likes':
-                print('    likes :')
+                print(f'    likes : {len(v)}')
                 for like in v:
                         print(f'        {like}')
             else:
                 print(f'    {k} : {v}')
         print('\n' * 3)
+    
+
+
 
 
 

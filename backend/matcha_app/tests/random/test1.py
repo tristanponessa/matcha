@@ -1,62 +1,49 @@
-import requests
-import unittest
-import sys
+import random
+import string 
 
-from app_ import *
-from matcha_app.sqlite_db import *
-from matcha_app.dict_ops import *
-from matcha_app.zemail import *
+class Random:
+    #everytime a rand fn is called, the seed must increase once
 
-class TestManager(unittest.TestCase):
+    _seed_nb = 0
 
-    def setUp(self):
-        self.domain = 'http://127.0.0.1:5000/'
-        self.json_headers = {'content-type': 'application/json', 'Accept-Charset': 'UTF-8'}
-        launch_flask()
+    def	get_seed():
+        Random._seed_nb += 1
+        return Random._seed_nb
 
-    def test_home_page(self):
+    def rand(lst):
+        random.seed(Random.get_seed())
+        return random.choice(lst)
 
-        #db_manager()
-        #flask run
-        #
+    def rand_str(lst, start, end):
+        rlen = Random.rand(range(start, end))
+        return ''.join([Random.rand(lst) for _ in range(0, rlen)])
 
-        #payload = open("request.json")
-        #headers = {'content-type': 'application/json', 'Accept-Charset': 'UTF-8'}
-        #r = requests.get(url, data=payload, headers=headers)
-        rjson = requests.get(self.domain)
-        self.assertTrue('msg' in rjson)
+class FirstName:
+    access = ['user_modify']
 
-
-    def test_signup_page(self):
-        endpoint = self.domain + 'signup'
-        correct_user_json = {'email' : 'tv@hotmail.com', 'pwd' : '1Aa*1234'}
-        false_email_user_json = {'email': '@@hotmail...com', 'pwd': '1Aa*1234'}
-        false_pwd_user_json = {'email': 'tv@hotmail.com', 'pwd': '1234'}
-        false_both_user_json = {'email': '@hotmail', 'pwd': '1234'}
-
-        #get
-            get_json = requests.get(self.domain)
-            self.assertTrue('msg' in get_json)
-        #post
-
-            post_json = requests.post(self.domain, data=correct_user_json, headers=self.json_headers)
-            self.assertTrue(profile_exists())
+    def random_():
+        first = Random.rand(string.ascii_uppercase)
+        rest = Random.rand_str(string.ascii_lowercase, 3, 8)
+        return first + rest
 
 
+def r2():  # do not assign to rand list
+        
+        day = Random.rand(range(1, 28))
+        month = Random.rand(range(1, 12))
+        year = Random.rand(range(2001, 2020))
+        hour = Random.rand(range(0, 23))
+        min_ = Random.rand(range(0, 59))
+        sec = Random.rand(range(0, 59))
+        return f'{year}-{month:02d}-{day:02d} {hour:02d}:{min_:02d}:{sec:02d}'
 
-        # payload = open("request.json")
-        # headers = {'content-type': 'application/json', 'Accept-Charset': 'UTF-8'}
-        # r = requests.get(url, data=payload, headers=headers)
-        rjson = requests.get(self.domain)
-        self.assertTrue('msg' in rjson)
 
+print(r2())
+print(r2())
+print(r2())
+print(r2())
+print(r2())
+print(r2())
+print(r2())
 
-
-
-
-
-"""
-
-if __name__ == '__main__':
-    unittest.main()
-"""
+print(*[r2() for i in range(20)], sep='\n')
