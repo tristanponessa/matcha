@@ -436,25 +436,10 @@ class Blocked:
 
 
 
-if __name__ == '__main__':
+
 
     
-    pros = gen_rand_profiles(10)
-    for i,p in enumerate(pros):
-        print(f'profile {i}')
-        for k,v in p.items():
-            if k == 'msgs':
-                print(f'    msgs sent: {len(v)}')
-                for msg in v:
-                        print(f'        {msg}')
-                print()
-            elif k == 'likes':
-                print(f'    likes : {len(v)}')
-                for like in v:
-                        print(f'        {like}')
-            else:
-                print(f'    {k} : {v}')
-        print('\n' * 3)
+    
     
 
 
