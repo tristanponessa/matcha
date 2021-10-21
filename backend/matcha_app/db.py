@@ -15,7 +15,7 @@ from neo4j import GraphDatabase as neo4j_db
 
 
 #users must choose fomr this list  the subject demands they're "reusable". I interpret this as an object you use and not just a plain data
-tags = ('drawing','coding','politics','chess','sports','workout','sleeping','skydiving','movies','reading','creating','cooking','dancing','driving','travel')
+
 
 
 class Db:

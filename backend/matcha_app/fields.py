@@ -6,26 +6,52 @@ import inspect
 import sys
 import string
 import os
-import random
+import random #seed gens specific nbs, scope changing resets and repeats the pattern, we must design a project seed and for every rand call we add a new seed
 from datetime import datetime
-
-"""
-    profile is a dct {id INT email str profile dct in str form}
-    all source code uses profile dct in dct form
-    database uses the entire
-"""
-
-symbs = '+_-!#$&*'
-sets_ = (string.ascii_lowercase, string.ascii_uppercase, symbs, string.digits)
-nosymbs_str = string.ascii_lowercase + string.ascii_uppercase + string.digits
+from dateutil.relativedelta import relativedelta 
 
 
-def gen_rand_nosymbs(len) -> str:
-    return ''.join((random.choice(nosymbs_str) for _ in range(len)))
+str_symbs = '+_-!#$&*'
+punctuation = '!#$%&()*+,-./:;<=>?@[\]^_{|}~'
 
-def gen_rand_chs(len, chs: str) -> str:
-    return ''.join((random.choice(chs) for _ in range(len)))
+def gen_rand_profiles(n, seed_=0):
+    #for seed x: x -> x + n
+    
+    users = []
+    for i in range(n):
+        user = {
+        'email' : Email.random_(n),
+        'pwd' : Pwd.random_(n + 1),
+        'name' : FirstName.random_(n + 2),
+        'last_name' : LastName.random_(n + 3),
+        'birthdate' : Birthdate.random_(n + 4),
+        'location' : Location.random_(n + 5),
+        'tags' : Tags.random_(n + 6),
+        'intro' : Intro.random_(n + 7),
+        'pics' : Pics.random_(n + 8),
+        'gender' : Gender.random_(n + 9),
+        'sex_ori' : SexOrientation.random_(n + 10),
+        'banned' : Blocked.random_(n + 11),
+        'account_activated' : Activated.random_(n + 12)
+        }
+        users.append(user)
 
+    n = 12
+    all_emails = [d['email'] for d in users]
+    for user in users:
+        user['msgs'] = Msgs.random_(all_emails, n)
+        user['likes'] = Likes.random_(all_emails, n)
+        n += 1
+    
+    return users
+
+
+def rand_seed():
+    return random.randint(0,999999)
+
+def gen_rand_string(start, end, chs, seed_=rand_seed()):
+    random.seed(seed_)
+    return ''.join((random.choice(chs) for _ in range(start, end)))
 
 def is_subdct(sub_dct, dct, exact_value=True):
     match = 0
@@ -36,84 +62,58 @@ def is_subdct(sub_dct, dct, exact_value=True):
     if len(sub_dct) == match:
         return True
 
-def create_profiles(master_seed):
 
-    nb_users = 10
-    min_seed = 0#(nb_users * master_seed)
-    max_seed = 99999#min_seed + nb_users
+class Random:
+    #everytime a rand fn is called, the seed must increase once
 
-    profiles = []  # to put into db list of dicts
-    seed_nbs = tuple(random.randint(0,9999) for _ in range(nb_users))
-    emails = tuple(Email.random_(seednb) for seednb in seed_nbs)
-    field_fns = get_field_fns('random_')
+    _seed_nb = 0
 
-    for seed_nb, email in zip(seed_nbs, emails):
-        profile = {'email' : email}
-        for clsname, randfn in field_fns.items():
-            if clsname != 'Email':
-                if randfn.__code__.co_argcount == 2:
-                    profile[clsname.lower()] = randfn(emails, seed_nb)
-                else:
-                    profile[clsname.lower()] = randfn(seed_nb)
-        profiles.append(profile)
-    return profiles
+    def	get_seed():
+        Random._seed_nb += 1
+        return Random._seed_nb
+
+    def rand(lst=None):
+        random.seed(Random.get_seed())
+        return random.choice(lst)
+
+        
+        
 
 
-#cur_page_profiles = [] #when you execute sort or filter , it stored here
+class FirstName(Random):
+    access = ['user_modify']
 
-def sort_profiles(which, reverse_, profiles):
-    """sort by which 'birthdate' order 'ascending' """
-    #return sorted(profiles, key=lambda p: p[which], reverse=reverse_)
-    return sorted(profiles, key=cls_for_field(which).sort_, reverse=reverse_)
-    #cls_ = cls_for_field(which)
-    #cls_.sort_()
+    def random_(seed_=rand_seed()):
+        random.seed(seed_)
+        first = random.choice(string.ascii_uppercase)
+        rest = gen_rand_string(3, 8, string.ascii_lowercase, seed_)
+        return first + rest
 
+class LastName(Random):
 
-def filter_profiles(data: dict, profiles):
-    """filter by {'birthdate': '1985', 'email': '@gmail' ....} """
-    #auto eleminate blocked not activated
-    return [p for p in profiles if is_subdct(data, p, False)]
-    """
-    for p in profiles:
-        if is_subdct(data, p, False):
-            filtered_ps.append(p)     
-    return filtered_ps
-    """
+    access = ['user_modify']
 
-def ft_matcha(my_profile, profiles):
-    """filter until data is 75% equal which is 3 equivalent keys outta 4"""
-    matchas = []
-    cmp_fns = get_field_fns('cmp_', 'matcha_cmp').values()
-    for p in profiles:
-        if p['email'] == my_profile['email']:
-            continue
-        res = [f(my_profile, p) for f in cmp_fns if f(my_profile, p)]
-        if len(res) in [3,4]:
-            matchas.append(p)
-    return matchas
+    def random_(seed_=rand_seed()):
+        random.seed(seed_)
+        first = random.choice(string.ascii_uppercase)
+        rest = gen_rand_string(8, 12, string.ascii_lowercase, seed_)
+        return first + rest
 
 
-def cls_for_field(field):
-    clss = inspect.getmembers(sys.modules[__name__], inspect.isclass)
-    for clsname, clsobj in clss:
-        if clsname.lower() == field:
-            return clsobj
+class Time(Random):
 
-def get_field_fns(which, access=None) -> '{clsname:fn}':
-    clss = inspect.getmembers(sys.modules[__name__], inspect.isclass)
-    x = dict()
-    for clsname, clsobj in clss:
-        if which in clsobj.__dict__:
-            if access:
-                if access in clsobj.__dict__['access']:
-                    x[clsname] = clsobj.__dict__[which]
-            else:
-                x[clsname] = clsobj.__dict__[which]
-    return x
-#    return {clsname: clsobj.__dict__[which] for clsname, clsobj in clss if which in clsobj.__dict__ and access in }
+    def time_diff(t1, t2, type):
+        if type == 'timestamp':
+            fmt = '%Y-%m-%d %H:%M:%S'
+        if type == 'birthdate':
+            fmt = '%Y-%m-%d'
+        d1 = datetime.strptime(t1, fmt)
+        d2 = datetime.strptime(t2, fmt)
+        time_difference = relativedelta(d2, d1)
+        return time_difference.years
 
 
-class Timestamp:
+class Timestamp(Time, Random):
     access = []
 
     def get_now_time():
@@ -122,48 +122,25 @@ class Timestamp:
         format_now = time.strftime("%d/%m/%Y %H:%M:%S", structtime_now)
         return format_now
 
-    def random_(seed_):  # do not assign to rand list
-        # random.seed(seed_)
+    def random_(seed_=rand_seed()):  # do not assign to rand list
+        random.seed(seed_)
         day = random.randint(1, 28)
         month = random.randint(1, 12)
         year = random.randint(2001, 2020)
         hour = random.randint(0, 23)
         min_ = random.randint(0, 59)
         sec = random.randint(0, 59)
-        return f'{day:02d}/{month:02d}/{year} {hour:02d}:{min_:02d}:{sec:02d}'
+        return f'{year}-{month:02d}-{day:02d} {hour:02d}:{min_:02d}:{sec:02d}'
 
-
-
-class FirstName:
-    access = ['user_modify']
-
-    def random_(seed_):
-        # random.seed(seed_)
-        x = random.choice(string.ascii_uppercase)
-        y = ''.join((random.choice(string.ascii_lowercase) for _ in range(random.randint(3, 8))))
-        return x + y
-
-class LastName:
-
-    access = ['user_modify']
-
-    def random_(seed_):
-        # random.seed(seed_)
-        x = random.choice(string.ascii_uppercase)
-        y = ''.join((random.choice(string.ascii_lowercase) for _ in range(random.randint(8, 12))))
-        return x + y
-
-class Birthdate:
-
+class Birthdate(Time, Random):
+    #2039-07-14
     access = ['user_modify', 'matcha_cmp']
-    age_nb = range(18, 100)
 
-    def check_age(iage):
-        f = [str(n) for n in range(18, 100)]
-        return iage in f
+    def check_age(age):
+        return int(age) in range(18, 100)
 
     def check(x):
-        x = x.split('/')
+        x = x.split('-')
         if len(x) != 3:
             return False
         day, month, year = x
@@ -173,19 +150,25 @@ class Birthdate:
             return False
         # check with age
 
-    def cmp_(p1, p2):
-        b1 = p1['birthdate']
-        b2 = p2['birthdate']
-        year1 = b1.split('/')[-1]
-        year2 = b2.split('/')[-1]
+    def same_age_range(b1, b2):
+        year1 = b1.split('-')[0]
+        year2 = b2.split('-')[0]
         return abs(int(year1) - int(year2)) <= 5
 
-    def random_(seed_):
-        # random.seed(seed_)
+    def diff(b1, b2):
+        b1 = b1.split('-')
+        b2 = b2.split('-')
+
+
+
+
+
+    def random_(seed_=rand_seed()):
+        random.seed(seed_)
         day = random.randint(1, 28)
         month = random.randint(1, 12)
         year = random.randint(1955, 2000)
-        return f'{day}/{month}/{year}'
+        return f'{year}-{month}-{day}'
 
     def sort_(profile):
         return datetime.strptime(profile['birthdate'], '%d/%m/%Y')
@@ -194,7 +177,7 @@ class Birthdate:
 
 
 
-class Pics:
+class Pics(Random):
 
     access = ['user_modify']
     pic_ext = ('png', 'jpg', 'jpeg')
@@ -210,8 +193,8 @@ class Pics:
             return False
 
     
-    def random_(seed_):
-        # random.seed(seed_)
+    def random_(seed_=rand_seed()):
+        random.seed(seed_)
         url = './matcha_app/static/pics'
         pics = os.listdir(url)
         nb = random.randint(1, 4)
@@ -225,15 +208,15 @@ class Pics:
         return p
 
 
-class Email:
+class Email(Random):
     access = ['user_modify']
 
     smtp = ('@hotmail', '@outlook', '@gmail')
     smpt_ext = ('.com', '.fr')
     email_tags = (f'{_smtp}{_ext}' for _smtp in smtp for _ext in smpt_ext)
 
-    def random_(seed_):
-        # random.seed(seed_)
+    def random_(seed_=rand_seed()):
+        random.seed(seed_)
         r = random.choice
 
         user_set = string.ascii_letters + '_'
@@ -258,14 +241,14 @@ class Email:
 
 
 
-class Pwd:
+class Pwd(Random):
 
     access = ['user_modify']
     pwd_len = range(8, 64)
     pwd_str = (string.ascii_lowercase, string.ascii_uppercase, string.punctuation, string.digits)
 
-    def random_(seed_):
-        # random.seed(seed_)
+    def random_(seed_=rand_seed()):
+        random.seed(seed_)
         punctuation = '!#$%&()*+,-./:;<=>?@[\]^_{|}~'
         all_ = string.ascii_letters + punctuation + string.digits
         rpwd = ''.join((random.choice(all_) for _ in range(random.randint(8, 64))))
@@ -279,12 +262,12 @@ class Pwd:
         if len(ipwd) not in range(8, 64):
             return False
 
-class SexOrientation:
+class SexOrientation(Random):
 
     access = ['user_modify', 'matcha_cmp']
 
-    def random_(seed_):
-        # random.seed(seed_)
+    def random_(seed_=rand_seed()):
+        random.seed(seed_)
         x = ('male', 'female', 'male female')
         return random.choice(x)
 
@@ -296,12 +279,12 @@ class SexOrientation:
         gender2 = p2['gender']
         return gender1 in pref2 and gender2 in pref1
 
-class Location:
+class Location(Random):
 
     access = ['user_modify', 'matcha_cmp']
 
-    def random_(seed_):
-        # random.seed(seed_)
+    def random_(seed_=rand_seed()):
+        random.seed(seed_)
         locs = ('USA', 'France', 'Moon', 'Spain', 'Canada', 'Turkey', 'Mexico')
         return random.choice(locs)
         # pip install flask-simple-geoip
@@ -309,15 +292,18 @@ class Location:
     def cmp_(p1, p2):
         return p1['location'] == p2['location']
 
-class Tags:
+class Tags(Random):
 
     access = ['user_modify', 'matcha_cmp']
+    tags = ('drawing','coding','politics','chess','sports','workout','sleeping',
+            'skydiving','movies','reading','creating','cooking','dancing','driving','travel')
 
-    def random_(seed_):
-        # random.seed(seed_)
-        tags = ('sports', 'dancing', 'art', 'movies', 'coding', 'law', 'animals', 'games', 'building', 'photograph')
-        rnb = random.randint(0, len(tags))
-        return tuple(random.choice(tags) for i in range(rnb))
+    def random_(seed_=rand_seed()):
+        random.seed(seed_)
+        
+        rnb = random.randint(0, len(Tags.tags))
+        rtags = [random.choice(Tags.tags) for i in range(rnb)]
+        return list(set(rtags)) #remove duplicates
 
     def cmp_(p1, p2):
         v1 = p1['tags']
@@ -325,33 +311,33 @@ class Tags:
         return len(set(v1) & set(v2)) > 0  # intersection keep all eq
 
 
-class Gender:
+class Gender(Random):
 
     access = ['user_modify']
 
-    def random_(seed_):
-        # random.seed(seed_)
+    def random_(seed_=rand_seed()):
+        random.seed(seed_)
         x = ('male', 'female')
         return random.choice(x)
 
-class Intro:
+class Intro(Random):
 
-    def random_(seed_):
-        # random.seed(seed_)
+    def random_(seed_=rand_seed()):
+        random.seed(seed_)
         nb_words = random.randint(0, 20)
         intro = ''
         for i in range(nb_words):
-            len_word = random.randint(0, 10)
+            len_word = random.randint(1, 10)
             word = ''.join((random.choice(string.ascii_lowercase) for _ in range(len_word)))
             intro += f' {word} '
         return intro
 
-class Msgs:
+class Msgs(Random):
 
     access = ['user_modify']
 
-    def random_(emails, seed_):
-        # random.seed(seed_)
+    def random_(emails, seed_=rand_seed()):
+        random.seed(seed_)
         rnb = random.randint(0, len(emails))
         msgs = []
         for _ in range(rnb):
@@ -359,32 +345,33 @@ class Msgs:
             msg['date'] = Timestamp.random_(seed_ + 5)
             msg['to_email'] = random.choice(emails)  # can send to himself
             msg['msg'] = Intro.random_(seed_ + 10)
+            seed_ += 1
             msgs.append(msg)
         return msgs
 
-class Likes:
+class Likes(Random):
 
     access = ['user_modify']
 
     def random_(emails, seed_):
-        # random.seed(seed_)
+        random.seed(seed_)
         rnb = random.randint(0, len(emails))
         return [random.choice(emails) for i in range(rnb)]
 
-class Activated:
+class Activated(Random):
 
     access = ''
 
-    def random_(seed_):
-        # random.seed(seed_)
+    def random_(seed_=rand_seed()):
+        random.seed(seed_)
         return random.choice([True, False])
 
-class Blocked:
+class Blocked(Random):
 
     access = ''
 
-    def random_(seed_):
-        # random.seed(seed_)
+    def random_(seed_=rand_seed()):
+        random.seed(seed_)
         return random.choice([True, False])
 
 
@@ -398,3 +385,27 @@ class Blocked:
     if which == 'check':
         return {clsname: clsobj.cmp_ for clsname, clsobj in clss}
     """
+
+
+
+if __name__ == '__main__':
+    pros = gen_rand_profiles(10)
+    for i,p in enumerate(pros):
+        print(f'profile {i}')
+        for k,v in p.items():
+            if k == 'msgs':
+                print('    msgs :')
+                for msg in v:
+                    for k,v in msg.items():
+                        print(f'        {k} {v}')
+            elif k == 'likes':
+                print('    likes :')
+                for like in v:
+                        print(f'        {like}')
+            else:
+                print(f'    {k} : {v}')
+        print('\n' * 3)
+
+
+
+
