@@ -19,7 +19,7 @@ class UrlRules:
     activate_account = {'url': '/activate_account', 'mthds': ['GET'], 'view': Views.activate_account} # ?key= token
     #manage_account = {'url': '/<email>', 'mthds': ['POST', 'PUT', 'DELETE', 'GET'], 'view': Views.account_manager}  # to search or filter
 
-    save_db_to_file = {'url': '/db_to_file', 'mthds': ['GET'], 'view': Views.save_db_to_file}  # to search or filter
+    #save_db_to_file = {'url': '/db_to_file', 'mthds': ['GET'], 'view': Views.save_db_to_file}  # to search or filter
 
     """
     log_in = {'url': '/login/<email>', 'mthds': ['POST'], 'view': Urlrules.home_page}

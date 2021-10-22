@@ -86,10 +86,10 @@ class Db:
         #1.converts str to cql types for correct sorting/filtering
         #neo4j proposes a format string with $var instead of {}
         #2.{'name':'val'} converts to -> {name:'val'}
-
-        for v in d.values():
-            if '/' in v:
-                v = self._cql_type('date', v)
+        
+        d['birthdate'] = self._cql_type('date', d['birthdate'])
+        #if k == 'date':
+            #v = self._cql_type('timestamp', v)
 
         dstr = json.dumps(d) #json transforms ' to "
         for k in d.keys():
@@ -97,15 +97,9 @@ class Db:
         return dstr
     
     def _cql_type(self, type, data):
-        if type == 'timestamp':
-            return f"date('{data}')"
         if type == 'date':
-            #must be /day/month/year-> year-month-day
-            v = data
-            v = v.split('/')
-            v.reverse()
-            v = "-".join(v)
-            return f"date('{v}')"
+            return f"date('{data}')"
+        
     
     def db_result_format(self, res):
         #session.runs returns a list of dicts [{'cql return name': {'key1','val1'}, ...]
@@ -113,145 +107,42 @@ class Db:
         r = [list(dct.values())[0] for dct in res]
         return r if len(r) > 0 else None
 
-
-    
-    def has_relationship(self, email1, email2):
-        #left to right
-        cql_cmd = '''
-                    MATCH (p:Person) WHERE p.email="{}"
-                    MATCH (to:Person) WHERE to.email="{}"
-                    MATCH (p)-[r:LIKES]->(to)
-                    RETURN r
-                  '''.format(email1, email2)
-        r = self._run_cmd(cql_cmd) 
-        return len(r) > 0
-
-    def fetch_all(self, prop='name', order='+', filter_args=None):
-
-        #can sort and filter
-        filter = []
-        filter_str = ''
-        if filter_args:
-            for prop,val in filter_args.items():
-                filter.append(f'all.{prop}="{val}"')
-            filter_str = " AND ".join(filter)
-            filter_str = f'WHERE {filter_str}'
-
-        order = 'ASC' if order == '+' else 'DESC'
-        cql_cmd = '''
-                    MATCH (all)
-                    {filter_str_}
-                    RETURN all
-                    ORDER BY all.{prop_} {order_}
-                  '''.format(filter_str_=filter_str, prop_=prop, order_=order)
-        
-        return self._run_cmd(cql_cmd)
-
-    def user_exists(self, email):
-        cql_cmd = '''
-                    MATCH (p:Person)
-                    WHERE p.email="{}"
+    def set_users(self, props, data):
+        props = self._cql_formater(props)
+        cql_cmd = f'''
+                    MATCH (p{props})
+                    SET p += '{data}'
                     RETURN p
-                  '''.format(email)
+                  '''
         res = self._run_cmd(cql_cmd)
         return res
-
     
-    def ban_user(self, email, state):
-        cql_cmd = '''
-                    MATCH (p:Person) WHERE p.email="{}"
-                    SET p.ban="{}"
+    def get_users(self, props, order='+', order_prop='email'):
+        order = 'ASC' if order == '+' else 'DESC' #('DESC','ASC')[order=='+']
+        props = self._cql_formater(props)
+        cql_cmd = f'''
+                    MATCH (p{props})
                     RETURN p
-                  '''.format(email, state)
+                    ORDER BY p.{order_prop} {order}
+                  '''
         return self._run_cmd(cql_cmd)
     
-
-    def write_msg(self, from_email, to_email, msg, testid=''):
-
-        if testid == 'test':
-            testid = '''
-                        SET new_msg.sig="for_test_db"
-                        SET r1.sig="for_test_db"
-                        SET r2.sig="for_test_db"
-            '''
-
-        cql_date = self._cql_type('timestamp', self._timestamp())
-        cql_cmd = '''
-                    MATCH(src:Person) WHERE src.email="{}"
-                    MATCH(dst:Person) WHERE dst.email="{}"
-                    CREATE (src)-[r1:WROTE]->(new_msg:Msg)-[r2:DESTINED_TO]->(dst)
-                    SET new_msg.input = "{}" 
-                    SET new_msg.created_on="{}"
-                    {}
-                    RETURN src,type(r1),new_msg,type(r2),dst
-                  '''.format(from_email, to_email, msg, cql_date, testid)
-        return self._run_cmd(cql_cmd)
-    
-    def get_discussion(self, from_email, to_email):
-        cql_cmd = '''
-                    MATCH(src:Person) WHERE src.email="{}"
-                    MATCH(dst:Person) WHERE dst.email="{}"
-                    MATCH (src)-[:WROTE]->(msg:Msg)-[:DESTINED_TO]->(dst)
-                    RETURN src,msg,dst
-                  '''.format(from_email, to_email)
+    def create_user(self, props):
+        props = self._cql_formater(props)
+        cql_cmd = f'''
+                    CREATE (p{props})
+                    RETURN p
+                  '''
         return self._run_cmd(cql_cmd)
 
-    
-    def create_user(self, data: dict):
-        #merge prevents duplicate creation
-        cql_dct_str = self._cql_formater(data)
-        cql_cmd = '''
-                    MERGE (new_user:Person{})
-                    RETURN new_user
-                  '''.format(cql_dct_str)
-        return self._run_cmd(cql_cmd)
-    
-    def like_user(self, from_email, to_email, testid=''):
-        #MERGE (src)-[r:LIKES{date:"{}"}]->(dst)   driver causing problem about merge the security to prevent duplication 
-        testid = "SET r.sig='for_test_db'" if testid == 'test' else ''
-        cql_date = self._cql_type('timestamp', self._timestamp())
-        cql_cmd = '''
-                    MATCH (src:Person) WHERE src.email="{}"
-                    MATCH (dst:Person) WHERE dst.email="{}"
-                    MERGE (src)-[r:LIKES]->(dst)
-                    SET r.date="{}"
-                    {}
-                  '''.format(from_email, to_email, cql_date, testid)
+    def delete_user(self, props):
+        props = self._cql_formater(props)
+        cql_cmd = f'''
+                    MATCH (p{props})
+                    DELETE p
+                  '''
         self._run_cmd(cql_cmd)
-    
-    def unlike_user(self, from_email, to_email):
-        cql_cmd = '''
-                    MATCH (src:Person) WHERE src.email="{}"
-                    MATCH (dst:Person) WHERE dst.email="{}"
-                    MATCH (src)-[r:LIKES]->(dst)
-                    DELETE r
-                  '''.format(from_email, to_email)
-        self._run_cmd(cql_cmd)
-    
-    def hobbies_tag(self, email, tag):
-        cql_cmd = '''
-                    MATCH (src:Person) WHERE src.email="{}"
-                    MATCH (tag:Tag) WHERE tag.name="{}"
-                    MERGE (src)-[r:HAS_HOBBY{date:"{}"}]->(tag)
-                    RETURN *
-                  '''.format(email, tag, self._timestamp())
-        return self._run_cmd(cql_cmd)
-    
-    def unhobbies_tag(self, email, tag):
-        cql_cmd = '''
-                    MATCH (src:Person) WHERE src.email="{}"
-                    MATCH (tag:Tag) WHERE tag.name="{}"
-                    MATCH (src)-[r:HAS_HOBBY]->(tag)
-                    DELETE r
-                  '''.format(email, tag)
-        self._run_cmd(cql_cmd)
-    
-    def delete_user(self, email):
-        cql_cmd = '''
-                    MATCH (src:Person) WHERE src.email="{}"
-                    DELETE src
-                  '''.format(email)
-        self._run_cmd(cql_cmd)
+
 
     def _log_msg(self, msg):
         print(self._timestamp().center(100, '*'))
@@ -292,7 +183,6 @@ class Db:
         print('*' * 100)  #to stock inside log text box 
 
 
-    def profiles_to_db(pros):
+    #def profiles_to_db(pros):
 
-        for p for pros:
             

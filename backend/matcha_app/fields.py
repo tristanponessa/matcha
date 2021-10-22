@@ -14,6 +14,8 @@ from PIL import Image
 
 str_symbs = '+_-!#$&*'
 punctuation = '!#$%&()*+,-./:;<=>?@[\]^_{|}~'
+sign_up_fields = ['email', 'pwd', 'name', 'last_name', 'birthdate', 'location', 'tags', 'intro', 'pics', 'gender', 'sex_ori']
+
 
 def gen_rand_profiles(n):
     #for seed x: x -> x + n
@@ -43,6 +45,30 @@ def gen_rand_profiles(n):
         user['likes'] = Likes.random_(all_emails)
     
     return users
+
+
+def is_profile(data):
+
+    if list(data.keys()).sort() != sign_up_fields.sort():
+        return False #data missing
+    
+    checks = {
+    'email' : Email.check_(),
+    'pwd' : Pwd.check_(),
+    'name' : FirstName.check_(),
+    'last_name' : LastName.check_(),
+    'birthdate' : Birthdate.check_(),
+    'location' : Location.check_(),
+    'tags' : Tags.check_(),
+    'intro' : Intro.check_(),
+    'pics' : Pics.check_(),
+    'gender' : Gender.check_(),
+    'sex_ori' : SexOrientation.check_(),
+    }
+    
+    if all(checks.values()) == False:
+        return False
+    return True
 
 
 
@@ -341,6 +367,9 @@ class Msg:
         date = self.date.ljust(20)
         input_ = self.input
         return f'msg> TO_EMAIL: {to_email} DATE: {date} INPUT: {input_}'
+    
+    def to_dct(self):
+        return self.__dict__
 
     @staticmethod
     def random_(emails):
@@ -365,6 +394,8 @@ class MsgManager:
         print(msgs)
         msgs.sort()
         return msgs # sorts by Msg.__gt__
+    
+    
     
     '''
     def sort_(lst, key='date'):
