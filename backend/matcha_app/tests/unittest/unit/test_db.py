@@ -5,7 +5,12 @@ import logging #to print in unittest
 import neo4j
 from neo4j import GraphDatabase as neo4j_db
 
-sys.path.append('C:/Users/trps/Documents/my_stuff/coding/matcha/backend/matcha_app/')
+import platform
+os = platform.system()
+if os == 'Windows':
+    sys.path.append('C:/Users/trps/Documents/my_stuff/coding/matcha/backend/matcha_app/')
+if os == 'Darwin':
+    sys.path.append('/Users/trponess/Documents/matcha/backend/matcha_app/')
 import db as proj
 
 #def print_cql:
@@ -28,8 +33,8 @@ class TestDb(unittest.TestCase):
 
     def setUp(self):
         
-        self.uri = "bolt://localhost:7687"
-        self.userName = 'neo4j'
+        self.uri = "bolt://localhost:7687" #desktop
+        self.userName = 'neo4j' #test
         self.password = '0000'
         self.sig = 'for_test_db' #signature for db elem
         self.exc_raised = False
@@ -38,8 +43,6 @@ class TestDb(unittest.TestCase):
         self.cql_get_test_nodes = f'''MATCH (all) WHERE all.sig='{self.sig}'
                                          RETURN count(all)
                                       '''
-        self.cql_get_test_relations = f'''MATCH ()-[all_r]-() WHERE all_r.sig='{self.sig}'
-                                      RETURN count(all_r) '''
 
         self.test_users = []
         self.test_users.append({'sig':self.sig, 'name':'crash', 'email':'crash@crapmail.com', 'born':'27/02/1996', 'sex_ori':'female','ban':'false'})
@@ -48,6 +51,15 @@ class TestDb(unittest.TestCase):
         self.test_users.append({'sig':self.sig, 'name':'maria', 'email':'maria@crapmail.com', 'born':'10/04/1994', 'sex_ori':'male','ban':'false'})
         self.test_users.append({'sig':self.sig, 'name':'exodia', 'email':'exodia@dumpmail.com', 'born':'01/01/1996', 'sex_ori':'female','ban':'false'})
         self.test_users.append({'sig':self.sig, 'name':'iswear', 'email':'iswear@dumpmail.com', 'born':'02/07/1999', 'sex_ori':'male female','ban':'false'})
+
+    def add_test_tag_to_all_elems(self, neo4j_driver):
+        cql = f'''MATCH (all) 
+                  SET all += {self.sig}a
+                '''
+        neo4j_driver._
+        
+
+
 
     def get_exc_msg(self, extra_info=''):
         self.exc_raised = True
