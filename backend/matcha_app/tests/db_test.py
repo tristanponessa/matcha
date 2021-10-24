@@ -2,10 +2,11 @@ import testttest
 import sys
 import time
 import logging #to print in testttest
+import inspect
+import platform
 import neo4j
 from neo4j import GraphDatabase as neo4j_db
 
-import platform
 os = platform.system()
 if os == 'Windows':
     sys.path.append('C:/Users/trps/Documents/my_stuff/coding/matcha/backend/matcha_app/')
@@ -15,32 +16,45 @@ if os == 'Darwin':
 import db as db_FILE
 
 
-
-#monolithic test
 class Test:
 
     #***************************************************************************************
     #  TEST  (no mock for neo4j)
-    #  
-    #  be careful how you clean up a test env, do not trigger an active db
+    #  #monolithic test
+    #  be careful how you clean up a test env, do not trigger a released db
     #  SETUP for futur tests create users delete them at end 
     #  add 'sig':'for_test_db' property to everything in order to clean up env easily
     # db close is not tested, its guaranteed to suceed, its a simple as pulling out the plug
     # the driver is always avalailable, even if wrong auth or closed, dont test the driver
+    #
+    # i put elf.print_info inside print functions cause i can leave them in the code without having to add if print_info everywhere 
     #***************************************************************************************
 
-    def __init__(self):
-        self.uri = "bolt://localhost:7687" #desktop
-        self.userName = 'neo4j' #test
-        self.password = '0000'
+    def __init__(self, uri, userName, pwd, print_info=False):
+        self.uri = uri
+        self.userName = username
+        self.password = pwd
         self.db_inst = None #init in test
-        self.sig = 'for_test_db' #signature for db elem
-        self.exc_raised = False
-        self.print_info = False #
-        self.cql_get_test_nodes = f'''MATCH (all) WHERE all.sig='{self.sig}'
-                                         RETURN count(all)
-                                      '''
+        self.sig = f'tmp_test_data_session_{self.timestamp()}' #signature for db elem
+        self.print_info = print_info
 
+        self.set_test_data() #all the data the tests are gonna use
+        self.tests = self.get_instance_test_methods() #all the tests to launch
+        self.error_msgs = dict() #{for_test: msg} to print in conclusion
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self):
+        if self.db_inst:
+            self.clean_env(self.db_inst)
+            self.db_inst.close_db()
+    
+    
+
+    #TEST ENV FNS###############################################################################################################################################
+
+    def set_test_data():
         self.test_users = []
         self.test_users.append({'sig':self.sig, 'name':'crash', 'email':'crash@crapmail.com', 'born':'27/02/1996', 'sex_ori':'female','ban':'false'})
         self.test_users.append({'sig':self.sig, 'name':'crash', 'email':'crash_2@crapmail.com' , 'born':'27/02/1996', 'sex_ori':'female', 'ban':'false'})
@@ -49,13 +63,58 @@ class Test:
         self.test_users.append({'sig':self.sig, 'name':'exodia', 'email':'exodia@dumpmail.com', 'born':'01/01/1996', 'sex_ori':'female','ban':'false'})
         self.test_users.append({'sig':self.sig, 'name':'iswear', 'email':'iswear@dumpmail.com', 'born':'02/07/1999', 'sex_ori':'male female','ban':'false'})
 
+    def get_instance_test_methods(self):
+        #Test.__dict__ does not access self
+        all_fns = inspect.getmembers(self, predicate=inspect.ismethod)
+        test_fns = [x[1] for x in all_fns if x[0].startswith('test')]
+        return dict.fromkeys(test_fns) #all vals None
+        
+    def conclusion(self):
+        
+        passed = list(filter(lambda res: res == True, self.tests.values()))
+        failed = list(filter(lambda res: res == False, self.tests.values()))
+        not_tested = list(filter(lambda res: res is None, self.tests.values()))
+        
+        print(f'nb_tests:   {len(self.tests)}')
+        print(str(' ' * 4) + f'passed:     {len(passed)}')
+        print(str(' ' * 4) + f'failed:     {len(failed)}')
+        print(str(' ' * 4) + f'not_tested: {len(not_tested)}')
 
-    def __enter__(self):
-        return self
+        print()
+        print(f'error msgs: {len(self.error_msgs)}')
+        i = 0
+        for test_name, msg in self.error_msgs.items():
+            print(f'TEST ERROR {i}. {test_name}')
+            if isinstance(msg, list):
+                for i,p in enumerate(msg):
+                    print(str(' ' * 4) + f'part {i}')
+                    print(str(' ' * 8) + msg)    
+            else:
+                print(str(' ' * 4) + msg)
 
-    def __exit__(self):
-        if self.db_inst:
-            self.db_inst.close_db()
+
+    
+    def clean_env(self, db_inst):
+        #the arg db_inst must seem superfluous cause we have access to self, but it explicit that this test needs a db_inst to work
+        cql_clean = f'''
+                        MATCH (all) WHERE all.sig='{self.sig}'
+                        DELETE all
+                    '''
+        cql_nb_test_nodes = f'''
+                                MATCH (all) WHERE all.sig='{self.sig}'
+                                RETURN count(all)
+                             '''
+        
+        print('BEFORE CLEAN')
+        n = db_inst._run_cmd(cql_nb_test_nodes)
+        print(str(' ' * 4) + f'nb_nodes:{n}' )
+        db_inst._run_cmd(cql_clean)
+        print('AFTER CLEAN')
+        n = db_inst._run_cmd(cql_nb_test_nodes)
+        print(str(' ' * 4) + f'nb_nodes:{n}' )
+
+
+    #UTIL FNS#########################################################################################################################################
 
     def add_test_tag_to_all_elems(self):
         cql = f'''MATCH (all) 
@@ -64,7 +123,6 @@ class Test:
         self.db_inst._run_cmd(cql)
         
     def get_exc_msg(self, extra_info=''):
-        self.exc_raised = True
         exc_type, exc_value, exc_traceback = sys.exc_info()
         #testx uses \r while windows \r
         msg = str(exc_value).replace('\n', '').replace('\r', '')
@@ -77,26 +135,12 @@ class Test:
         structtime_now = time.localtime(epoch_now)
         format_now = time.strftime("%Y-%m-%d %H:%M:%S", structtime_now)
         return format_now
+        
+    def print_obj_res(self, result, override=False):
+        
+        if not self.print_info and not override:
+            return 
 
-    def log_msg(self, msg):
-        print(self.__timestamp().center(100, '*'))
-        print(f'CQL >>> {msg}'.ljust(50))
-        #print('*' * 100)
-    
-    def db_result_format(self, res):
-        #session.runs returns a list of dicts [{'cql return name': {'key1','val1'}, ...]
-        #we trasform into      list of dicts  [{'key1','val1'}]
-        r = [list(dct.values())[0] for dct in res]
-        return r if len(r) > 0 else None
-    
-    def dbres_get(self, r, index, prop=None):
-        dct = r[index] if index < len(r) else None
-        return dct.get(prop) if prop else dct
-        
-        
-
-    def print_obj_res(self, result):
-        
         print('db res'.center(100, '-'))
 
         if isinstance(result,str): #relationships are strings
@@ -128,73 +172,83 @@ class Test:
         print('end'.center(100, '-'))
         print('*' * 100)  #to stock inside log text box 
 
-    def cmds(self, which, lst):
-        if which == 'match_props':
-            j = []
-            for t in lst:
-                j.append(f'p.name="{t.name}"')
-            j = ' AND '.join(j)
-            x = f'''
-                    MATCH (p:Person)
-                    WHERE {j}
-                    RETURN p
-            '''
-            return j
 
-    #def run_cmd(self, cmd):
-    #    with self.driver.session() as session:
-    #        r = session.run(cmd)
-    #        return self.db_result_format(r)
-
-    def test_print(self, msg):
-        if self.print_info:
+    def print_log(self, msg, override=False):
+        if self.print_info or override:
             #to print in testttest
             logging.basicConfig(stream=sys.stderr)
             log = logging.getLogger("TestDb")
             log.setLevel(logging.DEBUG)
             log.debug(msg)
     
-    def test_failed(self):
-        #stop all
+    def print_cql(self, msg, override=False):
+        if self.print_info or override:
+            print(self.timestamp().center(100, '*'))
+            print(f'CQL >>> {msg}'.ljust(50))
+            #print('*' * 100)     #can output inside print_obj_res to form a box
     
-    def test_success(self):
+    def print_msg(self, msg, override=False)
+        if self.print_info or override:
+            print(msg)
 
+    def run_cmd(cmd):
+        print_cql(cmd)
+        r = self.db_inst._run_cmd()
+        print_obj_res(r)
+        return r
+
+
+    #########################################################################################################################################################
 
     def run_tests(self):
-        #must call in order as a test inits the next 
-        self.tests = dict()
-        self.tests[self.test_db_connection] = None #sets self.db_inst
+        fail = False
+        for i,test in enumerate(self.tests.keys()):
+            self.add_test_tag_to_all_elems() #if any new node, it will give it the self.sig
+            print(f'TEST {i}. {test.__name__} '.ljust(100, '-'), end=' ')
+            res = test()
+            if fail:
+                print(f'?'.ljust(20))
+            elif res:
+                self.tests[test] = True
+                print(f'P'.ljust(20))
+            else:
+                fail = True
+                self.tests[test] = False
+                print(f'F'.ljust(20))
+        self.conclusion()
 
-        for i,test,res in enumerate(tests.items()):
-            self.test_print(f'TEST {i}. {test} '.center('-', 50), end='')
-
-
+    #TESTS ############################################################
              
 
 
 
     def test_db_connection(self):
+        test_nickname = 'test_db_connection'  #no way to get name of fun in fun
+        err_msgs = []
 
         try:
             with proj.Db(self.uri, self.userName, self.password) as db_inst:
                 db_inst._run_cmd('MATCH (n) RETURN n')
+                
         except neo4j.exceptions.ServiceUnavailable:
             #normally except ConnectionRefusedError: is raised but is jumpred now i catch this for some reason
-            assert False, self.get_exc_msg("DATABASE NOT ACTIVE")
+            err_msgs.append(self.get_exc_msg("DATABASE NOT ACTIVE"))
         except neo4j.exceptions.AuthError:
-            assert False, self.get_exc_msg("WRONG CREDENTIALS")
+            err_msgs.append(self.get_exc_msg("WRONG CREDENTIALS"))
         except Exception:
-            assert False, self.get_exc_msg()
-        #finally: #is always called exc raised or not, its why i add a flag
-        #    if self.exc_raised:
-        #        self.fail('db test failed')
-
-        self.db_inst = proj.Db(self.uri, self.userName, self.password)
-        self.test_print(self.db_inst)
+            err_msgs.append(self.get_exc_msg())
+       
+        if len(err_msgs) > 0: #failed
+            self.error_msgs[test_nickname] = err_msgs
+            return False
+        else:
+            self.db_inst = proj.Db(self.uri, self.userName, self.password)
+            self.print_msg(self.db_inst)
+            return True 
         
         
 
-    
+    """
     def test_create(self):
         #check for dups
         #only check names
@@ -210,7 +264,7 @@ class Test:
         self.assertEquals(len(r), len(self.test_users))
     
 
-    """
+    
     #test_create must suceed ot run this test
     def test_ban(self):
         email = 'bad@crapmail.com'
@@ -263,9 +317,9 @@ class Test:
     
         r = self.driver.fetch_all('created_on','-')
         r = self.driver.fetch_all('created_on','+')
-    """
     
-    """
+    
+    
     def test_sort_filter():
 
         all = self.driver.fetch_all() 
@@ -291,23 +345,8 @@ class Test:
     """
 
     
-
-        """
-        cmd_clean = '''
-                        MATCH (all) WHERE all.sig='for_test_db'
-                        MATCH ()-[all_r]-() WHERE all_r.sig='for_test_db'                        
-                        DELETE all_r
-                        DELETE all
-                    '''
+    
         
-
-        print('BEFORE CLEAN')
-        print('nb_nodes:>' )
-        print('nb_relations:>' )
-        print('AFTER CLEAN')
-        print('nb_nodes:>' )
-        print('nb_relations:>' )
-        """
 
 if __name__ == '__main__':
 
@@ -319,94 +358,5 @@ if __name__ == '__main__':
         TestDb.PASSWORD = sys.argv.pop()
     '''
 
-    with Test() as test_session:
+    with Test("bolt://localhost:7687", "neo4j", "0000") as test_session:
         test_session.run_tests()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import inspect
-
-class Test:
-    
-    def __init__(self):
-        #tests must be done in order
-        self.tests = self.get_instance_test_methods()
-        print(self.tests)
-    
-    def __enter__(self):
-        return self
-    
-    def __exit__(self, type, value, traceback):
-        self.conclusion()
-        #clean up
-        print('cleaned up')
-    
-    #def print_
-    def get_instance_test_methods(self):
-        #Test.__dict__ does not access self
-        all_fns = inspect.getmembers(self, predicate=inspect.ismethod)
-        test_fns = [x[1] for x in all_fns if x[0].startswith('test')]
-        return dict.fromkeys(test_fns) #all vals None
-        
-    def conclusion(self):
-        
-        passed = list(filter(lambda res: res == True, self.tests.values()))
-        failed = list(filter(lambda res: res == False, self.tests.values()))
-        not_tested = list(filter(lambda res: res is None, self.tests.values()))
-        
-        print(f'nb_tests:   {len(self.tests)}')
-        print(str(' ' * 4) + f'passed:     {len(passed)}')
-        print(str(' ' * 4) + f'failed:     {len(failed)}')
-        print(str(' ' * 4) + f'not_tested: {len(not_tested)}')
-        
-        
-    
-    #TESTS ############################################################
-    def test_db_connection(self):
-        return True
-    def test_fn(self):
-        return True
-    def test_fn2(self):
-        return False
-    def test_fn3(self):
-        return False
-    
-        
-    #TESTS ############################################################
-    
-    def run_tests(self):
-        fail = False
-        for i,test in enumerate(self.tests.keys()):
-            print(f'TEST {i}. {test.__name__} '.ljust(100, '-'), end=' ')
-            res = test()
-            if fail:
-                print(f'?'.ljust(20))
-            elif res:
-                self.tests[test] = True
-                print(f'P'.ljust(20))
-            else:
-                fail = True
-                self.tests[test] = False
-                print(f'F'.ljust(20))
-
-#main
-with Test() as test_session:
-    test_session.run_tests()

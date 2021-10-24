@@ -39,41 +39,25 @@ class Db:
          be careful, record in result moves all outside, reaccessing result gives you an empty lst, i think it calls consume()
     """
 
-    def __init__(self, uri, userName, password, output=False):
-        self.output = output
-        try:
-            self._driver = neo4j_db.driver(uri, auth=(userName, password))
-            if self.output:
-                print('starting db')
-        except Exception:
-            if self.output:
-                print('ERROR: Could not connect to the Neo4j Database. See console for details.')
-            sys.exit(0)
-    
+    def __init__(self, uri, userName, password):
+        self._driver = neo4j_db.driver(uri, auth=(userName, password))
+        
     def __enter__(self):
         return self
     
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        self.close_db()
-        if exc_type:
-            if self.output:
-                print(f'__exit__ says: exc_type: {exc_type}')
-                print(f'__exit__ says: exc_value: {exc_value}')
-                print(f'__exit__ says: exc_traceback: {exc_traceback}')
-
+        if self._driver:
+            self.close_db()
+        
+            
     def close_db(self):
         self._driver.close()
-        if self.output:
-            print('closing db')
+        
     
     def _run_cmd(self, cmd):
         with self._driver.session() as session:
-            if self.output:
-                self._log_msg(cmd)
             result_obj =  session.run(cmd)
             result = result_obj.data() #lst of dcts
-            if self.output:
-                self._print_obj_res(result) #cant return data empty
             return result
 
     def _timestamp(self):
@@ -106,6 +90,11 @@ class Db:
         #we trasform into      list of dicts  [{'key1','val1'}]
         r = [list(dct.values())[0] for dct in res]
         return r if len(r) > 0 else None
+    
+    def dbres_get(self, r, index, prop=None):
+        #[{'dct1_key1':1,'prop':2,...},  {'dct2_key1':0}]
+        dct = r[index] if index < len(r) else None
+        return dct.get(prop) if prop else dct
 
     def set_users(self, props, data):
         props = self._cql_formater(props)
@@ -144,43 +133,7 @@ class Db:
         self._run_cmd(cql_cmd)
 
 
-    def _log_msg(self, msg):
-        print(self._timestamp().center(100, '*'))
-        print(f'CQL >>> {msg}'.ljust(50))
-        #print('*' * 100)
-
-    def _print_obj_res(self, result):
-        
-        print('db res'.center(100, '-'))
-
-        if isinstance(result,str): #relationships are strings
-                        print(result)
-        #neo4j.Result.data -> lst of dicts 
-        elif isinstance(result,list):
-            for lst_elem in result:
-                
-                for k,v in lst_elem.items():
-                    print(f'cql return var:{k}', end=' -> ')
-                    print(v)
-                    
-        else:
-            #neo4j.Result gets moved out the iter causing res to be empty
-            #i didnt find a way to do a copy of this obj
-            for record in result:
-                print(record.keys())
-                for cql_return_tag in record.keys():
-                    
-                    print('cql return var: ', cql_return_tag)
-                    node = record[cql_return_tag]
-                    #print(record.keys())
-                    #print(type(record['n']))
-                    if isinstance(node,str): #relationships are strings
-                        print(node)
-                    else:
-                        print(node.labels, end=' ')
-                        print(node.items())
-        print('end'.center(100, '-'))
-        print('*' * 100)  #to stock inside log text box 
+    
 
 
     #def profiles_to_db(pros):
