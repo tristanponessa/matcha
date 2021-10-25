@@ -1,7 +1,7 @@
 import traceback
 import sys
 
-def get_exception():
+def get_exception(extra_info='', verbose=True):
     
     exc_type, exc_value, exc_traceback = sys.exc_info()
     
@@ -22,6 +22,11 @@ def get_exception():
 
     deco_top = 'MATCHA ERROR'.center(50, '#')
     deco_bottom = ''.center(50, '#')
-    err_msg = f"{type_} > {filename} [l{lineno}] in {name}  :: {st}"
-
-    return f'\n{deco_top}\n{err_msg}\n{deco_bottom}\n'
+    if verbose:
+        err_msg = f">exception<:\n\t{type_}\n>personal info<:\n\t{extra_info}\n>msg<:\n\t{message}\n>traceback_stack<:\n\t{st}"
+        output = f'\n{deco_top}\n{err_msg}\n{deco_bottom}\n'
+    else:
+        cut_msg = message[0:200]
+        cut_msg = cut_msg.replace('\n', '').replace('\r', '') #uses \r while windows \r
+        output = f'exception: {type_} -> {filename} {lineno} {extra_info} : {cut_msg} ...'
+    return output

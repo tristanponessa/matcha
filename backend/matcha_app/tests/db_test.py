@@ -1,11 +1,12 @@
-import testttest
 import sys
 import time
-import logging #to print in testttest
+import logging 
 import inspect
 import platform
 import neo4j
 from neo4j import GraphDatabase as neo4j_db
+from io import StringIO
+
 
 os = platform.system()
 if os == 'Windows':
@@ -32,7 +33,7 @@ class Test:
 
     def __init__(self, uri, userName, pwd, print_info=False):
         self.uri = uri
-        self.userName = username
+        self.userName = userName
         self.password = pwd
         self.db_inst = None #init in test
         self.sig = f'tmp_test_data_session_{self.timestamp()}' #signature for db elem
@@ -42,11 +43,13 @@ class Test:
         self.tests = self.get_instance_test_methods() #all the tests to launch
         self.error_msgs = dict() #{for_test: msg} to print in conclusion
 
+        self.output_buffer = ''
+
     def __enter__(self):
         return self
 
-    def __exit__(self):
-        if self.db_inst:
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.db_inst._driver:
             self.clean_env(self.db_inst)
             self.db_inst.close_db()
     
@@ -54,7 +57,7 @@ class Test:
 
     #TEST ENV FNS###############################################################################################################################################
 
-    def set_test_data():
+    def set_test_data(self):
         self.test_users = []
         self.test_users.append({'sig':self.sig, 'name':'crash', 'email':'crash@crapmail.com', 'born':'27/02/1996', 'sex_ori':'female','ban':'false'})
         self.test_users.append({'sig':self.sig, 'name':'crash', 'email':'crash_2@crapmail.com' , 'born':'27/02/1996', 'sex_ori':'female', 'ban':'false'})
@@ -84,11 +87,11 @@ class Test:
         print(f'error msgs: {len(self.error_msgs)}')
         i = 0
         for test_name, msg in self.error_msgs.items():
-            print(f'TEST ERROR {i}. {test_name}')
+            print(str(' ' * 4) + f'TEST ERROR {i}. {test_name}')
             if isinstance(msg, list):
                 for i,p in enumerate(msg):
-                    print(str(' ' * 4) + f'part {i}')
-                    print(str(' ' * 8) + msg)    
+                    print(str(' ' * 8) + f'>exception {i}<')
+                    print(str(' ' * 12) + p)
             else:
                 print(str(' ' * 4) + msg)
 
@@ -113,22 +116,25 @@ class Test:
         n = db_inst._run_cmd(cql_nb_test_nodes)
         print(str(' ' * 4) + f'nb_nodes:{n}' )
 
+    def capture_stdout(self):
+        sys.stdout = StringIO()
+        self.output_buffer += sys.stdout.getvalue()
+        '''
+        if 'belongs to model'
+            keep in buffer 
+        else 
+            take out of buffer or dont put in and direct print 
+            print()
+        '''
 
     #UTIL FNS#########################################################################################################################################
 
-    def add_test_tag_to_all_elems(self):
-        cql = f'''MATCH (all) 
-                  SET all += {self.sig}
+    def add_testsig_to_node(self, r):
+        cql = f'''MATCH (r)
+                  WHERE r.email = {r['email']}
+                  SET r += {self.sig}
                 '''
-        self.db_inst._run_cmd(cql)
-        
-    def get_exc_msg(self, extra_info=''):
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        #testx uses \r while windows \r
-        msg = str(exc_value).replace('\n', '').replace('\r', '')
-        msg = msg[0:100]
-        err_name = exc_type.__name__
-        return f'exception: {err_name} -> {extra_info} : {msg} ...'
+        self.run_cmd(cql)
 
     def timestamp(self):
         epoch_now = time.time()
@@ -187,15 +193,19 @@ class Test:
             print(f'CQL >>> {msg}'.ljust(50))
             #print('*' * 100)     #can output inside print_obj_res to form a box
     
-    def print_msg(self, msg, override=False)
+    def print_msg(self, msg, override=False):
         if self.print_info or override:
             print(msg)
 
-    def run_cmd(cmd):
-        print_cql(cmd)
-        r = self.db_inst._run_cmd()
-        print_obj_res(r)
+    def run_cmd(self, cmd, return_type=''):
+        self.print_cql(cmd)
+        r = self.db_inst._run_cmd(cmd, return_type)
+        self.print_obj_res(r)
         return r
+    
+    def create_cmd(self, cmd):
+        r = self.db_inst.create_user(cmd)
+        self.add_testsig_to_node(r)
 
 
     #########################################################################################################################################################
@@ -203,7 +213,6 @@ class Test:
     def run_tests(self):
         fail = False
         for i,test in enumerate(self.tests.keys()):
-            self.add_test_tag_to_all_elems() #if any new node, it will give it the self.sig
             print(f'TEST {i}. {test.__name__} '.ljust(100, '-'), end=' ')
             res = test()
             if fail:
@@ -218,35 +227,16 @@ class Test:
         self.conclusion()
 
     #TESTS ############################################################
-             
-
-
 
     def test_db_connection(self):
         test_nickname = 'test_db_connection'  #no way to get name of fun in fun
-        err_msgs = []
 
-        try:
-            with proj.Db(self.uri, self.userName, self.password) as db_inst:
-                db_inst._run_cmd('MATCH (n) RETURN n')
-                
-        except neo4j.exceptions.ServiceUnavailable:
-            #normally except ConnectionRefusedError: is raised but is jumpred now i catch this for some reason
-            err_msgs.append(self.get_exc_msg("DATABASE NOT ACTIVE"))
-        except neo4j.exceptions.AuthError:
-            err_msgs.append(self.get_exc_msg("WRONG CREDENTIALS"))
-        except Exception:
-            err_msgs.append(self.get_exc_msg())
-       
-        if len(err_msgs) > 0: #failed
-            self.error_msgs[test_nickname] = err_msgs
+        self.db_inst = db_FILE.Db(self.uri, self.userName, self.password)
+
+        if len(self.db_inst.err_msgs) > 0: #failed
+            self.error_msgs[test_nickname] = self.db_inst.err_msgs
             return False
-        else:
-            self.db_inst = proj.Db(self.uri, self.userName, self.password)
-            self.print_msg(self.db_inst)
-            return True 
-        
-        
+        return True 
 
     """
     def test_create(self):
@@ -360,3 +350,64 @@ if __name__ == '__main__':
 
     with Test("bolt://localhost:7687", "neo4j", "0000") as test_session:
         test_session.run_tests()
+
+
+'''
+exc = 200
+import sys
+
+import traceback
+import sys
+
+def get_exception():
+    
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    
+    filename = exc_traceback.tb_frame.f_code.co_filename
+    lineno   = exc_traceback.tb_lineno
+    name     = exc_traceback.tb_frame.f_code.co_name
+    type_     = exc_type.__name__
+    message  = str(exc_value) # or see traceback._some_str()
+
+    #
+    trace_back = traceback.extract_tb(exc_traceback)
+    # Format stacktrace
+    stack_trace = list()
+    for trace in trace_back:
+        stack_trace.append(trace)
+    st = '\n'.join(str(x) for x in stack_trace)
+    #
+
+    deco_top = 'MATCHA ERROR'.center(50, '#')
+    deco_bottom = ''.center(50, '#')
+    err_msg = f"{type_} > {filename} [l{lineno}] in {name}  :: {st}"
+
+    return f'\n{deco_top}\n{err_msg}\n{deco_bottom}\n'
+
+class X:
+    
+    def __init__(self):
+        self.data = self.try_()
+        
+    def try_(self):
+        try:
+            return 3/0 
+        except Exception:
+            try:
+                raise ValueError
+            except Exception:
+                print(get_exception())
+            print(get_exception())
+            print(get_exception())
+            
+        
+    def __enter__(self):
+        return self
+    def __exit__(self,a,b,c):
+        print('exit called')
+
+
+
+with X() as i:
+    print(i.data)
+'''
