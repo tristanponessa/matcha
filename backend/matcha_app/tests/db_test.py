@@ -1,20 +1,21 @@
+# Standard library imports
 import sys
 import time
 import logging 
 import inspect
 import platform
-import neo4j
-from neo4j import GraphDatabase as neo4j_db
+import os
 from io import StringIO
 
+# Third party imports
+import neo4j
+from neo4j import GraphDatabase as neo4j_db
 
-os = platform.system()
-if os == 'Windows':
-    sys.path.append('C:/Users/trps/Documents/my_stuff/coding/matcha/backend/matcha_app/')
-if os == 'Darwin':
-    sys.path.append('/Users/trponess/Documents/matcha/backend/matcha_app/')
-
-import db as db_FILE
+#inner project
+f = os.path.dirname(__file__)
+x = os.path.join(f, '..')
+sys.path.append(x)
+import db
 
 
 class Test:
@@ -32,6 +33,7 @@ class Test:
     #***************************************************************************************
 
     def __init__(self, uri, userName, pwd, print_info=False):
+        #print_info it's own ouput, cql, tested_module_output, to stdout/file
         self.uri = uri
         self.userName = userName
         self.password = pwd
@@ -65,9 +67,16 @@ class Test:
         self.test_users.append({'sig':self.sig, 'name':'maria', 'email':'maria@crapmail.com', 'born':'10/04/1994', 'sex_ori':'male','ban':'false'})
         self.test_users.append({'sig':self.sig, 'name':'exodia', 'email':'exodia@dumpmail.com', 'born':'01/01/1996', 'sex_ori':'female','ban':'false'})
         self.test_users.append({'sig':self.sig, 'name':'iswear', 'email':'iswear@dumpmail.com', 'born':'02/07/1999', 'sex_ori':'male female','ban':'false'})
+    
+    
+    def set_output_files(self):
+        self.root = os.path.dirname(__file__)
+        self.cql_output = os.path.join(self.root, 'test_outputs/cql_cmds.txt')
+        self.tested_module_output = os.path.join(self.root, 'test_outputs/tested_module_output.txt')
 
     def get_instance_test_methods(self):
         #Test.__dict__ does not access self
+        #test_N_name makes them sorted alpha, so extra sorted needed
         all_fns = inspect.getmembers(self, predicate=inspect.ismethod)
         test_fns = [x[1] for x in all_fns if x[0].startswith('test')]
         return dict.fromkeys(test_fns) #all vals None
@@ -77,12 +86,16 @@ class Test:
         passed = list(filter(lambda res: res == True, self.tests.values()))
         failed = list(filter(lambda res: res == False, self.tests.values()))
         not_tested = list(filter(lambda res: res is None, self.tests.values()))
-        
+
+        #
         print(f'nb_tests:   {len(self.tests)}')
         print(str(' ' * 4) + f'passed:     {len(passed)}')
         print(str(' ' * 4) + f'failed:     {len(failed)}')
         print(str(' ' * 4) + f'not_tested: {len(not_tested)}')
 
+        #print_info
+
+        #error_msgs
         print()
         print(f'error msgs: {len(self.error_msgs)}')
         i = 0
@@ -134,7 +147,7 @@ class Test:
                   WHERE r.email = {r['email']}
                   SET r += {self.sig}
                 '''
-        self.run_cmd(cql)
+        self.db_inst._run_cmd(cql)
 
     def timestamp(self):
         epoch_now = time.time()
@@ -177,7 +190,11 @@ class Test:
                         print(node.items())
         print('end'.center(100, '-'))
         print('*' * 100)  #to stock inside log text box 
-
+    
+    def write_file(self, line, file):
+        #clear everytime
+        with open(file, 'w+') as f:
+            f.writelines([line])
 
     def print_log(self, msg, override=False):
         if self.print_info or override:
@@ -189,23 +206,21 @@ class Test:
     
     def print_cql(self, msg, override=False):
         if self.print_info or override:
-            print(self.timestamp().center(100, '*'))
-            print(f'CQL >>> {msg}'.ljust(50))
+            self.write_file(self.timestamp().center(100, '*'), self.cql_output)
+            self.write_file(f'CQL >>> {msg}'.ljust(50), self.cql_output)
             #print('*' * 100)     #can output inside print_obj_res to form a box
     
     def print_msg(self, msg, override=False):
         if self.print_info or override:
-            print(msg)
+            self.write_file(msg, self.tested_module_output)
 
     def run_cmd(self, cmd, return_type=''):
         self.print_cql(cmd)
         r = self.db_inst._run_cmd(cmd, return_type)
+        if 'create' in cmd.tolower():
+            self.add_testsig_to_node(r)
         self.print_obj_res(r)
         return r
-    
-    def create_cmd(self, cmd):
-        r = self.db_inst.create_user(cmd)
-        self.add_testsig_to_node(r)
 
 
     #########################################################################################################################################################
@@ -214,7 +229,8 @@ class Test:
         fail = False
         for i,test in enumerate(self.tests.keys()):
             print(f'TEST {i}. {test.__name__} '.ljust(100, '-'), end=' ')
-            res = test()
+            if not fail:
+                res = test()
             if fail:
                 print(f'?'.ljust(20))
             elif res:
@@ -228,33 +244,34 @@ class Test:
 
     #TESTS ############################################################
 
-    def test_db_connection(self):
+    def test_1_db_connection(self):
         test_nickname = 'test_db_connection'  #no way to get name of fun in fun
 
-        self.db_inst = db_FILE.Db(self.uri, self.userName, self.password)
+        self.db_inst = db.Db(self.uri, self.userName, self.password)
 
         if len(self.db_inst.err_msgs) > 0: #failed
             self.error_msgs[test_nickname] = self.db_inst.err_msgs
             return False
         return True 
 
-    """
-    def test_create(self):
+    
+    def test_2_create(self):
         #check for dups
         #only check names
-        self.test_print(self.db_inst)
-        self.test_print('-----')
-
-        for t in self.test_users:
-            self.db_inst.create_user(t)
-        for t in self.test_users:
-            self.db_inst.create_user(t)
         
-        r = self.db_inst._run_cmd(self.cmds('match_props', self.test_users))
-        self.assertEquals(len(r), len(self.test_users))
+        for t in self.test_users:
+            cql = self.db_inst.cql_create_user(t)
+            self.db_inst._run_cmd(cql)
+        for t in self.test_users:
+            cql = self.db_inst.cql_create_user(t)
+            self.db_inst._run_cmd(cql)
+        
+        r = self.db_inst._run_cmd(f'match (p) where p.email="" return p')
+        return len(r) == len(self.test_users)
+    
     
 
-    
+    """
     #test_create must suceed ot run this test
     def test_ban(self):
         email = 'bad@crapmail.com'
@@ -348,7 +365,10 @@ if __name__ == '__main__':
         TestDb.PASSWORD = sys.argv.pop()
     '''
 
-    with Test("bolt://localhost:7687", "neo4j", "0000") as test_session:
+    
+
+    #['cql': 'file', 'tested_module': 'file', 'exceptions']
+    with Test("bolt://localhost:7687", "neo4j", "0000", True) as test_session:
         test_session.run_tests()
 
 
