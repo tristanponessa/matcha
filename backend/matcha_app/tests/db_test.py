@@ -43,6 +43,7 @@ class Test:
 
         self.set_test_data() #all the data the tests are gonna use
         self.tests = self.get_instance_test_methods() #all the tests to launch
+        self.set_output_files()
         self.error_msgs = dict() #{for_test: msg} to print in conclusion
 
         self.output_buffer = ''
@@ -61,18 +62,21 @@ class Test:
 
     def set_test_data(self):
         self.test_users = []
-        self.test_users.append({'sig':self.sig, 'name':'crash', 'email':'crash@crapmail.com', 'born':'27/02/1996', 'sex_ori':'female','ban':'false'})
-        self.test_users.append({'sig':self.sig, 'name':'crash', 'email':'crash_2@crapmail.com' , 'born':'27/02/1996', 'sex_ori':'female', 'ban':'false'})
-        self.test_users.append({'sig':self.sig, 'name':'crash', 'email':'bad@crapmail.com' , 'born':'27/02/1996', 'sex_ori':'female', 'ban':'false'})
-        self.test_users.append({'sig':self.sig, 'name':'maria', 'email':'maria@crapmail.com', 'born':'10/04/1994', 'sex_ori':'male','ban':'false'})
-        self.test_users.append({'sig':self.sig, 'name':'exodia', 'email':'exodia@dumpmail.com', 'born':'01/01/1996', 'sex_ori':'female','ban':'false'})
-        self.test_users.append({'sig':self.sig, 'name':'iswear', 'email':'iswear@dumpmail.com', 'born':'02/07/1999', 'sex_ori':'male female','ban':'false'})
+        self.test_users.append({'sig':self.sig, 'name':'crash', 'email':'crash@crapmail.com', 'birthdate':'27/02/1996', 'sex_ori':'female','ban':'false'})
+        self.test_users.append({'sig':self.sig, 'name':'crash', 'email':'crash_2@crapmail.com' , 'birthdate':'27/02/1996', 'sex_ori':'female', 'ban':'false'})
+        self.test_users.append({'sig':self.sig, 'name':'crash', 'email':'bad@crapmail.com' , 'birthdate':'27/02/1996', 'sex_ori':'female', 'ban':'false'})
+        self.test_users.append({'sig':self.sig, 'name':'maria', 'email':'maria@crapmail.com', 'birthdate':'10/04/1994', 'sex_ori':'male','ban':'false'})
+        self.test_users.append({'sig':self.sig, 'name':'exodia', 'email':'exodia@dumpmail.com', 'birthdate':'01/01/1996', 'sex_ori':'female','ban':'false'})
+        self.test_users.append({'sig':self.sig, 'name':'iswear', 'email':'iswear@dumpmail.com', 'birthdate':'02/07/1999', 'sex_ori':'male female','ban':'false'})
     
     
     def set_output_files(self):
         self.root = os.path.dirname(__file__)
         self.cql_output = os.path.join(self.root, 'test_outputs/cql_cmds.txt')
         self.tested_module_output = os.path.join(self.root, 'test_outputs/tested_module_output.txt')
+
+        self.empty_file(self.cql_output)
+        self.empty_file(self.tested_module_output)
 
     def get_instance_test_methods(self):
         #Test.__dict__ does not access self
@@ -143,9 +147,9 @@ class Test:
     #UTIL FNS#########################################################################################################################################
 
     def add_testsig_to_node(self, r):
-        cql = f'''MATCH (r)
-                  WHERE r.email = {r['email']}
-                  SET r += {self.sig}
+        cql = f'''MATCH (p)
+                  WHERE p.email = "{r['email']}"
+                  SET p.sig = "{self.sig}"
                 '''
         self.db_inst._run_cmd(cql)
 
@@ -157,43 +161,50 @@ class Test:
         
     def print_obj_res(self, result, override=False):
         
-        if not self.print_info and not override:
+        if self.print_info == False and override == False:
             return 
 
-        print('db res'.center(100, '-'))
+        self.write_file('db res'.center(100, '-'))
 
         if isinstance(result,str): #relationships are strings
-                        print(result)
+                        self.write_file(result)
         #neo4j.Result.data -> lst of dicts 
         elif isinstance(result,list):
             for lst_elem in result:
                 
                 for k,v in lst_elem.items():
-                    print(f'cql return var:{k}', end=' -> ')
-                    print(v)
+                    self.write_file(f'cql return var:{k} -> {v}')
+                    
+
                     
         else:
             #neo4j.Result gets moved out the iter causing res to be empty
             #i didnt find a way to do a copy of this obj
             for record in result:
-                print(record.keys())
+                self.write_file(record.keys())
                 for cql_return_tag in record.keys():
                     
-                    print('cql return var: ', cql_return_tag)
+                    self.write_file('cql return var: ', cql_return_tag)
                     node = record[cql_return_tag]
-                    #print(record.keys())
-                    #print(type(record['n']))
+                    #self.write_file(record.keys())
+                    #self.write_file(type(record['n']))
                     if isinstance(node,str): #relationships are strings
-                        print(node)
+                        self.write_file(node)
                     else:
-                        print(node.labels, end=' ')
-                        print(node.items())
-        print('end'.center(100, '-'))
-        print('*' * 100)  #to stock inside log text box 
+                        self.write_file(f'{node.labels} {node.items()}')
+        self.write_file('end'.center(100, '-'))
+        self.write_file('*' * 100)  #to stock inside log text box 
     
-    def write_file(self, line, file):
+    def empty_file(self, file):
+        with open(file, 'w') as f:
+            pass
+
+    def write_file(self, line, file=''):
         #clear everytime
-        with open(file, 'w+') as f:
+        if file == '':
+            file = self.cql_output
+        with open(file, 'a') as f:
+            line += '\n'
             f.writelines([line])
 
     def print_log(self, msg, override=False):
@@ -217,8 +228,8 @@ class Test:
     def run_cmd(self, cmd, return_type=''):
         self.print_cql(cmd)
         r = self.db_inst._run_cmd(cmd, return_type)
-        if 'create' in cmd.tolower():
-            self.add_testsig_to_node(r)
+        if 'create' in cmd.lower():
+            self.add_testsig_to_node(r[0])
         self.print_obj_res(r)
         return r
 
@@ -261,13 +272,14 @@ class Test:
         
         for t in self.test_users:
             cql = self.db_inst.cql_create_user(t)
-            self.db_inst._run_cmd(cql)
+            self.run_cmd(cql)
         for t in self.test_users:
             cql = self.db_inst.cql_create_user(t)
-            self.db_inst._run_cmd(cql)
+            self.run_cmd(cql)
         
-        r = self.db_inst._run_cmd(f'match (p) where p.email="" return p')
-        return len(r) == len(self.test_users)
+        #r = self.db_inst._run_cmd(f'match (p) where p.email="" return p')
+        #return len(r) == len(self.test_users)
+        return False
     
     
 
@@ -333,7 +345,7 @@ class Test:
         print(len(all))
         all = self.driver.fetch_all('email', '-') 
         print(len(all))
-        all = self.driver.fetch_all('born', '-') 
+        all = self.driver.fetch_all('birthdate', '-') 
         print(len(all))
         all = self.driver.fetch_all('email', '+', {'name':'crash'}) #filter
         print(len(all))
@@ -344,7 +356,7 @@ class Test:
         all = self.driver.fetch_all('email', '+', {'name':'crash','ban':'false'}) #filter
         print(len(all))
         #assertequals(len(all) == 1)
-        all = self.driver.fetch_all('email', '+', {'name':'crash','born':'27/02/1996'}) #filter
+        all = self.driver.fetch_all('email', '+', {'name':'crash','birthdate':'27/02/1996'}) #filter
         print(len(all))
         #assertequals(len(all) == 3)
         all = self.driver.fetch_all('email', '+', {'slddls':'07ii'}) #non existed filter
