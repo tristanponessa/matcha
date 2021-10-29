@@ -45,10 +45,6 @@ class Db:
         
         self.try_connection(uri, userName, password)
 
-        print('zigoo')
-        l = [1,2,3]
-        print(*l, sep='\n', end='END')
-
     def __enter__(self):
         return self
     
@@ -94,7 +90,7 @@ class Db:
         #1.converts str to cql types for correct sorting/filtering
         #neo4j proposes a format string with $var instead of {}
         #2.{'name':'val'} converts to -> {name:'val'}
-        
+        d = d.copy() #pyhton nevevr implicitly copies, we just want to temp change this val like this for conveniance
         d['birthdate'] = self._cql_type('date', d['birthdate'])
         #if k == 'date':
             #v = self._cql_type('timestamp', v)
@@ -148,9 +144,10 @@ class Db:
         return cql_cmd
     
     def cql_create_user(self, props):
+        #merge prevents duplication
         props = self._cql_formater(props)
         cql_cmd = f'''
-                    CREATE (p{props})
+                    MERGE (p{props})
                     RETURN p
                   '''
         return cql_cmd

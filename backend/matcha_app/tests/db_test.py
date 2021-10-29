@@ -61,12 +61,12 @@ class Test:
 
     def set_test_data(self):
         self.test_users = []
-        self.test_users.append({'sig':self.sig, 'name':'crash', 'email':'crash@crapmail.com', 'birthdate':'27/02/1996', 'sex_ori':'female','ban':'false'})
-        self.test_users.append({'sig':self.sig, 'name':'crash', 'email':'crash_2@crapmail.com' , 'birthdate':'27/02/1996', 'sex_ori':'female', 'ban':'false'})
-        self.test_users.append({'sig':self.sig, 'name':'crash', 'email':'bad@crapmail.com' , 'birthdate':'27/02/1996', 'sex_ori':'female', 'ban':'false'})
-        self.test_users.append({'sig':self.sig, 'name':'maria', 'email':'maria@crapmail.com', 'birthdate':'10/04/1994', 'sex_ori':'male','ban':'false'})
-        self.test_users.append({'sig':self.sig, 'name':'exodia', 'email':'exodia@dumpmail.com', 'birthdate':'01/01/1996', 'sex_ori':'female','ban':'false'})
-        self.test_users.append({'sig':self.sig, 'name':'iswear', 'email':'iswear@dumpmail.com', 'birthdate':'02/07/1999', 'sex_ori':'male female','ban':'false'})
+        self.test_users.append({ 'name':'crash', 'email':'crash@crapmail.com', 'birthdate':'27/02/1996', 'sex_ori':'female','ban':'false'})
+        self.test_users.append({ 'name':'crash', 'email':'crash_2@crapmail.com' , 'birthdate':'27/02/1996', 'sex_ori':'female', 'ban':'false'})
+        self.test_users.append({ 'name':'crash', 'email':'bad@crapmail.com' , 'birthdate':'27/02/1996', 'sex_ori':'female', 'ban':'false'})
+        self.test_users.append({ 'name':'maria', 'email':'maria@crapmail.com', 'birthdate':'10/04/1994', 'sex_ori':'male','ban':'false'})
+        self.test_users.append({ 'name':'exodia', 'email':'exodia@dumpmail.com', 'birthdate':'01/01/1996', 'sex_ori':'female','ban':'false'})
+        self.test_users.append({ 'name':'iswear', 'email':'iswear@dumpmail.com', 'birthdate':'02/07/1999', 'sex_ori':'male female','ban':'false'})
     
     
     def set_output_files(self):
@@ -109,7 +109,8 @@ class Test:
                     self.print_(str(' ' * 8) + f'>exception {i}<')
                     self.print_(str(' ' * 12) + p)
             else:
-                self.print_(str(' ' * 4) + msg)
+                self.print_(str(' ' * 8) + msg)
+        self.print_()
 
 
     
@@ -125,11 +126,11 @@ class Test:
                              '''
         
         self.print_('BEFORE CLEAN')
-        n = db_inst._run_cmd(cql_nb_test_nodes)
+        n = self.run_cmd(cql_nb_test_nodes)
         self.print_(str(' ' * 4) + f'nb_nodes:{n}' )
-        db_inst._run_cmd(cql_clean)
+        self.run_cmd(cql_clean)
         self.print_('AFTER CLEAN')
-        n = db_inst._run_cmd(cql_nb_test_nodes)
+        n = self.run_cmd(cql_nb_test_nodes)
         self.print_(str(' ' * 4) + f'nb_nodes:{n}' )
 
     def print_(self, *args, **kwargs):
@@ -162,17 +163,23 @@ class Test:
 
         self.write_file('db res'.center(100, '-'))
 
-        if isinstance(result,str): #relationships are strings
-                        self.write_file(result)
-        #neo4j.Result.data -> lst of dicts 
-        elif isinstance(result,list):
-            for lst_elem in result:
+        if isinstance(result,list):
+            for i,lst_elem in enumerate(result):
+                self.write_file(f'lst elem {i}')
+                #i tried with 'items' in dir(lst_elem) but it inherits so it dont show in this dir, also isinstance( , dict) obj it has items but not dict items() even though their identical
+                try: 
+                    for k,v in lst_elem.items():
+                        self.write_file(str(' ' * 4) + f'{k} -> {v}')
+                except AttributeError:
+                    self.write_file(str(' ' * 4) + f'{lst_elem}')
+        else: #like for cql fn count()
+            self.write_file(result)
+                    
                 
-                for k,v in lst_elem.items():
-                    self.write_file(f'cql return var:{k} -> {v}')
                     
 
-                    
+        '''       
+        #neo4j.Result.data -> lst of dicts 
         else:
             #neo4j.Result gets moved out the iter causing res to be empty
             #i didnt find a way to do a copy of this obj
@@ -188,8 +195,11 @@ class Test:
                         self.write_file(node)
                     else:
                         self.write_file(f'{node.labels} {node.items()}')
+        '''
+
         self.write_file('end'.center(100, '-'))
         self.write_file('*' * 100)  #to stock inside log text box 
+
     
     def empty_file(self, file):
         with open(file, 'w') as f:
@@ -204,32 +214,49 @@ class Test:
         with open(file, 'a') as f:
             lines += '\n'
             f.writelines(lines)
-
-    def print_log(self, msg, override=False):
+    
+    '''
+    def print_debug(self, msg, override=False):
         if self.print_info or override:
             #to print in testttest
-            logging.basicConfig(stream=sys.stderr)
+            logging.basicConfig(stream=sys.stdout)
             log = logging.getLogger("TestDb")
             log.setLevel(logging.DEBUG)
             log.debug(msg)
-    
+    '''
+
     def print_cql(self, msg, override=False):
         if self.print_info or override:
             self.write_file(self.timestamp().center(100, '*'), self.cql_output)
             self.write_file(f'CQL >>> {msg}'.ljust(50), self.cql_output)
             #self.print_('*' * 100)     #can output inside print_obj_res to form a box
     
+    '''
     def print_msg(self, msg, file, override=False):
         if self.print_info or override:
             self.write_file(msg, file)
+    '''
 
     def run_cmd(self, cmd, return_type=''):
         self.print_cql(cmd)
         r = self.db_inst._run_cmd(cmd, return_type)
-        if 'create' in cmd.lower():
+        if 'create' in cmd.lower() or 'merge' in cmd.lower():
             self.add_testsig_to_node(r[0])
         self.print_obj_res(r)
         return r
+    
+    def cmds(self, which, lst):
+        if which == 'match_props':
+            j = []
+            for t in lst:
+                j.append(f'''p.email="{t['email']}"''')
+            j = ' OR '.join(j)
+            x = f'''
+                    MATCH (p)
+                    WHERE {j}
+                    RETURN p
+            '''
+            return x
 
 
     #########################################################################################################################################################
@@ -267,6 +294,7 @@ class Test:
     def test_2_create(self):
         #check for dups
         #only check names
+        test_nickname = 'create'
         
         for t in self.test_users:
             cql = self.db_inst.cql_create_user(t)
@@ -275,9 +303,11 @@ class Test:
             cql = self.db_inst.cql_create_user(t)
             self.run_cmd(cql)
         
-        #r = self.db_inst._run_cmd(f'match (p) where p.email="" return p')
-        #return len(r) == len(self.test_users)
-        return False
+        r = self.run_cmd(self.cmds('match_props', self.test_users))
+        if len(r) != len(self.test_users):
+            self.error_msgs[test_nickname] = f'to create {len(self.test_users)} created {len(r)}'
+        else:
+            return True
     
     
 
@@ -382,62 +412,3 @@ if __name__ == '__main__':
         test_session.run_tests()
 
 
-'''
-exc = 200
-import sys
-
-import traceback
-import sys
-
-def get_exception():
-    
-    exc_type, exc_value, exc_traceback = sys.exc_info()
-    
-    filename = exc_traceback.tb_frame.f_code.co_filename
-    lineno   = exc_traceback.tb_lineno
-    name     = exc_traceback.tb_frame.f_code.co_name
-    type_     = exc_type.__name__
-    message  = str(exc_value) # or see traceback._some_str()
-
-    #
-    trace_back = traceback.extract_tb(exc_traceback)
-    # Format stacktrace
-    stack_trace = list()
-    for trace in trace_back:
-        stack_trace.append(trace)
-    st = '\n'.join(str(x) for x in stack_trace)
-    #
-
-    deco_top = 'MATCHA ERROR'.center(50, '#')
-    deco_bottom = ''.center(50, '#')
-    err_msg = f"{type_} > {filename} [l{lineno}] in {name}  :: {st}"
-
-    return f'\n{deco_top}\n{err_msg}\n{deco_bottom}\n'
-
-class X:
-    
-    def __init__(self):
-        self.data = self.try_()
-        
-    def try_(self):
-        try:
-            return 3/0 
-        except Exception:
-            try:
-                raise ValueError
-            except Exception:
-                self.print_(get_exception())
-            self.print_(get_exception())
-            self.print_(get_exception())
-            
-        
-    def __enter__(self):
-        return self
-    def __exit__(self,a,b,c):
-        self.print_('exit called')
-
-
-
-with X() as i:
-    self.print_(i.data)
-'''

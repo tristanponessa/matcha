@@ -1,168 +1,253 @@
-****************************************2021-10-29 15:40:01*****************************************
+****************************************2021-10-29 18:08:39*****************************************
 CQL >>> 
-                    CREATE (p{sig: "tmp_test_data_session_2021-10-29 15:40:01", name: "crash", email: "crash@crapmail.com", birthdate: "date('27/02/1996')", sex_ori: "female", ban: "false"})
+                    MERGE (p{name: "crash", email: "crash@crapmail.com", birthdate: "date('27/02/1996')", sex_ori: "female", ban: "false"})
                     RETURN p
                   
 -----------------------------------------------db res-----------------------------------------------
-cql return var:sex_ori -> female
-cql return var:sig -> tmp_test_data_session_2021-10-29 15:40:01
-cql return var:birthdate -> date('27/02/1996')
-cql return var:name -> crash
-cql return var:email -> crash@crapmail.com
-cql return var:ban -> false
+lst elem 0
+    sex_ori -> female
+    name -> crash
+    birthdate -> date('27/02/1996')
+    email -> crash@crapmail.com
+    ban -> false
 ------------------------------------------------end-------------------------------------------------
 ****************************************************************************************************
-****************************************2021-10-29 15:40:01*****************************************
+****************************************2021-10-29 18:08:39*****************************************
 CQL >>> 
-                    CREATE (p{sig: "tmp_test_data_session_2021-10-29 15:40:01", name: "crash", email: "crash_2@crapmail.com", birthdate: "date('27/02/1996')", sex_ori: "female", ban: "false"})
+                    MERGE (p{name: "crash", email: "crash_2@crapmail.com", birthdate: "date('27/02/1996')", sex_ori: "female", ban: "false"})
                     RETURN p
                   
 -----------------------------------------------db res-----------------------------------------------
-cql return var:sex_ori -> female
-cql return var:sig -> tmp_test_data_session_2021-10-29 15:40:01
-cql return var:birthdate -> date('27/02/1996')
-cql return var:name -> crash
-cql return var:email -> crash_2@crapmail.com
-cql return var:ban -> false
+lst elem 0
+    sex_ori -> female
+    name -> crash
+    birthdate -> date('27/02/1996')
+    email -> crash_2@crapmail.com
+    ban -> false
 ------------------------------------------------end-------------------------------------------------
 ****************************************************************************************************
-****************************************2021-10-29 15:40:02*****************************************
+****************************************2021-10-29 18:08:39*****************************************
 CQL >>> 
-                    CREATE (p{sig: "tmp_test_data_session_2021-10-29 15:40:01", name: "crash", email: "bad@crapmail.com", birthdate: "date('27/02/1996')", sex_ori: "female", ban: "false"})
+                    MERGE (p{name: "crash", email: "bad@crapmail.com", birthdate: "date('27/02/1996')", sex_ori: "female", ban: "false"})
                     RETURN p
                   
 -----------------------------------------------db res-----------------------------------------------
-cql return var:sex_ori -> female
-cql return var:sig -> tmp_test_data_session_2021-10-29 15:40:01
-cql return var:birthdate -> date('27/02/1996')
-cql return var:name -> crash
-cql return var:email -> bad@crapmail.com
-cql return var:ban -> false
+lst elem 0
+    sex_ori -> female
+    name -> crash
+    birthdate -> date('27/02/1996')
+    email -> bad@crapmail.com
+    ban -> false
 ------------------------------------------------end-------------------------------------------------
 ****************************************************************************************************
-****************************************2021-10-29 15:40:02*****************************************
+****************************************2021-10-29 18:08:39*****************************************
 CQL >>> 
-                    CREATE (p{sig: "tmp_test_data_session_2021-10-29 15:40:01", name: "maria", email: "maria@crapmail.com", birthdate: "date('10/04/1994')", sex_ori: "male", ban: "false"})
+                    MERGE (p{name: "maria", email: "maria@crapmail.com", birthdate: "date('10/04/1994')", sex_ori: "male", ban: "false"})
                     RETURN p
                   
 -----------------------------------------------db res-----------------------------------------------
-cql return var:sex_ori -> male
-cql return var:sig -> tmp_test_data_session_2021-10-29 15:40:01
-cql return var:birthdate -> date('10/04/1994')
-cql return var:name -> maria
-cql return var:email -> maria@crapmail.com
-cql return var:ban -> false
+lst elem 0
+    sex_ori -> male
+    name -> maria
+    birthdate -> date('10/04/1994')
+    email -> maria@crapmail.com
+    ban -> false
 ------------------------------------------------end-------------------------------------------------
 ****************************************************************************************************
-****************************************2021-10-29 15:40:02*****************************************
+****************************************2021-10-29 18:08:39*****************************************
 CQL >>> 
-                    CREATE (p{sig: "tmp_test_data_session_2021-10-29 15:40:01", name: "exodia", email: "exodia@dumpmail.com", birthdate: "date('01/01/1996')", sex_ori: "female", ban: "false"})
+                    MERGE (p{name: "exodia", email: "exodia@dumpmail.com", birthdate: "date('01/01/1996')", sex_ori: "female", ban: "false"})
                     RETURN p
                   
 -----------------------------------------------db res-----------------------------------------------
-cql return var:sex_ori -> female
-cql return var:sig -> tmp_test_data_session_2021-10-29 15:40:01
-cql return var:birthdate -> date('01/01/1996')
-cql return var:name -> exodia
-cql return var:email -> exodia@dumpmail.com
-cql return var:ban -> false
+lst elem 0
+    sex_ori -> female
+    name -> exodia
+    birthdate -> date('01/01/1996')
+    email -> exodia@dumpmail.com
+    ban -> false
 ------------------------------------------------end-------------------------------------------------
 ****************************************************************************************************
-****************************************2021-10-29 15:40:02*****************************************
+****************************************2021-10-29 18:08:39*****************************************
 CQL >>> 
-                    CREATE (p{sig: "tmp_test_data_session_2021-10-29 15:40:01", name: "iswear", email: "iswear@dumpmail.com", birthdate: "date('02/07/1999')", sex_ori: "male female", ban: "false"})
+                    MERGE (p{name: "iswear", email: "iswear@dumpmail.com", birthdate: "date('02/07/1999')", sex_ori: "male female", ban: "false"})
                     RETURN p
                   
 -----------------------------------------------db res-----------------------------------------------
-cql return var:sex_ori -> male female
-cql return var:sig -> tmp_test_data_session_2021-10-29 15:40:01
-cql return var:birthdate -> date('02/07/1999')
-cql return var:name -> iswear
-cql return var:email -> iswear@dumpmail.com
-cql return var:ban -> false
+lst elem 0
+    sex_ori -> male female
+    name -> iswear
+    birthdate -> date('02/07/1999')
+    email -> iswear@dumpmail.com
+    ban -> false
 ------------------------------------------------end-------------------------------------------------
 ****************************************************************************************************
-****************************************2021-10-29 15:40:02*****************************************
+****************************************2021-10-29 18:08:39*****************************************
 CQL >>> 
-                    CREATE (p{sig: "tmp_test_data_session_2021-10-29 15:40:01", name: "crash", email: "crash@crapmail.com", birthdate: "date('date('27/02/1996')')", sex_ori: "female", ban: "false"})
+                    MERGE (p{name: "crash", email: "crash@crapmail.com", birthdate: "date('27/02/1996')", sex_ori: "female", ban: "false"})
                     RETURN p
                   
 -----------------------------------------------db res-----------------------------------------------
-cql return var:sex_ori -> female
-cql return var:sig -> tmp_test_data_session_2021-10-29 15:40:01
-cql return var:birthdate -> date('date('27/02/1996')')
-cql return var:name -> crash
-cql return var:email -> crash@crapmail.com
-cql return var:ban -> false
+lst elem 0
+    sex_ori -> female
+    sig -> tmp_test_data_session_2021-10-29 18:08:39
+    birthdate -> date('27/02/1996')
+    name -> crash
+    email -> crash@crapmail.com
+    ban -> false
 ------------------------------------------------end-------------------------------------------------
 ****************************************************************************************************
-****************************************2021-10-29 15:40:02*****************************************
+****************************************2021-10-29 18:08:39*****************************************
 CQL >>> 
-                    CREATE (p{sig: "tmp_test_data_session_2021-10-29 15:40:01", name: "crash", email: "crash_2@crapmail.com", birthdate: "date('date('27/02/1996')')", sex_ori: "female", ban: "false"})
+                    MERGE (p{name: "crash", email: "crash_2@crapmail.com", birthdate: "date('27/02/1996')", sex_ori: "female", ban: "false"})
                     RETURN p
                   
 -----------------------------------------------db res-----------------------------------------------
-cql return var:sex_ori -> female
-cql return var:sig -> tmp_test_data_session_2021-10-29 15:40:01
-cql return var:birthdate -> date('date('27/02/1996')')
-cql return var:name -> crash
-cql return var:email -> crash_2@crapmail.com
-cql return var:ban -> false
+lst elem 0
+    sex_ori -> female
+    sig -> tmp_test_data_session_2021-10-29 18:08:39
+    birthdate -> date('27/02/1996')
+    name -> crash
+    email -> crash_2@crapmail.com
+    ban -> false
 ------------------------------------------------end-------------------------------------------------
 ****************************************************************************************************
-****************************************2021-10-29 15:40:02*****************************************
+****************************************2021-10-29 18:08:39*****************************************
 CQL >>> 
-                    CREATE (p{sig: "tmp_test_data_session_2021-10-29 15:40:01", name: "crash", email: "bad@crapmail.com", birthdate: "date('date('27/02/1996')')", sex_ori: "female", ban: "false"})
+                    MERGE (p{name: "crash", email: "bad@crapmail.com", birthdate: "date('27/02/1996')", sex_ori: "female", ban: "false"})
                     RETURN p
                   
 -----------------------------------------------db res-----------------------------------------------
-cql return var:sex_ori -> female
-cql return var:sig -> tmp_test_data_session_2021-10-29 15:40:01
-cql return var:birthdate -> date('date('27/02/1996')')
-cql return var:name -> crash
-cql return var:email -> bad@crapmail.com
-cql return var:ban -> false
+lst elem 0
+    sex_ori -> female
+    sig -> tmp_test_data_session_2021-10-29 18:08:39
+    birthdate -> date('27/02/1996')
+    name -> crash
+    email -> bad@crapmail.com
+    ban -> false
 ------------------------------------------------end-------------------------------------------------
 ****************************************************************************************************
-****************************************2021-10-29 15:40:02*****************************************
+****************************************2021-10-29 18:08:39*****************************************
 CQL >>> 
-                    CREATE (p{sig: "tmp_test_data_session_2021-10-29 15:40:01", name: "maria", email: "maria@crapmail.com", birthdate: "date('date('10/04/1994')')", sex_ori: "male", ban: "false"})
+                    MERGE (p{name: "maria", email: "maria@crapmail.com", birthdate: "date('10/04/1994')", sex_ori: "male", ban: "false"})
                     RETURN p
                   
 -----------------------------------------------db res-----------------------------------------------
-cql return var:sex_ori -> male
-cql return var:sig -> tmp_test_data_session_2021-10-29 15:40:01
-cql return var:birthdate -> date('date('10/04/1994')')
-cql return var:name -> maria
-cql return var:email -> maria@crapmail.com
-cql return var:ban -> false
+lst elem 0
+    sex_ori -> male
+    sig -> tmp_test_data_session_2021-10-29 18:08:39
+    birthdate -> date('10/04/1994')
+    name -> maria
+    email -> maria@crapmail.com
+    ban -> false
 ------------------------------------------------end-------------------------------------------------
 ****************************************************************************************************
-****************************************2021-10-29 15:40:02*****************************************
+****************************************2021-10-29 18:08:39*****************************************
 CQL >>> 
-                    CREATE (p{sig: "tmp_test_data_session_2021-10-29 15:40:01", name: "exodia", email: "exodia@dumpmail.com", birthdate: "date('date('01/01/1996')')", sex_ori: "female", ban: "false"})
+                    MERGE (p{name: "exodia", email: "exodia@dumpmail.com", birthdate: "date('01/01/1996')", sex_ori: "female", ban: "false"})
                     RETURN p
                   
 -----------------------------------------------db res-----------------------------------------------
-cql return var:sex_ori -> female
-cql return var:sig -> tmp_test_data_session_2021-10-29 15:40:01
-cql return var:birthdate -> date('date('01/01/1996')')
-cql return var:name -> exodia
-cql return var:email -> exodia@dumpmail.com
-cql return var:ban -> false
+lst elem 0
+    sig -> tmp_test_data_session_2021-10-29 18:08:39
+    sex_ori -> female
+    birthdate -> date('01/01/1996')
+    name -> exodia
+    email -> exodia@dumpmail.com
+    ban -> false
 ------------------------------------------------end-------------------------------------------------
 ****************************************************************************************************
-****************************************2021-10-29 15:40:02*****************************************
+****************************************2021-10-29 18:08:39*****************************************
 CQL >>> 
-                    CREATE (p{sig: "tmp_test_data_session_2021-10-29 15:40:01", name: "iswear", email: "iswear@dumpmail.com", birthdate: "date('date('02/07/1999')')", sex_ori: "male female", ban: "false"})
+                    MERGE (p{name: "iswear", email: "iswear@dumpmail.com", birthdate: "date('02/07/1999')", sex_ori: "male female", ban: "false"})
                     RETURN p
                   
 -----------------------------------------------db res-----------------------------------------------
-cql return var:sex_ori -> male female
-cql return var:sig -> tmp_test_data_session_2021-10-29 15:40:01
-cql return var:birthdate -> date('date('02/07/1999')')
-cql return var:name -> iswear
-cql return var:email -> iswear@dumpmail.com
-cql return var:ban -> false
+lst elem 0
+    sig -> tmp_test_data_session_2021-10-29 18:08:39
+    sex_ori -> male female
+    birthdate -> date('02/07/1999')
+    name -> iswear
+    email -> iswear@dumpmail.com
+    ban -> false
+------------------------------------------------end-------------------------------------------------
+****************************************************************************************************
+****************************************2021-10-29 18:08:39*****************************************
+CQL >>> 
+                    MATCH (p)
+                    WHERE p.email="crash@crapmail.com" OR p.email="crash_2@crapmail.com" OR p.email="bad@crapmail.com" OR p.email="maria@crapmail.com" OR p.email="exodia@dumpmail.com" OR p.email="iswear@dumpmail.com"
+                    RETURN p
+            
+-----------------------------------------------db res-----------------------------------------------
+lst elem 0
+    sex_ori -> female
+    sig -> tmp_test_data_session_2021-10-29 18:08:39
+    birthdate -> date('27/02/1996')
+    name -> crash
+    email -> crash_2@crapmail.com
+    ban -> false
+lst elem 1
+    sex_ori -> female
+    sig -> tmp_test_data_session_2021-10-29 18:08:39
+    birthdate -> date('27/02/1996')
+    name -> crash
+    email -> bad@crapmail.com
+    ban -> false
+lst elem 2
+    sex_ori -> male
+    sig -> tmp_test_data_session_2021-10-29 18:08:39
+    birthdate -> date('10/04/1994')
+    name -> maria
+    email -> maria@crapmail.com
+    ban -> false
+lst elem 3
+    sex_ori -> female
+    sig -> tmp_test_data_session_2021-10-29 18:08:39
+    birthdate -> date('27/02/1996')
+    name -> crash
+    email -> crash@crapmail.com
+    ban -> false
+lst elem 4
+    sig -> tmp_test_data_session_2021-10-29 18:08:39
+    sex_ori -> female
+    birthdate -> date('01/01/1996')
+    name -> exodia
+    email -> exodia@dumpmail.com
+    ban -> false
+lst elem 5
+    sig -> tmp_test_data_session_2021-10-29 18:08:39
+    sex_ori -> male female
+    birthdate -> date('02/07/1999')
+    name -> iswear
+    email -> iswear@dumpmail.com
+    ban -> false
+------------------------------------------------end-------------------------------------------------
+****************************************************************************************************
+****************************************2021-10-29 18:08:39*****************************************
+CQL >>> 
+                                MATCH (all) WHERE all.sig='tmp_test_data_session_2021-10-29 18:08:39'
+                                RETURN count(all)
+                             
+-----------------------------------------------db res-----------------------------------------------
+lst elem 0
+    6
+------------------------------------------------end-------------------------------------------------
+****************************************************************************************************
+****************************************2021-10-29 18:08:39*****************************************
+CQL >>> 
+                        MATCH (all) WHERE all.sig='tmp_test_data_session_2021-10-29 18:08:39'
+                        DELETE all
+                    
+-----------------------------------------------db res-----------------------------------------------
+------------------------------------------------end-------------------------------------------------
+****************************************************************************************************
+****************************************2021-10-29 18:08:40*****************************************
+CQL >>> 
+                                MATCH (all) WHERE all.sig='tmp_test_data_session_2021-10-29 18:08:39'
+                                RETURN count(all)
+                             
+-----------------------------------------------db res-----------------------------------------------
+lst elem 0
+    0
 ------------------------------------------------end-------------------------------------------------
 ****************************************************************************************************
