@@ -46,7 +46,7 @@ class Test:
         self.set_output_files()
         self.error_msgs = dict() #{for_test: msg} to print in conclusion
 
-        self.output_buffer = ''
+        sys.stdout = StringIO() #all output is stocked in this object
 
     def __enter__(self):
         return self
@@ -55,8 +55,7 @@ class Test:
         if self.db_inst._driver:
             self.clean_env(self.db_inst)
             self.db_inst.close_db()
-    
-    
+        self.tested_module_output_save()
 
     #TEST ENV FNS###############################################################################################################################################
 
@@ -82,7 +81,7 @@ class Test:
         #Test.__dict__ does not access self
         #test_N_name makes them sorted alpha, so extra sorted needed
         all_fns = inspect.getmembers(self, predicate=inspect.ismethod)
-        test_fns = [x[1] for x in all_fns if x[0].startswith('test')]
+        test_fns = [x[1] for x in all_fns if x[0].startswith('test_')]
         return dict.fromkeys(test_fns) #all vals None
         
     def conclusion(self):
@@ -92,25 +91,25 @@ class Test:
         not_tested = list(filter(lambda res: res is None, self.tests.values()))
 
         #
-        print(f'nb_tests:   {len(self.tests)}')
-        print(str(' ' * 4) + f'passed:     {len(passed)}')
-        print(str(' ' * 4) + f'failed:     {len(failed)}')
-        print(str(' ' * 4) + f'not_tested: {len(not_tested)}')
+        self.print_(f'nb_tests:   {len(self.tests)}')
+        self.print_(str(' ' * 4) + f'passed:     {len(passed)}')
+        self.print_(str(' ' * 4) + f'failed:     {len(failed)}')
+        self.print_(str(' ' * 4) + f'not_tested: {len(not_tested)}')
 
         #print_info
 
         #error_msgs
-        print()
-        print(f'error msgs: {len(self.error_msgs)}')
+        self.print_()
+        self.print_(f'error msgs: {len(self.error_msgs)}')
         i = 0
         for test_name, msg in self.error_msgs.items():
-            print(str(' ' * 4) + f'TEST ERROR {i}. {test_name}')
+            self.print_(str(' ' * 4) + f'TEST ERROR {i}. {test_name}')
             if isinstance(msg, list):
                 for i,p in enumerate(msg):
-                    print(str(' ' * 8) + f'>exception {i}<')
-                    print(str(' ' * 12) + p)
+                    self.print_(str(' ' * 8) + f'>exception {i}<')
+                    self.print_(str(' ' * 12) + p)
             else:
-                print(str(' ' * 4) + msg)
+                self.print_(str(' ' * 4) + msg)
 
 
     
@@ -125,24 +124,21 @@ class Test:
                                 RETURN count(all)
                              '''
         
-        print('BEFORE CLEAN')
+        self.print_('BEFORE CLEAN')
         n = db_inst._run_cmd(cql_nb_test_nodes)
-        print(str(' ' * 4) + f'nb_nodes:{n}' )
+        self.print_(str(' ' * 4) + f'nb_nodes:{n}' )
         db_inst._run_cmd(cql_clean)
-        print('AFTER CLEAN')
+        self.print_('AFTER CLEAN')
         n = db_inst._run_cmd(cql_nb_test_nodes)
-        print(str(' ' * 4) + f'nb_nodes:{n}' )
+        self.print_(str(' ' * 4) + f'nb_nodes:{n}' )
 
-    def capture_stdout(self):
-        sys.stdout = StringIO()
-        self.output_buffer += sys.stdout.getvalue()
-        '''
-        if 'belongs to model'
-            keep in buffer 
-        else 
-            take out of buffer or dont put in and direct print 
-            print()
-        '''
+    def print_(self, *args, **kwargs):
+        #stdout goes into StringIO
+        print(*args, **kwargs, file=sys.__stdout__)
+    
+    def tested_module_output_save(self):
+        buffer = sys.stdout.getvalue()
+        self.write_file(buffer, self.tested_module_output)
 
     #UTIL FNS#########################################################################################################################################
 
@@ -199,13 +195,15 @@ class Test:
         with open(file, 'w') as f:
             pass
 
-    def write_file(self, line, file=''):
+    def write_file(self, lines, file=''):
         #clear everytime
-        if file == '':
-            file = self.cql_output
+        if isinstance(lines, str):
+            lines = [lines]
+        if file == '': #cant put self in arg
+            file = self.cql_output 
         with open(file, 'a') as f:
-            line += '\n'
-            f.writelines([line])
+            lines += '\n'
+            f.writelines(lines)
 
     def print_log(self, msg, override=False):
         if self.print_info or override:
@@ -219,11 +217,11 @@ class Test:
         if self.print_info or override:
             self.write_file(self.timestamp().center(100, '*'), self.cql_output)
             self.write_file(f'CQL >>> {msg}'.ljust(50), self.cql_output)
-            #print('*' * 100)     #can output inside print_obj_res to form a box
+            #self.print_('*' * 100)     #can output inside print_obj_res to form a box
     
-    def print_msg(self, msg, override=False):
+    def print_msg(self, msg, file, override=False):
         if self.print_info or override:
-            self.write_file(msg, self.tested_module_output)
+            self.write_file(msg, file)
 
     def run_cmd(self, cmd, return_type=''):
         self.print_cql(cmd)
@@ -239,18 +237,18 @@ class Test:
     def run_tests(self):
         fail = False
         for i,test in enumerate(self.tests.keys()):
-            print(f'TEST {i}. {test.__name__} '.ljust(100, '-'), end=' ')
+            self.print_(f'TEST {i}. {test.__name__} '.ljust(100, '-'), end=' ')
             if not fail:
                 res = test()
             if fail:
-                print(f'?'.ljust(20))
+                self.print_(f'?'.ljust(20))
             elif res:
                 self.tests[test] = True
-                print(f'P'.ljust(20))
+                self.print_(f'P'.ljust(20))
             else:
                 fail = True
                 self.tests[test] = False
-                print(f'F'.ljust(20))
+                self.print_(f'F'.ljust(20))
         self.conclusion()
 
     #TESTS ############################################################
@@ -331,7 +329,7 @@ class Test:
         self.driver.write_msg('exodia@dumpmail.com', 'crash@crapmail.com', 'you greedy basterd', 'test')
 
         r = self.driver.get_discussion('crash@crapmail.com', 'maria@crapmail.com')
-        #print(r)
+        #self.print_(r)
     
     
         r = self.driver.fetch_all('created_on','-')
@@ -342,25 +340,25 @@ class Test:
     def test_sort_filter():
 
         all = self.driver.fetch_all() 
-        print(len(all))
+        self.print_(len(all))
         all = self.driver.fetch_all('email', '-') 
-        print(len(all))
+        self.print_(len(all))
         all = self.driver.fetch_all('birthdate', '-') 
-        print(len(all))
+        self.print_(len(all))
         all = self.driver.fetch_all('email', '+', {'name':'crash'}) #filter
-        print(len(all))
+        self.print_(len(all))
         #assertequals(len(all) == 3)
         all = self.driver.fetch_all('email', '+', {'name':'crash','ban':'true'}) #filter
-        print(len(all))
+        self.print_(len(all))
         #assertequals(len(all) == 2)
         all = self.driver.fetch_all('email', '+', {'name':'crash','ban':'false'}) #filter
-        print(len(all))
+        self.print_(len(all))
         #assertequals(len(all) == 1)
         all = self.driver.fetch_all('email', '+', {'name':'crash','birthdate':'27/02/1996'}) #filter
-        print(len(all))
+        self.print_(len(all))
         #assertequals(len(all) == 3)
         all = self.driver.fetch_all('email', '+', {'slddls':'07ii'}) #non existed filter
-        print(len(all))
+        self.print_(len(all))
     """
 
     
@@ -428,18 +426,18 @@ class X:
             try:
                 raise ValueError
             except Exception:
-                print(get_exception())
-            print(get_exception())
-            print(get_exception())
+                self.print_(get_exception())
+            self.print_(get_exception())
+            self.print_(get_exception())
             
         
     def __enter__(self):
         return self
     def __exit__(self,a,b,c):
-        print('exit called')
+        self.print_('exit called')
 
 
 
 with X() as i:
-    print(i.data)
+    self.print_(i.data)
 '''

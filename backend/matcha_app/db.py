@@ -45,6 +45,10 @@ class Db:
         
         self.try_connection(uri, userName, password)
 
+        print('zigoo')
+        l = [1,2,3]
+        print(*l, sep='\n', end='END')
+
     def __enter__(self):
         return self
     
