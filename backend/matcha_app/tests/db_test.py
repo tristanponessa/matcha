@@ -309,11 +309,10 @@ class Test:
         else:
             return True
     
-    
 
-    """
     #test_create must suceed ot run this test
-    def test_ban(self):
+    """
+    def test_3_ban(self):
         email = 'bad@crapmail.com'
         self.driver.ban_user('bad@crapmail.com', 'true')
         r = self.run_cmd(f'''MATCH(p:Person) WHERE p.name="{email}" AND p.ban="true" RETURN p''')
@@ -326,7 +325,7 @@ class Test:
         r = self.run_cmd(f'''MATCH(p:Person) WHERE p.name="{email}" AND p.ban="true" RETURN p''')
         self.assertEquals(self.dbres_get(r, 0, 'ban'), 'true')
 
-
+    
     def test_like(self):
         email = 'crash@crapmail.com'
         email2 = 'maria@crapmail.com'

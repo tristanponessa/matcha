@@ -1,11 +1,10 @@
+#std
 from flask import Flask, redirect, url_for, request, render_template, flash, Blueprint, jsonify, session
 import time
-from matcha_app.zemail import email_activate_account
-from matcha_app.profile_db import *
-from matcha_app.security_ import clean_user_page_data, get_token_page_data
-from matcha_app.check import profile_form_valid
 
-
+#inner project
+import security
+import fields
 
 domain = 'http://127.0.0.1:5000/'
 json_headers = {'content-type': 'application/json', 'Accept-Charset': 'UTF-8'}
@@ -34,20 +33,61 @@ class Notifications:
         return '\n'.join(errs)
 
 
-class Views:
+class Endpoints:
 
-    def home():
+    def __init__(self, db_inst):
+        self.db_inst = db_inst
+        self.get_rules() 
+    
+    def get_rules(self):
+        """
+        admin contains auth that can do anything
+
+            GET /tr@ht.com   get all info , user does what they want with it | 404 bad request if not exist    *need to be signed in
+            DELETE   *must be signed in, you can only aim your account " | else 404
+
+            POST /  *post by body,  | if not complete return errors json | 404 if not exist
+            PUT     *must be signed in, you can only aim your account         in body | if key dont exist or cant be changed
+
+        """
+        """to avoid request payloads, put as much info as possible in link, a msg 1000 long has to be in body"""
+        #urls_root = 'http://127.0.0.1:5000'
+
+        self.home_page = {'url': '/', 'mthds': None, 'view': self.home}
+        self.sign_up = {'url': '/signup', 'mthds': ['GET', 'POST'], 'view': self.signup}
+        self.sign_in = {'url': '/signin', 'mthds': ['GET', 'POST'], 'view': self.signin}
+        self.activate_account = {'url': '/activate_account', 'mthds': ['GET'], 'view': self.activate_account} # ?key= token
+        #manage_account = {'url': '/<email>', 'mthds': ['POST', 'PUT', 'DELETE', 'GET'], 'view': Views.account_manager}  # to search or filter
+        
+        self.save_db_to_file = {'url': '/db_to_file', 'mthds': ['GET'], 'view': Views.save_db_to_file}  # to search or filter
+
+        """
+        log_in = {'url': '/login/<email>', 'mthds': ['POST'], 'view': Urlrules.home_page}
+        sign_in = {'url': '/logout/<email>', 'mthds': ['POST'], 'view': FN}
+        sign_up = {'url': '/signup', 'mthds': ['POST'], 'view': FN}
+        sign_up = {'url': '/msg/<from_email>/<to_email>', 'mthds': ['POST', 'PUT', 'DELETE', 'GET'], 'view': FN} #body must contain json 'msg' :
+        sign_up = {'url': '/<email>', 'mthds': ['POST', 'PUT', 'DELETE', 'GET'], 'view': FN} #to search or filter
+        sign_up = {'url': '/users', 'mthds': ['POST', 'PUT', 'DELETE', 'GET'], 'view': FN}  # to search or filter ? + -   ?filter=likes+name+birthdate
+        sign_up = {'url': '/like/<from_email>/<to_email>', 'mthds': ['GET', 'PUT'], 'view': FN}
+        sign_up = {'url': '/block/<from_email>/<to_email>', 'mthds': ['GET' , 'PUT'], 'view': FN}
+        activate_account = {'url': '/activate/<user>/<token>', 'mthds': ['POST'], 'view': FN}
+        format_activate_account = 'http://127.0.0.1:5000/matcha_activate_account/{}'
+        """
+        return (locals())
+
+
+    def home(self):
         page_page_data = {'msg': 'welcome to MATCHA'}
         return jsonify(page_page_data)
 
-    def signup():
+    def signup(self):
         page_data = dict()
         if request.method == 'GET':
             page_data = {'msg': 'post page_page_data about yourself'}
         if request.method == 'POST':
             page_data = request.json #form.to_dict()
-            page_data = SecurityF.clean_user_page_page_data(page_data)  # if key is not present ,its None, causing checkers to raise an exc.
-            is_valid = FieldsF.profile_form_valid(page_data)
+            page_data = security.clean_user_page_page_data(page_data)  # if key is not present ,its None, causing checkers to raise an exc.
+            is_valid = fields.profile_form_valid(page_data)
             if not is_valid:
                 page_data = {'msg': 'error, page_page_data wrong'}
             else:
@@ -55,17 +95,17 @@ class Views:
         return jsonify(page_data)
 
 
-    def signin():
+    def signin(self):
 
         page_data = dict()
         if request.method == 'GET':
             page_data = {'msg': 'welcome, present your credentials'}
         if request.method == 'POST':
             page_data = request.json #form.to_dict()
-            page_data = SecurityF.clean_user_page_data(page_data)  # if key is not present ,its None, causing checkers to raise an exc.        
+            page_data = security.clean_user_page_data(page_data)  # if key is not present ,its None, causing checkers to raise an exc.        
             email = page_data['email']
             pwd = page_data['pwd']
-            profile = DbF.user_exists_with_pwd(email, pwd)
+            profile = self.db_inst.user_exists_with_pwd(email, pwd)
             if profile:
                 if profile['blocked']:
                     page_data = {'msg': 'you have been blocked contact admin'}
@@ -74,14 +114,14 @@ class Views:
                 elif profile['signed_in']:
                     page_data = {'msg' : 'you are already signed in'}
                 else:
-                    DbF.set_prop(email, 'signed_in','true')
+                    self.db_inst.set_prop(email, 'signed_in','true')
                     #redirect?
             else:
                 page_data = {'msg': 'pwd or login wrong'}
         return jsonify(page_data)
 
     #have to be loged in
-    def activate_account():
+    def activate_account(self):
 
         page_data = dict()
         if request.method == 'POST':
@@ -91,14 +131,14 @@ class Views:
 
 
             #if request is get?
-            res = get_token_page_data(token) #-> if fails returns {'email' : ''}
+            res = security.get_token_page_data(token) #-> if fails returns {'email' : ''}
             #CLEAN page_data
             #CHECK DTA FORMALITY
             if res == 'expired':
                 page_data = {'msg' : 'This is an invalid or expired token, please generate a new one by signing up!'}
             else:
                 email = res
-                DbF.set_prop(email, 'signed_in','true')
+                self.db_inst.set_prop(email, 'signed_in','true')
                 page_data = {'msg' : 'account activated!'}
 
 
@@ -109,7 +149,7 @@ class Views:
 
 
 '''
-    def modify_account():
+    def modify_account(self):
         #?email=''
         # check if demador signed in
         if all(()):
@@ -123,7 +163,7 @@ class Views:
         if request.method == 'DELETE':
             #aiming himself
 
-    def send_msg():
+    def send_msg(self):
         #?from_email='';to_mail=''  JSON 'msg'
         # check if demador signed in
         if request.method == 'GET':
@@ -131,7 +171,7 @@ class Views:
         if request.method == 'POST':
             # send json with field msg
 
-    def toggle_like_user():
+    def toggle_like_user(self):
         # ?from_email='';to_mail='';n='-1'
         # check if demador signed in
         if request.method == 'GET':
@@ -141,7 +181,7 @@ class Views:
             #add like if not not liked
             # -1 if at 1
 
-    def toggle_block_user():
+    def toggle_block_user(self):
         # ?from_email='';to_mail='';n='-1'
         # check if demador signed in
         if request.method == 'GET':
@@ -151,18 +191,18 @@ class Views:
             # add like if not not liked
             # -1 if at 1
 
-    def ft_matcha():
+    def ft_matcha(self):
         # ?cmp_email=''
         if request.method == 'GET':
             # get lst of users who match you with % indicator
 
-    def filter_users():
+    def filter_users(self):
         # ?ways=time='05:45:22',name=,... multiple of JSON
         if request.method == 'GET':
             #check if fields has to be one and fields are correct
             #get lst
 
-    def unblock_user():
+    def unblock_user(self):
         # ?blocked_email=''
         #needs admin auth
 
@@ -175,7 +215,7 @@ class Views:
 
 
 
-    #def account_manager():
+    #def account_manager(self):
     #pass
     """
     page_data = dict()
@@ -217,7 +257,7 @@ def urlrule_login(request):
 """
 
 """
-def urlrule_signup():
+def urlrule_signup(self):
     page_data = {'errors': False, 'sign_up_valid': False, 'form': True, 'urls': Urls.__dict__}
 
     if request.method == 'POST':
