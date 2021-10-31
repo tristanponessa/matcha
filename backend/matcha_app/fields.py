@@ -49,7 +49,8 @@ def gen_rand_profiles(n):
 
 def is_profile(data):
 
-    if list(data.keys()).sort() != sign_up_fields.sort():
+    if  (not data) or \
+        (list(data.keys()).sort() != sign_up_fields.sort()):
         return False #data missing
     
     checks = {

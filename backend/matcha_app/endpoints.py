@@ -37,9 +37,9 @@ class Endpoints:
 
     def __init__(self, db_inst):
         self.db_inst = db_inst
-        self.get_rules() 
+        self.rules = self.set_rules() 
     
-    def get_rules(self):
+    def set_rules(self):
         """
         admin contains auth that can do anything
 
@@ -53,13 +53,15 @@ class Endpoints:
         """to avoid request payloads, put as much info as possible in link, a msg 1000 long has to be in body"""
         #urls_root = 'http://127.0.0.1:5000'
 
-        self.home_page = {'url': '/', 'mthds': None, 'view': self.home}
-        self.sign_up = {'url': '/signup', 'mthds': ['GET', 'POST'], 'view': self.signup}
-        self.sign_in = {'url': '/signin', 'mthds': ['GET', 'POST'], 'view': self.signin}
-        self.activate_account = {'url': '/activate_account', 'mthds': ['GET'], 'view': self.activate_account} # ?key= token
+        rules = dict()
+
+        rules['home_page'] = {'url': '/', 'mthds': None, 'view': self.home}
+        rules['sign_up'] = {'url': '/signup', 'mthds': ['GET', 'POST'], 'view': self.signup}
+        rules['sign_in'] = {'url': '/signin', 'mthds': ['GET', 'POST'], 'view': self.signin}
+        rules['activate_account'] = {'url': '/activate_account', 'mthds': ['GET'], 'view': self.activate_account} # ?key= token
         #manage_account = {'url': '/<email>', 'mthds': ['POST', 'PUT', 'DELETE', 'GET'], 'view': Views.account_manager}  # to search or filter
         
-        self.save_db_to_file = {'url': '/db_to_file', 'mthds': ['GET'], 'view': Views.save_db_to_file}  # to search or filter
+        
 
         """
         log_in = {'url': '/login/<email>', 'mthds': ['POST'], 'view': Urlrules.home_page}
@@ -72,8 +74,9 @@ class Endpoints:
         sign_up = {'url': '/block/<from_email>/<to_email>', 'mthds': ['GET' , 'PUT'], 'view': FN}
         activate_account = {'url': '/activate/<user>/<token>', 'mthds': ['POST'], 'view': FN}
         format_activate_account = 'http://127.0.0.1:5000/matcha_activate_account/{}'
+
         """
-        return (locals())
+        return rules
 
 
     def home(self):
@@ -86,12 +89,12 @@ class Endpoints:
             page_data = {'msg': 'post page_page_data about yourself'}
         if request.method == 'POST':
             page_data = request.json #form.to_dict()
-            page_data = security.clean_user_page_page_data(page_data)  # if key is not present ,its None, causing checkers to raise an exc.
-            is_valid = fields.profile_form_valid(page_data)
+            page_data = security.clean_user_data(page_data)  # if key is not present ,its None, causing checkers to raise an exc.
+            is_valid = fields.is_profile(page_data)
             if not is_valid:
-                page_data = {'msg': 'error, page_page_data wrong'}
+                page_data = {'success': False, 'msg': 'error, page_page_data wrong'}
             else:
-                page_data = {'msg': Notifications.sign_up_success}
+                page_data = {'success': True, 'msg': Notifications.sign_up_success}
         return jsonify(page_data)
 
 
@@ -207,7 +210,6 @@ class Endpoints:
         #needs admin auth
 
 
-'''
 
 
 
@@ -217,7 +219,8 @@ class Endpoints:
 
     #def account_manager(self):
     #pass
-    """
+'''
+"""
     page_data = dict()
     email = request.path.split('/')[-1]
 
