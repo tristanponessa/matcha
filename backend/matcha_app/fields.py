@@ -15,7 +15,7 @@ from PIL import Image
 str_symbs = '+_-!#$&*'
 punctuation = '!#$%&()*+,-./:;<=>?@[\]^_{|}~'
 sign_up_fields = ['email', 'pwd', 'name', 'last_name', 'birthdate', 'location', 'tags', 'intro', 'pics', 'gender', 'sex_ori']
-
+max_input_size = 50
 
 def gen_rand_profiles(n):
     #for seed x: x -> x + n
@@ -66,7 +66,10 @@ def is_profile(data):
     'gender' : Gender.check_(),
     'sex_ori' : SexOrientation.check_(),
     }
-    
+
+    with open('C:/Users/trps/Documents/my_stuff/coding/matcha/backend/matcha_app/tests/test_outputs/tested_module_output.txt', 'a') as f: 
+        f.writelines(['55'])
+
     if all(checks.values()) == False:
         return False
     return True
@@ -107,6 +110,11 @@ class FirstName:
         first = Random.rand(string.ascii_uppercase)
         rest = Random.rand_str(string.ascii_lowercase, 3, 8)
         return first + rest
+    
+    def check_(name):
+        #check if each ch isiin the set
+        if ()
+        if all()
 
 
 
@@ -469,7 +477,8 @@ class Blocked:
 
 
 
-
+if __name__ == '__main__':
+    is_profile({'a': 55})
     
     
     

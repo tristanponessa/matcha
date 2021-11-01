@@ -13,7 +13,6 @@ from io import StringIO
 # Third party imports
 import neo4j
 from neo4j import GraphDatabase as neo4j_db
-import requests
 from flask import request 
 
 #inner project
@@ -33,8 +32,9 @@ class Test(unittest.TestCase):
         self.app_inst.app_obj.testing = True
         self.app_test = self.app_inst.app_obj.test_client()  #prevents flask from overriding the test module 
 
-    def test_home(self):
-        #result = self.app_test.get('/signup')
+    def test_1_signup(self):
+        err_msg = dict()
+
         correct = {
         'email' : Email.random_(),
         'pwd' : Pwd.random_(),
@@ -48,23 +48,36 @@ class Test(unittest.TestCase):
         'gender' : Gender.random_(),
         'sex_ori' : SexOrientation.random_(),
         }
-        
-        '''
-        base_url = request.base_url
-        self.print_debug(base_url)
-        url = base_url + self.app_inst.endpoints_obj.rules['sign_up']['url']
-        self.print_debug(url)
-        correct_rjson = self.app_test.post(url, data=correct) #auto calls self.signup()
-        
-        #self.print_debug(dir(self.app_test))
-        self.print_debug(correct_rjson)
 
-        '''
-        res = self.app_test.post('/signup', data={'name':'crash'})
-        self.print_debug(res)
-        self.print_debug(dir(res))
-        self.print_debug(res.json)
-        # Make your assertions
+        uncomplete = correct.copy()
+        del uncomplete['tags']
+
+        incorrect = correct.copy()
+        incorrect['birthdate'] = '22/22/1922'
+
+        malicious = correct.copy()
+        malicious['name'] = "match (n) return n" #cql code
+
+        url = self.app_inst.endpoints_obj.rules['sign_up']['url']
+        
+        correct_rjson = self.app_test.post(url, data=correct).json #auto calls self.signup()
+        uncorrect_rjson = self.app_test.post(url, data=uncomplete).json
+        incorrect_rjson = self.app_test.post(url, data=incorrect).json
+        malicious_rjson = self.app_test.post(url, data=malicious).json
+
+        if correct_rjson['success'] == False:
+            err_msg['correct_test'] = correct_rjson
+        if uncorrect_rjson['success']:
+            err_msg['uncorrect_test'] = uncorrect_rjson
+        if incorrect_rjson['success']:
+            err_msg['incorrect_test'] = incorrect_rjson
+        if malicious_rjson['success']:
+            err_msg['malicious_test'] = malicious_rjson
+        
+        self.assertTrue(len(err_msg) == 0, err_msg)
+        
+
+
     
     
     def print_debug(self, msg, override=False):
